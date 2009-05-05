@@ -28,7 +28,7 @@
  * @category   Microsoft
  * @package    Microsoft_Azure
  * @subpackage UnitTests
- * @version    $Id: Exception.php 8064 2008-02-16 10:58:39Z thomas $
+ * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://todo     name_todo
  */
@@ -49,7 +49,7 @@ require_once 'Microsoft/Azure/Storage.php';
  * @category   Microsoft
  * @package    Microsoft_Azure
  * @subpackage UnitTests
- * @version    $Id: Exception.php 8064 2008-02-16 10:58:39Z thomas $
+ * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://todo     name_todo
  */

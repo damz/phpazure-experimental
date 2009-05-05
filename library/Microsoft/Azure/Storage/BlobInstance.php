@@ -30,7 +30,7 @@
  * @subpackage Storage
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://todo     name_todo
- * @version    $Id: SharedKeyAuthentication.php 11747 2008-10-08 18:33:58Z norm2782 $
+ * @version    $Id$
  */
 
 /**

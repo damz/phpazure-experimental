@@ -28,7 +28,7 @@
  * @category   Microsoft
  * @package    Microsoft_Http
  * @subpackage Exception
- * @version    $Id: Exception.php 8064 2008-02-16 10:58:39Z thomas $
+ * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://todo     name_todo
  */
