@@ -552,7 +552,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
 		    
 		// Perform request
-		$response = $this->performRequest($containerName . '/' . $blobName, '', Microsoft_Http_Transport::VERB_HEAD);	
+		$response = $this->performRequest($containerName . '/' . $blobName, '', Microsoft_Http_Transport::VERB_HEAD);
 		if ($response->isSuccessful())
 		{
 		    // Parse metadata

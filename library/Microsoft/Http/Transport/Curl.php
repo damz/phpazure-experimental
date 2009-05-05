@@ -83,6 +83,7 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         $curlHandle = curl_init();
         curl_setopt($curlHandle, CURLOPT_USERAGENT,       $this->_userAgent);
         curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION,  true);
+        curl_setopt($curlHandle, CURLOPT_TIMEOUT,         10);
 
         // Set URL
         curl_setopt($curlHandle, CURLOPT_URL,             $url);
@@ -99,6 +100,11 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
             /*case Microsoft_Http_Transport::VERB_PUT:
                 curl_setopt($curlHandle, CURLOPT_PUT,     true);
                 break;*/
+            case Microsoft_Http_Transport::VERB_HEAD:
+                // http://stackoverflow.com/questions/770179/php-curl-head-request-takes-a-long-time-on-some-sites
+                curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST,  'HEAD');
+                curl_setopt($curlHandle, CURLOPT_NOBODY, true);
+                break;
             default:
                 curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST,  $httpVerb);
                 break;
