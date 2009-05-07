@@ -33,14 +33,9 @@
  */
 
 /**
- * @see Microsoft_Azure_Credentials
+ * @see Microsoft_Http_Transport
  */
-require_once 'Microsoft/Azure/Credentials.php';
-
-/**
- * @see Microsoft_Azure_SharedKeyCredentials
- */
-require_once 'Microsoft/Azure/SharedKeyCredentials.php';
+require_once 'Microsoft/Http/Transport.php';
 
 /**
  * @category   Microsoft
@@ -48,8 +43,56 @@ require_once 'Microsoft/Azure/SharedKeyCredentials.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */ 
-class Microsoft_Azure_SharedKeyLiteCredentials extends Microsoft_Azure_Credentials
+abstract class Microsoft_Azure_Credentials
 {
+	/**
+	 * Development storage account and key
+	 */
+	const DEVSTORE_ACCOUNT       = "devstoreaccount1";
+	const DEVSTORE_KEY           = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
+	
+	/**
+	 * HTTP header prefixes
+	 */
+	const PREFIX_PROPERTIES      = "x-ms-prop-";
+	const PREFIX_METADATA        = "x-ms-meta-";
+	const PREFIX_STORAGE_HEADER  = "x-ms-";
+
+	/**
+	 * Account name for Windows Azure
+	 *
+	 * @var string
+	 */
+	protected $_accountName = '';
+	
+	/**
+	 * Account key for Windows Azure
+	 *
+	 * @var string
+	 */
+	protected $_accountKey = '';
+	
+	/**
+	 * Use path-style URI's
+	 *
+	 * @var boolean
+	 */
+	protected $_usePathStyleUri = false;
+	
+	/**
+	 * Creates a new Microsoft_Azure_SharedKeyCredentials instance
+	 *
+	 * @param string $accountName Account name for Windows Azure
+	 * @param string $accountKey Account key for Windows Azure
+	 * @param boolean $usePathStyleUri Use path-style URI's
+	 */
+	public function __construct($accountName = self::DEVSTORE_ACCOUNT, $accountKey = self::DEVSTORE_KEY, $usePathStyleUri = false)
+	{
+		$this->_accountName = $accountName;
+		$this->_accountKey = base64_decode($accountKey);
+		$this->_usePathStyleUri = $usePathStyleUri;
+	}
+	
 	/**
 	 * Sign request with credentials
 	 *
@@ -60,51 +103,5 @@ class Microsoft_Azure_SharedKeyLiteCredentials extends Microsoft_Azure_Credentia
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @return array Array of headers
 	 */
-	public function signRequest($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false)
-	{
-		// Determine path
-		if ($this->_usePathStyleUri)
-			$path = substr($path, strpos($path, '/'));
-
-		// Determine query
-		if (strlen($queryString) > 0 && strpos($queryString, '?') !== 0)
-			$queryString = '?' . $queryString;	
-
-		if (strpos($queryString, '&') !== false)
-			$queryString = substr($queryString, 0, strpos($queryString, '&'));
-
-		// Build canonicalized resource string
-		$canonicalizedResource  = '/' . $this->_accountName;
-		if ($this->_usePathStyleUri)
-			$canonicalizedResource .= '/' . $this->_accountName;
-		$canonicalizedResource .= $path;
-		if ($queryString !== '')
-		    $canonicalizedResource .= '/' . $queryString;
-
-		// Request date
-		$requestDate = '';
-		if (isset($headers[self::PREFIX_STORAGE_HEADER . 'date']))
-		{
-		    $requestDate = $headers[self::PREFIX_STORAGE_HEADER . 'date'];
-		}
-		else 
-		{
-		    $requestDate = gmdate('D, d M Y H:i:s', time()) . ' GMT'; // RFC 1123
-		}
-
-		// Create string to sign   
-		$stringToSign = array();
-    	$stringToSign[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate; // Date
-    	$stringToSign[] = $canonicalizedResource;		 			// Canonicalized resource
-    	$stringToSign = implode("\n", $stringToSign);
-
-    	$signString = base64_encode(hash_hmac('sha256', $stringToSign, $this->_accountKey, true));
-
-    	// Sign request
-    	$headers[self::PREFIX_STORAGE_HEADER . 'date'] = $requestDate;
-    	$headers['Authorization'] = 'SharedKeyLite ' . $this->_accountName . ':' . $signString;
-    	
-    	// Return headers
-    	return $headers;
-	}
+	public abstract function signRequest($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false);
 }

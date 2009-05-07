@@ -34,6 +34,11 @@
  */
 
 /**
+ * @see Microsoft_Azure_Credentials
+ */
+require_once 'Microsoft/Azure/Credentials.php';
+
+/**
  * @see Microsoft_Azure_SharedKeyCredentials
  */
 require_once 'Microsoft/Azure/SharedKeyCredentials.php';
@@ -112,7 +117,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 * @param boolean $usePathStyleUri Use path-style URI's
 	 * @param Microsoft_Azure_RetryPolicy $retryPolicy Retry policy to use when making requests
 	 */
-	public function __construct($host = Microsoft_Azure_Storage::URL_DEV_BLOB, $accountName = Microsoft_Azure_SharedKeyCredentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_Azure_SharedKeyCredentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_Azure_RetryPolicy $retryPolicy = null)
+	public function __construct($host = Microsoft_Azure_Storage::URL_DEV_BLOB, $accountName = Microsoft_Azure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_Azure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_Azure_RetryPolicy $retryPolicy = null)
 	{
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
 	}

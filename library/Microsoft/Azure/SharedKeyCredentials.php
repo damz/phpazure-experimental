@@ -33,6 +33,11 @@
  */
 
 /**
+ * @see Microsoft_Azure_Credentials
+ */
+require_once 'Microsoft/Azure/Credentials.php';
+
+/**
  * @see Microsoft_Http_Transport
  */
 require_once 'Microsoft/Http/Transport.php';
@@ -43,56 +48,8 @@ require_once 'Microsoft/Http/Transport.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */ 
-class Microsoft_Azure_SharedKeyCredentials
+class Microsoft_Azure_SharedKeyCredentials extends Microsoft_Azure_Credentials
 {
-	/**
-	 * Development storage account and key
-	 */
-	const DEVSTORE_ACCOUNT       = "devstoreaccount1";
-	const DEVSTORE_KEY           = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
-	
-	/**
-	 * HTTP header prefixes
-	 */
-	const PREFIX_PROPERTIES      = "x-ms-prop-";
-	const PREFIX_METADATA        = "x-ms-meta-";
-	const PREFIX_STORAGE_HEADER  = "x-ms-";
-
-	/**
-	 * Account name for Windows Azure
-	 *
-	 * @var string
-	 */
-	protected $_accountName = '';
-	
-	/**
-	 * Account key for Windows Azure
-	 *
-	 * @var string
-	 */
-	protected $_accountKey = '';
-	
-	/**
-	 * Use path-style URI's
-	 *
-	 * @var boolean
-	 */
-	protected $_usePathStyleUri = false;
-	
-	/**
-	 * Creates a new Microsoft_Azure_SharedKeyCredentials instance
-	 *
-	 * @param string $accountName Account name for Windows Azure
-	 * @param string $accountKey Account key for Windows Azure
-	 * @param boolean $usePathStyleUri Use path-style URI's
-	 */
-	public function __construct($accountName = self::DEVSTORE_ACCOUNT, $accountKey = self::DEVSTORE_KEY, $usePathStyleUri = false)
-	{
-		$this->_accountName = $accountName;
-		$this->_accountKey = base64_decode($accountKey);
-		$this->_usePathStyleUri = $usePathStyleUri;
-	}
-	
 	/**
 	 * Sign request with credentials
 	 *
