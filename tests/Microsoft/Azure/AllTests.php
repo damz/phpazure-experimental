@@ -43,6 +43,7 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 }
 
 require_once 'Microsoft/Azure/SharedKeyCredentialsTest.php';
+require_once 'Microsoft/Azure/SharedKeyLiteCredentialsTest.php';
 require_once 'Microsoft/Azure/RetryPolicyTest.php';
 require_once 'Microsoft/Azure/StorageTest.php';
 require_once 'Microsoft/Azure/BlobStorageTest.php';
@@ -67,6 +68,7 @@ class Microsoft_Azure_AllTests
         $suite = new PHPUnit_Framework_TestSuite('Microsoft Azure');
 
         $suite->addTestSuite('Microsoft_Azure_SharedKeyCredentialsTest');
+        $suite->addTestSuite('Microsoft_Azure_SharedKeyLiteCredentialsTest');
         $suite->addTestSuite('Microsoft_Azure_RetryPolicyTest');
         $suite->addTestSuite('Microsoft_Azure_StorageTest');
         $suite->addTestSuite('Microsoft_Azure_BlobStorageTest');
