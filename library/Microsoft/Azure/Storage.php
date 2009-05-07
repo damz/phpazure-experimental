@@ -29,7 +29,7 @@
  * @package    Microsoft_Azure
  * @subpackage Storage
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  * @version    $Id$
  */
 
@@ -63,7 +63,7 @@ require_once 'Microsoft/Http/Response.php';
  * @package    Microsoft_Azure
  * @subpackage Storage
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_Azure_Storage
 {

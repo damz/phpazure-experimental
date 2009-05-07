@@ -30,7 +30,7 @@
  * @subpackage RetryPolicy
  * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 
 /**
@@ -43,7 +43,7 @@ require_once 'Microsoft/Azure/RetryPolicy.php';
  * @package    Microsoft_Azure
  * @subpackage RetryPolicy
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_Azure_RetryPolicy_NoRetry extends Microsoft_Azure_RetryPolicy
 {

@@ -30,7 +30,7 @@
  * @subpackage Transport_Exception
  * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 
 /**
@@ -43,7 +43,7 @@ require_once 'Microsoft/Http/Exception.php';
  * @package    Microsoft_Http
  * @subpackage Transport_Exception
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_Http_Transport_Exception extends Microsoft_Http_Exception
 {}

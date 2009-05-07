@@ -28,7 +28,7 @@
  * @category   Microsoft
  * @package    Microsoft_Azure
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  * @version    $Id$
  */
 
@@ -41,7 +41,7 @@ require_once 'Microsoft/Http/Transport.php';
  * @category   Microsoft
  * @package    Microsoft_Azure
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */ 
 class Microsoft_Azure_SharedKeyCredentials
 {

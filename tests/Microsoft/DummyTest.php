@@ -30,7 +30,7 @@
  * @subpackage UnitTests
  * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 
 if (!defined('PHPUnit_MAIN_METHOD')) {
@@ -50,7 +50,7 @@ require_once dirname(__FILE__) . '/../TestHelper.php';
  * @subpackage UnitTests
  * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_DummyTest extends PHPUnit_Framework_TestCase
 {

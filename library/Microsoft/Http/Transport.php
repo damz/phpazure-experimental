@@ -30,7 +30,7 @@
  * @subpackage Transport
  * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 
 /**
@@ -53,7 +53,7 @@ require_once 'Microsoft/Http/Transport/Curl.php';
  * @package    Microsoft_Http
  * @subpackage Transport
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 abstract class Microsoft_Http_Transport
 {

@@ -28,7 +28,7 @@
  * @category   Microsoft
  * @package    Microsoft
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 
 
@@ -37,7 +37,7 @@
  * @package    Microsoft
  * @subpackage Exception
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_Exception extends Exception
 {}

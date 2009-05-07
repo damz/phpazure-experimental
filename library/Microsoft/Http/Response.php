@@ -29,7 +29,7 @@
  * @package    Microsoft_Http
  * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 
 /**
@@ -45,7 +45,7 @@ require_once 'Microsoft/Http/Exception.php';
  * @category   Microsoft
  * @package    Microsoft_Http
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_Http_Response
 {

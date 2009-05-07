@@ -29,7 +29,7 @@
  * @package    Microsoft_Azure
  * @subpackage Storage
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  * @version    $Id$
  */
 
@@ -44,7 +44,7 @@ require_once 'Microsoft/Azure/Exception.php';
  * @package    Microsoft_Azure
  * @subpackage Storage
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://todo     name_todo
+ * @license    http://phpazure.codeplex.com/license
  * 
  * @property string  $Container       Container name
  * @property string  $Name            Name
