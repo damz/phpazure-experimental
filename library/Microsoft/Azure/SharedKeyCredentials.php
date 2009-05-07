@@ -160,7 +160,7 @@ class Microsoft_Azure_SharedKeyCredentials
     	$stringToSign[] = "";
     	$stringToSign[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate; // Date
     	
-    	if (count($canonicalizedHeaders) > 0)
+    	if (count($canonicalizedHeaders) > 0 && !$forTableStorage)
     		$stringToSign[] = implode("\n", $canonicalizedHeaders); // Canonicalized headers
     		
     	$stringToSign[] = $canonicalizedResource;		 			// Canonicalized resource

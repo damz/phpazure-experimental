@@ -139,10 +139,12 @@ class Microsoft_Azure_Storage
 		$this->_accountKey = $accountKey;
 		$this->_usePathStyleUri = $usePathStyleUri;
 		
-		if (!$this->_usePathStyleUri && strpos($this->_host, ':1000') !== false) // Local storage
+		// Using local storage?
+		if (!$this->_usePathStyleUri && ($this->_host == self::URL_DEV_BLOB || $this->_host == self::URL_CLOUD_QUEUE || $this->_host == self::URL_DEV_TABLE)) // Local storage
 			$this->_usePathStyleUri = true;
 		
-		$this->_credentials = new Microsoft_Azure_SharedKeyCredentials($this->_accountName, $this->_accountKey, $this->_usePathStyleUri);
+		if (is_null($this->_credentials))
+		    $this->_credentials = new Microsoft_Azure_SharedKeyCredentials($this->_accountName, $this->_accountKey, $this->_usePathStyleUri);
 		
 		$this->_retryPolicy = $retryPolicy;
 		if (is_null($this->_retryPolicy))
