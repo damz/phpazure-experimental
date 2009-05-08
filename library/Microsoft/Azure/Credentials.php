@@ -80,13 +80,13 @@ abstract class Microsoft_Azure_Credentials
 	protected $_usePathStyleUri = false;
 	
 	/**
-	 * Creates a new Microsoft_Azure_SharedKeyCredentials instance
+	 * Creates a new Microsoft_Azure_Credentials instance
 	 *
 	 * @param string $accountName Account name for Windows Azure
 	 * @param string $accountKey Account key for Windows Azure
 	 * @param boolean $usePathStyleUri Use path-style URI's
 	 */
-	public function __construct($accountName = self::DEVSTORE_ACCOUNT, $accountKey = self::DEVSTORE_KEY, $usePathStyleUri = false)
+	public function __construct($accountName = Microsoft_Azure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_Azure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false)
 	{
 		$this->_accountName = $accountName;
 		$this->_accountKey = base64_decode($accountKey);

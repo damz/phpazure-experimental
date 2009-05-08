@@ -115,7 +115,10 @@ class Microsoft_Azure_SharedKeyCredentials extends Microsoft_Azure_Credentials
     	$stringToSign[] = "";						// Content-MD5
     	$stringToSign[] = "";						// Content-Type
     	$stringToSign[] = "";
-    	$stringToSign[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate; // Date
+    	if (!$forTableStorage)
+    	    $stringToSign[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate; // Date
+    	else
+    	    $stringToSign[] = ''; // Date
     	
     	if (count($canonicalizedHeaders) > 0 && !$forTableStorage)
     		$stringToSign[] = implode("\n", $canonicalizedHeaders); // Canonicalized headers

@@ -196,6 +196,9 @@ class Microsoft_Azure_Storage
 	{
 		if (strpos($path, '/') !== 1) 
 			$path = '/' . $path;
+			
+		if (is_null($headers))
+		    $headers = array();
 
 		$requestUrl     = $this->getBaseUrl() . $path . ($queryString !== '' ? '/' . $queryString : '');
 		$requestHeaders = $this->_credentials->signRequest($httpVerb, $path, $queryString, $headers, $forTableStorage);

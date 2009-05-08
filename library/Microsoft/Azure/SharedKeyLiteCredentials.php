@@ -97,7 +97,6 @@ class Microsoft_Azure_SharedKeyLiteCredentials extends Microsoft_Azure_Credentia
     	$stringToSign[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate; // Date
     	$stringToSign[] = $canonicalizedResource;		 			// Canonicalized resource
     	$stringToSign = implode("\n", $stringToSign);
-
     	$signString = base64_encode(hash_hmac('sha256', $stringToSign, $this->_accountKey, true));
 
     	// Sign request
