@@ -41,15 +41,15 @@ define('TESTS_GENERATE_REPORT_TARGET', '/path/to/target');
 /**
  * Azure hosts
  */
-define('TESTS_BLOB_HOST', '127.0.0.1:10000');
+define('TESTS_BLOB_HOST',  '127.0.0.1:10000');
 define('TESTS_QUEUE_HOST', '127.0.0.1:10001');
 define('TESTS_TABLE_HOST', '127.0.0.1:10002');
 
 /**
  * Credentails
  */
-define('TESTS_STORAGE_ACCOUNT', "devstoreaccount1");
-define('TESTS_STORAGE_KEY',     "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==");
+define('TESTS_STORAGE_ACCOUNT', 'devstoreaccount1');
+define('TESTS_STORAGE_KEY',     'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==');
 	
 
 /**
@@ -60,3 +60,12 @@ define('TESTS_BLOB_CONTAINERNAME_EXTRA_1', 'phpazuretest1');
 define('TESTS_BLOB_CONTAINERNAME_EXTRA_2', 'phpazuretest2');
 define('TESTS_BLOB_CONTAINERNAME_EXTRA_3', 'phpazuretest3');
 define('TESTS_BLOB_CONTAINERNAME_EXTRA_4', 'phpazuretest4');
+
+/**
+ * Table storage tests
+ */
+define('TESTS_TABLE_RUNONPROD',        true);
+define('TESTS_TABLE_HOST_PROD',       'table.core.windows.net');
+define('TESTS_TABLE_ACCOUNT_PROD',    'phpstorage');
+define('TESTS_TABLE_KEY_PROD',        'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqYQ/uxbMpEx+7S/jo9sT3ZIkEucZGbEafDuxD1kwFOXf3xyw==');
+define('TESTS_TABLE_TABLENAME',       'phpazuretest');

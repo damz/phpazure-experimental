@@ -115,9 +115,9 @@ class Microsoft_Azure_Storage
 	protected $_usePathStyleUri = false;
 	
 	/**
-	 * Microsoft_Azure_ICredentials instance
+	 * Microsoft_Azure_Credentials instance
 	 *
-	 * @var Microsoft_Azure_ICredentials
+	 * @var Microsoft_Azure_Credentials
 	 */
 	protected $_credentials = null;
 	
@@ -182,6 +182,16 @@ class Microsoft_Azure_Storage
 	}
 	
 	/**
+	 * Set Microsoft_Azure_Credentials instance
+	 * 
+	 * @param Microsoft_Azure_Credentials $credentials Microsoft_Azure_Credentials instance to use for request signing.
+	 */
+	public function setCredentials(Microsoft_Azure_Credentials $credentials)
+	{
+	    $this->_credentials = $credentials;
+	}
+	
+	/**
 	 * Perform request using Microsoft_Http_Transport channel
 	 *
 	 * @param string $path Path
@@ -227,6 +237,16 @@ class Microsoft_Azure_Storage
 		if (is_null($response))
 			throw new Microsoft_Azure_Exception('Response should not be null.');
 		
-		return simplexml_load_string($response->getBody());
+        $xml = simplexml_load_string($response->getBody()); 
+
+        // Fetch all namespaces 
+        $namespaces = array_merge($xml->getNamespaces(true), $xml->getDocNamespaces(true)); 
+        
+        // Register all namespace prefixes
+        foreach ($namespaces as $prefix => $ns) { 
+            $xml->registerXPathNamespace($prefix, $ns); 
+        } 
+        
+        return $xml;
 	}
 }

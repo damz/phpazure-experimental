@@ -47,6 +47,7 @@ require_once 'Microsoft/Azure/SharedKeyLiteCredentialsTest.php';
 require_once 'Microsoft/Azure/RetryPolicyTest.php';
 require_once 'Microsoft/Azure/StorageTest.php';
 require_once 'Microsoft/Azure/BlobStorageTest.php';
+require_once 'Microsoft/Azure/TableStorageTest.php';
 
 /**
  * @category   Microsoft
@@ -72,6 +73,7 @@ class Microsoft_Azure_AllTests
         $suite->addTestSuite('Microsoft_Azure_RetryPolicyTest');
         $suite->addTestSuite('Microsoft_Azure_StorageTest');
         $suite->addTestSuite('Microsoft_Azure_BlobStorageTest');
+        //$suite->addTestSuite('Microsoft_Azure_TableStorageTest');
 
         return $suite;
     }

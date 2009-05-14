@@ -135,6 +135,10 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         if (!isset($headers["Content-Type"])) {
             $headers["Content-Type"] = '';
         }
+        
+        // Disable Expect: 100-Continue
+        // http://be2.php.net/manual/en/function.curl-setopt.php#82418
+        $headers["Expect"] = '';
 
         // Add additional headers to cURL instance
         $curlHeaders = array();
@@ -145,13 +149,14 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER,      $curlHeaders);
         
         // DEBUG: curl_setopt($curlHandle, CURLINFO_HEADER_OUT, true);
-        
+                
         // Execute request
         $rawResponse = curl_exec($curlHandle);
         $response    = null;
         if ($rawResponse)
         {
             $response = Microsoft_Http_Response::fromString($rawResponse);
+            // DEBUG: var_dump($url);  
             // DEBUG: var_dump(curl_getinfo($curlHandle,CURLINFO_HEADER_OUT));    
             // DEBUG: var_dump($rawResponse);
         }
