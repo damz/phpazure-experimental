@@ -204,7 +204,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
         $headers['Content-Type'] = 'application/atom+xml';
 
 		// Perform request
-		$response = $this->performRequest('Tables', '', Microsoft_Http_Transport::VERB_POST, $headers, null, $requestBody);
+		$response = $this->performRequest('Tables', '', Microsoft_Http_Transport::VERB_POST, $headers, true, $requestBody);
 		if ($response->isSuccessful())
 		{
 		    // Parse response
@@ -242,7 +242,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
         $headers['Content-Type'] = 'application/atom+xml';
 
 		// Perform request
-		$response = $this->performRequest('Tables(\'' . $tableName . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, null, null);
+		$response = $this->performRequest('Tables(\'' . $tableName . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
 		if (!$response->isSuccessful())
 		{
 			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
