@@ -145,7 +145,7 @@ class Microsoft_Azure_Storage
 		$this->_usePathStyleUri = $usePathStyleUri;
 		
 		// Using local storage?
-		if (!$this->_usePathStyleUri && ($this->_host == self::URL_DEV_BLOB || $this->_host == self::URL_CLOUD_QUEUE || $this->_host == self::URL_DEV_TABLE)) // Local storage
+		if (!$this->_usePathStyleUri && ($this->_host == self::URL_DEV_BLOB || $this->_host == self::URL_DEV_QUEUE || $this->_host == self::URL_DEV_TABLE)) // Local storage
 			$this->_usePathStyleUri = true;
 		
 		if (is_null($this->_credentials))
