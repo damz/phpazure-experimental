@@ -53,7 +53,7 @@ require_once 'Microsoft/Azure/Exception.php';
  */
 class Microsoft_Azure_Storage_TableInstance
 {
-    /*
+    /**
      * Data
      * 
      * @var array
@@ -79,7 +79,7 @@ class Microsoft_Azure_Storage_TableInstance
     }
     
     /**
-     * Magic overload for setting propertis
+     * Magic overload for setting properties
      * 
      * @param string $name     Name of the property
      * @param string $value    Value to set

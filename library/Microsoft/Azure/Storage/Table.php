@@ -74,6 +74,11 @@ require_once 'Microsoft/Azure/Storage.php';
 require_once 'Microsoft/Azure/Storage/TableInstance.php';
 
 /**
+ * @see Microsoft_Azure_Storage_TableEntity
+ */
+require_once 'Microsoft/Azure/Storage/TableEntity.php';
+
+/**
  * @see Microsoft_Azure_Exception
  */
 require_once 'Microsoft/Azure/Exception.php';
@@ -88,11 +93,6 @@ require_once 'Microsoft/Azure/Exception.php';
  */
 class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 {
-	/**
-	 * Dummy
-	 */
-	const DUMMY = 1234;
-	
 	/**
 	 * Creates a new Microsoft_Azure_Storage_Table instance
 	 *
@@ -250,6 +250,67 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	}
 	
 	/**
+	 * Insert entity into table
+	 * 
+	 * @param string                              $tableName   Table name
+	 * @param Microsoft_Azure_Storage_TableEntity $entity      Entity to insert
+	 * @return unknown_type
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function insertEntity($tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null)
+	{
+		if ($tableName === '')
+			throw new Microsoft_Azure_Exception('Table name is not specified.');
+		if (is_null($entity))
+			throw new Microsoft_Azure_Exception('Entity is not specified.');
+		                     
+		// Generate request body
+		$requestBody = '<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+                        <entry xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom">
+                          <title />
+                          <updated>{tpl:Updated}</updated>
+                          <author>
+                            <name />
+                          </author>
+                          <id />
+                          <content type="application/xml">
+                            <m:properties>
+                              {tpl:Properties}
+                            </m:properties>
+                          </content>
+                        </entry>';
+		
+        $requestBody = $this->fillTemplate($requestBody, array(
+        	'Updated'    => $this->isoDate(),
+            'Properties' => $this->generateAzureRepresentation($entity)
+        ));
+
+        // Add header information
+        $headers = array();
+        $headers['Content-Type'] = 'application/atom+xml';
+
+		// Perform request
+		$response = $this->performRequest($tableName, '', Microsoft_Http_Transport::VERB_POST, $headers, true, $requestBody);
+		if ($response->isSuccessful())
+		{
+		    // Parse result
+		    $result = $this->parseResponse($response);
+		    
+		    $timestamp = $result->xpath('//m:properties/d:Timestamp');
+		    $timestamp = (string)$timestamp[0];
+		    
+		    // Update timestamp
+		    $entity->setTimestamp($timestamp);
+
+		    return $entity;
+		}
+		else
+		{
+			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+		}
+	}
+	
+	/**
 	 * Generate RFC 1123 compliant date string
 	 * 
 	 * @return string
@@ -287,5 +348,33 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	        $templateText = str_replace('{tpl:' . $key . '}', $value, $templateText);
 	    }
 	    return $templateText;
+	}
+	
+	/**
+	 * Generate Azure representation from entity (creates atompub markup from properties)
+	 * 
+	 * @param Microsoft_Azure_Storage_TableEntity $entity
+	 * @return string
+	 */
+	protected function generateAzureRepresentation(Microsoft_Azure_Storage_TableEntity $entity = null)
+	{
+		// Generate Azure representation from entity
+		$azureRepresentation = array();
+		$azureValues         = $entity->getAzureValues();
+		foreach ($azureValues as $azureValue)
+		{
+		    $value = array();
+		    $value[] = '<d:' . $azureValue->Name;
+		    if ($azureValue->Type != '')
+		        $value[] = ' m:type="' . $azureValue->Type . '"';
+		    if (is_null($azureValue->Value))
+		        $value[] = ' m:null="true"'; 
+		    $value[] = '>';
+		    if (!is_null($azureValue->Value))
+		        $value[] = $azureValue->Value;
+		    $value[] = '</d:' . $azureValue->Name . '>';
+		    $azureRepresentation[] = implode('', $value);
+		}
+		return implode('', $azureRepresentation);
 	}
 }

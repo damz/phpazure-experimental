@@ -60,7 +60,7 @@ require_once 'Microsoft/Azure/Exception.php';
  */
 class Microsoft_Azure_Storage_BlobInstance
 {
-    /*
+    /**
      * Data
      * 
      * @var array
@@ -100,7 +100,7 @@ class Microsoft_Azure_Storage_BlobInstance
     }
     
     /**
-     * Magic overload for setting propertis
+     * Magic overload for setting properties
      * 
      * @param string $name     Name of the property
      * @param string $value    Value to set

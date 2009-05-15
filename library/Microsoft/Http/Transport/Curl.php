@@ -83,7 +83,7 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         $curlHandle = curl_init();
         curl_setopt($curlHandle, CURLOPT_USERAGENT,       $this->_userAgent);
         curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION,  true);
-        curl_setopt($curlHandle, CURLOPT_TIMEOUT,         10);
+        curl_setopt($curlHandle, CURLOPT_TIMEOUT,         120);
 
         // Set URL
         curl_setopt($curlHandle, CURLOPT_URL,             $url);
@@ -116,7 +116,7 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         // Ensure headers are returned
         curl_setopt($curlHandle, CURLOPT_HEADER,          true);
         
-        // Ensure response is returned
+        // Ensure response is returned 
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER,  true);
         
         // Set post fields / raw data

@@ -51,7 +51,7 @@ define('TESTS_TABLE_HOST_PROD',        'table.core.windows.net');
 /**
  * Credentails
  */
-define('TESTS_RUNONPROD',               true);
+define('TESTS_RUNONPROD',               false);
 define('TESTS_STORAGE_ACCOUNT_DEV',    'devstoreaccount1');
 define('TESTS_STORAGE_KEY_DEV',        'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==');
 define('TESTS_STORAGE_ACCOUNT_PROD',   'phpstorage');

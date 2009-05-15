@@ -116,7 +116,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateTable()
     {
-        if (TESTS_RUNONPROD) 
+        if (false && TESTS_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -135,7 +135,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testListTables()
     {
-        if (TESTS_RUNONPROD) 
+        if (false && TESTS_RUNONPROD) 
         {
             $tableName1 = $this->generateName();
             $tableName2 = $this->generateName();
@@ -156,7 +156,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteTable()
     {
-        if (TESTS_RUNONPROD) 
+        if (false && TESTS_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -168,6 +168,47 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             $this->assertEquals(0, count($result));
         }
     }
+    
+    /**
+     * Test insert entity
+     */
+    public function testInsertEntity()
+    {
+        if (TESTS_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entity = new TSTest_TestEntity('partition1', '000001');
+            $entity->FullName = 'Maarten';
+            $entity->Age = 25;
+            $entity->Visible = true;
+            
+            $result = $storageClient->insertEntity($tableName, $entity);
+
+            $this->assertNotEquals('0001-01-01T00:00:00', $result->getTimestamp());
+            $this->assertEquals($entity, $result);
+        }
+    }
+}
+
+class TSTest_TestEntity extends Microsoft_Azure_Storage_TableEntity
+{
+    /**
+     * @azure Name
+     */
+    public $FullName;
+    
+    /**
+     * @azure Age Edm.Int64
+     */
+    public $Age;
+    
+    /**
+     * @azure Visible Edm.Boolean
+     */
+    public $Visible = false;
 }
 
 // Call Microsoft_Azure_TableStorageTest::main() if this source file is executed directly.
