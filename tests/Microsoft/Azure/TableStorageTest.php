@@ -68,22 +68,6 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
         $result = PHPUnit_TextUI_TestRunner::run($suite);
     }
     
-    protected function createTableStorageInstance()
-    {
-        $storageClient = null;
-        if (TESTS_TABLE_RUNONPROD)
-        {
-            $storageClient = new Microsoft_Azure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_TABLE_ACCOUNT_PROD, TESTS_TABLE_KEY_PROD, false, Microsoft_Azure_RetryPolicy::retryN(10, 250));
-            $storageClient->setCredentials(new Microsoft_Azure_SharedKeyLiteCredentials(TESTS_TABLE_ACCOUNT_PROD, TESTS_TABLE_KEY_PROD, false));
-        }
-        else
-        {
-            $storageClient = new Microsoft_Azure_Storage_Table(TESTS_TABLE_HOST, TESTS_STORAGE_ACCOUNT, TESTS_STORAGE_KEY, true, Microsoft_Azure_RetryPolicy::retryN(10, 250));
-        }
-
-        return $storageClient;
-    }
-    
     /**
      * Test setup
      */
@@ -92,28 +76,94 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
-     * Test full chain on poduction table storage:
-     * - Create table
-     * - List tables
-     * - Delete table
+     * Test teardown
      */
-    public function testProduction_Create_List_Delete()
+    protected function tearDown()
     {
-        if (TESTS_TABLE_RUNONPROD) 
+        $storageClient = $this->createStorageInstance();
+        for ($i = 1; $i <= self::$uniqId; $i++)
         {
-            $storageClient = $this->createTableStorageInstance();
+            try { $storageClient->deleteTable(TESTS_TABLE_TABLENAME_PREFIX . $i); } catch (Exception $e) { }
+        }
+    }
+    
+    protected function createStorageInstance()
+    {
+        $storageClient = null;
+        if (TESTS_RUNONPROD)
+        {
+            $storageClient = new Microsoft_Azure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_Azure_RetryPolicy::retryN(10, 250));
+            $storageClient->setCredentials(new Microsoft_Azure_SharedKeyLiteCredentials(TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false));
+        }
+        else
+        {
+            $storageClient = new Microsoft_Azure_Storage_Table(TESTS_TABLE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_Azure_RetryPolicy::retryN(10, 250));
+        }
+
+        return $storageClient;
+    }
+    
+    protected static $uniqId = 0;
+    
+    protected function generateName()
+    {
+        self::$uniqId++;
+        return TESTS_TABLE_TABLENAME_PREFIX . self::$uniqId;
+    }
+    
+    /**
+     * Test create table
+     */
+    public function testCreateTable()
+    {
+        if (TESTS_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
             
-            $result = $storageClient->listTables();
-            $this->assertEquals(0, count($result));
-            
-            $result = $storageClient->createTable(TESTS_TABLE_TABLENAME);
-            $this->assertEquals(TESTS_TABLE_TABLENAME, $result->Name);
+            $result = $storageClient->createTable($tableName);
+            $this->assertEquals($tableName, $result->Name);
             
             $result = $storageClient->listTables();
             $this->assertEquals(1, count($result));
-            $this->assertEquals(TESTS_TABLE_TABLENAME, $result[0]->Name);
+            $this->assertEquals($tableName, $result[0]->Name);
+        }
+    }
+    
+    /**
+     * Test list tables
+     */
+    public function testListTables()
+    {
+        if (TESTS_RUNONPROD) 
+        {
+            $tableName1 = $this->generateName();
+            $tableName2 = $this->generateName();
+            $storageClient = $this->createStorageInstance();
             
-            $storageClient->deleteTable(TESTS_TABLE_TABLENAME);
+            $storageClient->createTable($tableName1);
+            $storageClient->createTable($tableName2);
+
+            $result = $storageClient->listTables();
+            $this->assertEquals(2, count($result));
+            $this->assertEquals($tableName1, $result[0]->Name);
+            $this->assertEquals($tableName2, $result[1]->Name);
+        }
+    }
+    
+    /**
+     * Test delete table
+     */
+    public function testDeleteTable()
+    {
+        if (TESTS_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            
+            $storageClient->createTable($tableName);
+            $storageClient->deleteTable($tableName);
+            
             $result = $storageClient->listTables();
             $this->assertEquals(0, count($result));
         }
