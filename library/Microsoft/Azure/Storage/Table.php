@@ -93,6 +93,27 @@ require_once 'Microsoft/Azure/Exception.php';
  */
 class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 {
+    /**
+     * ODBC connection string
+     * 
+     * @var string
+     */
+    protected $_odbcConnectionString;
+    
+    /**
+     * ODBC user name
+     * 
+     * @var string
+     */
+    protected $_odbcUsername;
+    
+    /**
+     * ODBC password
+     * 
+     * @var string
+     */
+    protected $_odbcPassword;
+    
 	/**
 	 * Creates a new Microsoft_Azure_Storage_Table instance
 	 *
@@ -111,7 +132,99 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	        $this->_credentials = new Microsoft_Azure_SharedKeyLiteCredentials($accountName, $accountKey, $this->_usePathStyleUri);
 	    }
 	}
+	
+	/**
+	 * Set ODBC connection settings - used for creating tables on development storage
+	 * 
+	 * @param string $connectionString  ODBC connection string
+	 * @param string $username          ODBC user name
+	 * @param string $password          ODBC password
+	 */
+	public function setOdbcSettings($connectionString, $username, $password)
+	{
+	    $this->_odbcConnectionString = $connectionString;
+	    $this->_odbcUserame = $username;
+	    $this->_odbcPassword = $password;
+	}
 
+	/**
+	 * Generate table on development storage
+	 * 
+	 * Note 1: ODBC settings must be specified first using setOdbcSettings()
+	 * Note 2: Development table storage MST BE RESTARTED after generating tables. Otherwise newly create tables will NOT be accessible!
+	 * 
+	 * @param string $tableName   Table name
+	 * @param string $entityClass Entity class name
+	 */
+	public function generateDevelopmentTable($tableName, $entityClass)
+	{
+	    // Check if we can do this...
+	    if (!function_exists('odbc_connect'))
+	        throw new Microsoft_Azure_Exception('Function odbc_connect does not exist. Please enable the php_odbc.dll module in your php.ini.');
+	    if ($this->_odbcConnectionString == '' || $this->_odbcUserame == '' || $this->_odbcPassword == '')
+	        throw new Microsoft_Azure_Exception('Please specify ODBC settings first using setOdbcSettings().');
+	    
+	    // Get accessors
+	    $accessors = Microsoft_Azure_Storage_TableEntity::getAzureAccessors($entityClass);
+	    
+	    // Generate properties
+	    $properties = array();
+	    foreach ($accessors as $accessor)
+	    {
+	        if ($accessor->AzurePropertyName == 'Timestamp'
+	            || $accessor->AzurePropertyName == 'PartitionKey'
+	            || $accessor->AzurePropertyName == 'RowKey')
+	            {
+	                continue;
+	            }
+
+	        switch (strtolower($accessor->AzurePropertyType))
+	        {
+	            case 'edm.int32':
+	            case 'edm.int64':
+	                $sqlType = '[int] NULL'; break;
+	            case 'edm.guid':
+	                $sqlType = '[uniqueidentifier] NULL'; break;
+	            case 'edm.datetime':
+	                $sqlType = '[datetime] NULL'; break;
+	            case 'edm.boolean':
+	                $sqlType = '[bit] NULL'; break;
+	            case 'edm.double':
+	                $sqlType = '[decimal] NULL'; break;
+	            default:
+	                $sqlType = '[nvarchar](1000) NULL'; break;
+	        }
+	        $properties[] = '[' . $accessor->AzurePropertyName . '] ' . $sqlType;
+	    }
+	    
+	    // Generate SQL
+	    $sql = 'CREATE TABLE [dbo].[{tpl:TableName}](
+                	{tpl:Properties} {tpl:PropertiesComma}
+                	[Timestamp] [datetime] NULL,
+                	[PartitionKey] [nvarchar](1000) NOT NULL,
+                	[RowKey] [nvarchar](1000) NOT NULL
+                )';
+
+        $sql = $this->fillTemplate($sql, array(
+            'TableName'       => $tableName,
+        	'Properties'      => implode(',', $properties),
+        	'PropertiesComma' => count($properties) > 0 ? ',' : ''
+        ));
+        
+        // Connect to database
+        $db = @odbc_connect($this->_odbcConnectionString, $this->_odbcUserame, $this->_odbcPassword);
+        if (!$db)
+        {
+            throw new Microsoft_Azure_Exception('Could not connect to database via ODBC.');
+        }
+        
+        // Create table
+        odbc_exec($db, $sql);
+        
+        // Close connection
+        odbc_close($db);
+	}
+	
 	/**
 	 * List tables
 	 *
@@ -254,7 +367,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	 * 
 	 * @param string                              $tableName   Table name
 	 * @param Microsoft_Azure_Storage_TableEntity $entity      Entity to insert
-	 * @return unknown_type
+	 * @return Microsoft_Azure_Storage_TableEntity
 	 * @throws Microsoft_Azure_Exception
 	 */
 	public function insertEntity($tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null)
@@ -307,6 +420,35 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		else
 		{
 			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+		}
+	}
+	
+	/**
+	 * Delete entity from table
+	 * 
+	 * @param string                              $tableName   Table name
+	 * @param Microsoft_Azure_Storage_TableEntity $entity      Entity to delete
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function deleteEntity($tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null)
+	{
+		if ($tableName === '')
+			throw new Microsoft_Azure_Exception('Table name is not specified.');
+		if (is_null($entity))
+			throw new Microsoft_Azure_Exception('Entity is not specified.');
+		                     
+        // Add header information
+        $headers = array();
+        $headers['Content-Type']   = 'application/atom+xml';
+        $headers['Content-Length'] = 0;
+        $headers['If-Match']       = '*';
+
+		// Perform request
+		$response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
+var_dump($response);
+		if (!$response->isSuccessful())
+		{
+		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
 		}
 	}
 	

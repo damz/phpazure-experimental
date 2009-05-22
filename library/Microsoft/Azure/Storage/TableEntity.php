@@ -67,7 +67,7 @@ abstract class Microsoft_Azure_Storage_TableEntity
      * 
      * @var string
      */
-    protected $_timestamp = '0001-01-01T00:00:00';
+    protected $_timestamp = '1900-01-01T00:00:00';
     
     /**
      * Constructor
@@ -142,7 +142,7 @@ abstract class Microsoft_Azure_Storage_TableEntity
      * @azure Timestamp Edm.DateTime
      * @param string $value
      */
-    public function setTimestamp($value = '0001-01-01T00:00:00')
+    public function setTimestamp($value = '1900-01-01T00:00:00')
     {
         $this->_timestamp = $value;
     }
@@ -155,7 +155,7 @@ abstract class Microsoft_Azure_Storage_TableEntity
     public function getAzureValues()
     {
         // Get accessors
-        $accessors = $this->getAzureAccessors();
+        $accessors = self::getAzureAccessors(get_class($this));
         
         // Loop accessors and retrieve values
         $returnValue = array();
@@ -195,7 +195,7 @@ abstract class Microsoft_Azure_Storage_TableEntity
     public function setAzureValues($values = array(), $throwOnError = false)
     {
         // Get accessors
-        $accessors = $this->getAzureAccessors();
+        $accessors = self::getAzureAccessors(get_class($this));
         
         // Loop accessors and set values
         $returnValue = array();
@@ -226,21 +226,22 @@ abstract class Microsoft_Azure_Storage_TableEntity
     /**
      * Get Azure accessors from current instance
      * 
+     * @param string $className Class to get accessors for
      * @return array
      */
-    protected function getAzureAccessors()
+    public static function getAzureAccessors($className = '')
     {
         // List of accessors
         $azureAccessors = array();
         
         // Get all types
-        $type = new ReflectionObject($this);
+        $type = new ReflectionClass($className);
         
         // Loop all properties
         $properties = $type->getProperties();
         foreach ($properties as $property)
         {
-            $accessor = $this->getAzureAccessor($property);
+            $accessor = self::getAzureAccessor($property);
             if (!is_null($accessor)) {
                 $azureAccessors[] = $accessor;
             }
@@ -250,7 +251,7 @@ abstract class Microsoft_Azure_Storage_TableEntity
         $methods = $type->getMethods();
         foreach ($methods as $method)
         {
-            $accessor = $this->getAzureAccessor($method);
+            $accessor = self::getAzureAccessor($method);
             if (!is_null($accessor)) {
                 $azureAccessors[] = $accessor;
             }
@@ -266,7 +267,7 @@ abstract class Microsoft_Azure_Storage_TableEntity
      * @param ReflectionProperty|ReflectionMethod $member
      * @return object
      */
-    protected function getAzureAccessor($member)
+    public static function getAzureAccessor($member)
     {
         // Get comment
         $docComment = $member->getDocComment();
