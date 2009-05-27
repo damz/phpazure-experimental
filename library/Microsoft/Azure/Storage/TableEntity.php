@@ -70,6 +70,13 @@ abstract class Microsoft_Azure_Storage_TableEntity
     protected $_timestamp = '1900-01-01T00:00:00';
     
     /**
+     * Etag
+     * 
+     * @var string
+     */
+    protected $_etag = '';
+    
+    /**
      * Constructor
      * 
      * @param string  $partitionKey    Partition key
@@ -145,6 +152,26 @@ abstract class Microsoft_Azure_Storage_TableEntity
     public function setTimestamp($value = '1900-01-01T00:00:00')
     {
         $this->_timestamp = $value;
+    }
+    
+    /**
+     * Get etag
+     * 
+     * @return string
+     */
+    public function getEtag()
+    {
+        return $this->_etag;
+    }
+    
+    /**
+     * Set etag
+     * 
+     * @param string $value
+     */
+    public function setEtag($value = '')
+    {
+        $this->_etag = $value;
     }
     
     /**

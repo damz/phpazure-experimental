@@ -204,12 +204,20 @@ class Microsoft_Azure_Storage
 	 */
 	protected function performRequest($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null)
 	{
+	    // Clean path
 		if (strpos($path, '/') !== 1) 
 			$path = '/' . $path;
 			
+		// Clean headers
 		if (is_null($headers))
 		    $headers = array();
+		    
+		// URL encoding
+		$path           = rawurlencode(substr($path, 1));
+		$path           = '/' . $path;
+		$queryString    = rawurlencode($queryString);
 
+		// Generate URL and sign request
 		$requestUrl     = $this->getBaseUrl() . $path . ($queryString !== '' ? '/' . $queryString : '');
 		$requestHeaders = $this->_credentials->signRequest($httpVerb, $path, $queryString, $headers, $forTableStorage);
 
@@ -237,15 +245,19 @@ class Microsoft_Azure_Storage
 		if (is_null($response))
 			throw new Microsoft_Azure_Exception('Response should not be null.');
 		
-        $xml = simplexml_load_string($response->getBody()); 
-
-        // Fetch all namespaces 
-        $namespaces = array_merge($xml->getNamespaces(true), $xml->getDocNamespaces(true)); 
+        $xml = @simplexml_load_string($response->getBody());
         
-        // Register all namespace prefixes
-        foreach ($namespaces as $prefix => $ns) { 
-            $xml->registerXPathNamespace($prefix, $ns); 
-        } 
+        if ($xml !== false)
+        {
+            // Fetch all namespaces 
+            $namespaces = array_merge($xml->getNamespaces(true), $xml->getDocNamespaces(true)); 
+            
+            // Register all namespace prefixes
+            foreach ($namespaces as $prefix => $ns) { 
+                if ($prefix != '')
+                    $xml->registerXPathNamespace($prefix, $ns); 
+            } 
+        }
         
         return $xml;
 	}

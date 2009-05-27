@@ -90,7 +90,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
     protected function createStorageInstance()
     {
         $storageClient = null;
-        if (TESTS_RUNONPROD)
+        if (TESTS_TABLE_RUNONPROD)
         {
             $storageClient = new Microsoft_Azure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_Azure_RetryPolicy::retryN(10, 250));
             $storageClient->setCredentials(new Microsoft_Azure_SharedKeyLiteCredentials(TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false));
@@ -117,11 +117,11 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testGenerateDevelopmentTable()
     {  
-        if (!TESTS_RUNONPROD)
+        if (!TESTS_TABLE_RUNONPROD)
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
-            $storageClient->generateDevelopmentTable($tableName, 'TSTest_TestEntity');
+            $storageClient->generateDevelopmentTable('TSTest_TestEntity', $tableName);
             
             // NOTE 1: ODBC connection credentails should be specified.
             // NOTE 2: Table storage must be RESTARTED after generating tables. 
@@ -133,7 +133,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateTable()
     {
-        if (TESTS_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -152,7 +152,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testListTables()
     {
-        if (TESTS_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName1 = $this->generateName();
             $tableName2 = $this->generateName();
@@ -173,7 +173,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteTable()
     {
-        if (TESTS_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -191,7 +191,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testInsertEntity()
     {
-        if (TESTS_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -205,16 +205,41 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             $result = $storageClient->insertEntity($tableName, $entity);
 
             $this->assertNotEquals('0001-01-01T00:00:00', $result->getTimestamp());
+            $this->assertNotEquals('', $result->getEtag());
             $this->assertEquals($entity, $result);
         }
     }
     
     /**
-     * Test delete entity
+     * Test delete entity, not taking etag into account
      */
-    public function testDeleteEntity()
+    public function testDeleteEntity_NoEtag()
     {
-        if (TESTS_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entity = new TSTest_TestEntity('partition1', '000001');
+            $entity->FullName = 'Maarten';
+            $entity->Age = 25;
+            $entity->Visible = true;
+            
+            $result = $storageClient->insertEntity($tableName, $entity);
+            
+            $this->assertEquals($entity, $result);
+            
+            $storageClient->deleteEntity($tableName, $entity);
+        }
+    }
+    
+    /**
+     * Test delete entity, taking etag into account
+     */
+    public function testDeleteEntity_Etag()
+    {
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -227,10 +252,41 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             
             $result = $storageClient->insertEntity($tableName, $entity);
 
-            $this->assertNotEquals('0001-01-01T00:00:00', $result->getTimestamp());
             $this->assertEquals($entity, $result);
+
+            // Set "old" etag
+            $entity->setEtag('W/"datetime\'2009-05-27T12%3A15%3A15.3321531Z\'"');
             
-            $storageClient->deleteEntity($tableName, $entity);
+            $exceptionThrown = false;
+            try {
+                $storageClient->deleteEntity($tableName, $entity, true);
+            } catch (Exception $ex) {
+                $exceptionThrown = true;
+            }
+            $this->assertTrue($exceptionThrown);
+        }
+    }
+    
+    /**
+     * Test retrieve entity by id
+     */
+    public function testRetrieveEntityById()
+    {
+        if (TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entity = new TSTest_TestEntity('partition1', '000001');
+            $entity->FullName = 'Maarten';
+            $entity->Age = 25;
+            $entity->Visible = true;
+            
+            $storageClient->insertEntity($tableName, $entity);
+            
+            $result = $storageClient->retrieveEntityById('TSTest_TestEntity', $tableName, 'partition1', '000001');
+            $this->assertEquals($entity, $result);
         }
     }
 }

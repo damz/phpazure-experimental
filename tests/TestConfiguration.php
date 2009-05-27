@@ -51,7 +51,6 @@ define('TESTS_TABLE_HOST_PROD',        'table.core.windows.net');
 /**
  * Credentials
  */
-define('TESTS_RUNONPROD',              false);
 define('TESTS_STORAGE_ACCOUNT_DEV',    'devstoreaccount1');
 define('TESTS_STORAGE_KEY_DEV',        'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==');
 define('TESTS_STORAGE_ACCOUNT_PROD',   'phpstorage');
@@ -60,11 +59,13 @@ define('TESTS_STORAGE_KEY_PROD',       'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqY
 /**
  * Blob storage tests
  */
+define('TESTS_BLOB_RUNONPROD',          false);
 define('TESTS_BLOB_CONTAINER_PREFIX',   'phpazuretest');
 
 /**
  * Table storage tests
  */
+define('TESTS_TABLE_RUNONPROD',         true);
 define('TESTS_TABLE_TABLENAME_PREFIX',  'phpazuretest');
 define('TESTS_TABLE_DEVCNSTRING',       'Driver={SQL Native Client};Server=.\SQLEXPRESS;Database=AzureTableStorage; Uid=php;Pwd=php;');
 define('TESTS_TABLE_DEVCNUSER',         'php');

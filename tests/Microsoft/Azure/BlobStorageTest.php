@@ -90,7 +90,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
     protected function createStorageInstance()
     {
         $storageClient = null;
-        if (TESTS_RUNONPROD)
+        if (TESTS_BLOB_RUNONPROD)
         {
             $storageClient = new Microsoft_Azure_Storage_Blob(TESTS_BLOB_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_Azure_RetryPolicy::retryN(10, 250));
         }

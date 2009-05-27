@@ -153,17 +153,19 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	 * Note 1: ODBC settings must be specified first using setOdbcSettings()
 	 * Note 2: Development table storage MST BE RESTARTED after generating tables. Otherwise newly create tables will NOT be accessible!
 	 * 
-	 * @param string $tableName   Table name
 	 * @param string $entityClass Entity class name
+	 * @param string $tableName   Table name
 	 */
-	public function generateDevelopmentTable($tableName, $entityClass)
+	public function generateDevelopmentTable($entityClass, $tableName)
 	{
 	    // Check if we can do this...
 	    if (!function_exists('odbc_connect'))
 	        throw new Microsoft_Azure_Exception('Function odbc_connect does not exist. Please enable the php_odbc.dll module in your php.ini.');
 	    if ($this->_odbcConnectionString == '' || $this->_odbcUserame == '' || $this->_odbcPassword == '')
 	        throw new Microsoft_Azure_Exception('Please specify ODBC settings first using setOdbcSettings().');
-	    
+	    if ($entityClass === '')
+			throw new Microsoft_Azure_Exception('Entity class is not specified.');
+			
 	    // Get accessors
 	    $accessors = Microsoft_Azure_Storage_TableEntity::getAzureAccessors($entityClass);
 	    
@@ -242,9 +244,9 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		    // Parse result
 		    $result = $this->parseResponse($response);	
 		    
-		    if (!$result->entry)
+		    if (!$result || !$result->entry)
 		        return array();
-		        
+	        
 		    $entries = null;
 		    if (count($result->entry) > 1) {
 		        $entries = $result->entry;
@@ -411,9 +413,13 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		    
 		    $timestamp = $result->xpath('//m:properties/d:Timestamp');
 		    $timestamp = (string)$timestamp[0];
+
+		    $etag      = $result->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
+		    $etag      = (string)$etag['etag'];
 		    
-		    // Update timestamp
+		    // Update properties
 		    $entity->setTimestamp($timestamp);
+		    $entity->setEtag($etag);
 
 		    return $entity;
 		}
@@ -428,9 +434,10 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	 * 
 	 * @param string                              $tableName   Table name
 	 * @param Microsoft_Azure_Storage_TableEntity $entity      Entity to delete
+	 * @param boolean                             $verifyEtag  Verify etag of the entity (used for concurrency)
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function deleteEntity($tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null)
+	public function deleteEntity($tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
 		if ($tableName === '')
 			throw new Microsoft_Azure_Exception('Table name is not specified.');
@@ -441,12 +448,66 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
         $headers = array();
         $headers['Content-Type']   = 'application/atom+xml';
         $headers['Content-Length'] = 0;
-        $headers['If-Match']       = '*';
+        if (!$verifyEtag) {
+            $headers['If-Match']       = '*';
+        } else {
+            $headers['If-Match']       = $entity->getEtag();
+        }
 
 		// Perform request
 		$response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
-var_dump($response);
 		if (!$response->isSuccessful())
+		{
+		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+		}
+	}
+	
+	/**
+	 * Retrieve entity from table, by id
+	 * 
+	 * @param string $entityClass  Entity class name
+	 * @param string $tableName    Table name
+	 * @param string $partitionKey Partition key
+	 * @param string $rowKey       Row key
+	 * @return Microsoft_Azure_Storage_TableEntity
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function retrieveEntityById($entityClass = '', $tableName = '', $partitionKey = '', $rowKey = '')
+	{
+		if ($entityClass === '')
+			throw new Microsoft_Azure_Exception('Entity class is not specified.');
+		if ($tableName === '')
+			throw new Microsoft_Azure_Exception('Table name is not specified.');
+		if ($partitionKey === '')
+			throw new Microsoft_Azure_Exception('Partition key is not specified.');
+		if ($rowKey === '')
+			throw new Microsoft_Azure_Exception('Row key is not specified.');
+		                     
+		// Perform request
+		$response = $this->performRequest($tableName . '(PartitionKey=\'' . $partitionKey . '\', RowKey=\'' . $rowKey . '\')', '', Microsoft_Http_Transport::VERB_GET, array(), true, null);
+		if ($response->isSuccessful())
+		{
+		    // Parse result
+		    $result = $this->parseResponse($response);
+		    if (!$result)
+		        return null;
+
+		    // Parse properties
+		    $properties = $result->xpath('.//m:properties');
+		    $properties = $properties[0]->children('http://schemas.microsoft.com/ado/2007/08/dataservices');
+		    
+		    // Create entity
+		    $entity = new $entityClass('', '');
+		    $entity->setAzureValues((array)$properties, true);
+
+		    // Update etag
+		    $etag      = $result->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
+		    $etag      = (string)$etag['etag'];
+		    $entity->setEtag($etag);
+		    
+		    return $entity;
+		}
+		else
 		{
 		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
 		}

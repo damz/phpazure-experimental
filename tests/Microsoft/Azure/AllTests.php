@@ -69,12 +69,12 @@ class Microsoft_Azure_AllTests
     {
         $suite = new PHPUnit_Framework_TestSuite('Microsoft Azure');
 
-        $suite->addTestSuite('Microsoft_Azure_SharedKeyCredentialsTest');
+        /*$suite->addTestSuite('Microsoft_Azure_SharedKeyCredentialsTest');
         $suite->addTestSuite('Microsoft_Azure_SharedKeyLiteCredentialsTest');
         $suite->addTestSuite('Microsoft_Azure_RetryPolicyTest');
         $suite->addTestSuite('Microsoft_Azure_StorageTest');
         $suite->addTestSuite('Microsoft_Azure_BlobStorageTest');
-        $suite->addTestSuite('Microsoft_Azure_TableEntityTest');
+        $suite->addTestSuite('Microsoft_Azure_TableEntityTest');*/
         $suite->addTestSuite('Microsoft_Azure_TableStorageTest');
 
         return $suite;
