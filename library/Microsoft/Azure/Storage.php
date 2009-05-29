@@ -87,6 +87,11 @@ class Microsoft_Azure_Storage
 	const URL_CLOUD_TABLE   = "table.core.windows.net";
 	
 	/**
+	 * Current API version
+	 */
+	const API_VERSION = '2009-04-14';
+	
+	/**
 	 * Storage host name
 	 *
 	 * @var string
@@ -212,10 +217,12 @@ class Microsoft_Azure_Storage
 		if (is_null($headers))
 		    $headers = array();
 		    
+		// Add version header
+		$headers['x-ms-version'] = self::API_VERSION;
+		    
 		// URL encoding
-		$path           = rawurlencode(substr($path, 1));
-		$path           = '/' . $path;
-		$queryString    = rawurlencode($queryString);
+		$path           = self::urlencode($path);
+		$queryString    = self::urlencode($queryString);
 
 		// Generate URL and sign request
 		$requestUrl     = $this->getBaseUrl() . $path . ($queryString !== '' ? '/' . $queryString : '');
@@ -260,5 +267,10 @@ class Microsoft_Azure_Storage
         }
         
         return $xml;
+	}
+	
+	public static function urlencode($value)
+	{
+	    return str_replace(' ', '%20', $value);
 	}
 }
