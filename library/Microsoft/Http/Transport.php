@@ -63,6 +63,7 @@ abstract class Microsoft_Http_Transport
     const VERB_POST     = 'POST';
     const VERB_DELETE   = 'DELETE';
     const VERB_HEAD     = 'HEAD';
+    const VERB_MERGE    = 'MERGE';
     
     /**
      * Create channel

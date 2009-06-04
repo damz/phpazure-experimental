@@ -514,6 +514,77 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	}
 	
 	/**
+	 * Update entity by replacing it
+	 * 
+	 * @param string                              $tableName   Table name
+	 * @param Microsoft_Azure_Storage_TableEntity $entity      Entity to update
+	 * @param boolean                             $verifyEtag  Verify etag of the entity (used for concurrency)
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function updateEntity($tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null, $verifyEtag = false)
+	{
+		if ($tableName === '')
+			throw new Microsoft_Azure_Exception('Table name is not specified.');
+		if (is_null($entity))
+			throw new Microsoft_Azure_Exception('Entity is not specified.');
+		                     
+        // Add header information
+        $headers = array();
+        $headers['Content-Type']   = 'application/atom+xml';
+        $headers['Content-Length'] = 0;
+        if (!$verifyEtag) {
+            $headers['If-Match']       = '*';
+        } else {
+            $headers['If-Match']       = $entity->getEtag();
+        }
+
+	    // Generate request body
+		$requestBody = '<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+                        <entry xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom">
+                          <title />
+                          <updated>{tpl:Updated}</updated>
+                          <author>
+                            <name />
+                          </author>
+                          <id />
+                          <content type="application/xml">
+                            <m:properties>
+                              {tpl:Properties}
+                            </m:properties>
+                          </content>
+                        </entry>';
+		
+        $requestBody = $this->fillTemplate($requestBody, array(
+        	'Updated'    => $this->isoDate(),
+            'Properties' => $this->generateAzureRepresentation($entity)
+        ));
+
+        // Add header information
+        $headers = array();
+        $headers['Content-Type'] = 'application/atom+xml';
+	    if (!$verifyEtag) {
+            $headers['If-Match']       = '*';
+        } else {
+            $headers['If-Match']       = $entity->getEtag();
+        }
+        
+		// Perform request
+		$response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_PUT, $headers, true, $requestBody);
+		if ($response->isSuccessful())
+		{
+		    // Update properties
+			$entity->setEtag($response->getHeader('Etag'));
+			$entity->setTimestamp($response->getHeader('Last-modified'));
+
+		    return $entity;
+		}
+		else
+		{
+			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+		}
+	}
+	
+	/**
 	 * Generate RFC 1123 compliant date string
 	 * 
 	 * @return string

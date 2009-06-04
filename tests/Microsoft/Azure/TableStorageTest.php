@@ -197,10 +197,8 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             $storageClient = $this->createStorageInstance();
             $storageClient->createTable($tableName);
             
-            $entity = new TSTest_TestEntity('partition1', '000001');
-            $entity->FullName = 'Maarten';
-            $entity->Age = 25;
-            $entity->Visible = true;
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
             
             $result = $storageClient->insertEntity($tableName, $entity);
 
@@ -221,10 +219,8 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             $storageClient = $this->createStorageInstance();
             $storageClient->createTable($tableName);
             
-            $entity = new TSTest_TestEntity('partition1', '000001');
-            $entity->FullName = 'Maarten';
-            $entity->Age = 25;
-            $entity->Visible = true;
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
             
             $result = $storageClient->insertEntity($tableName, $entity);
             
@@ -245,10 +241,8 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             $storageClient = $this->createStorageInstance();
             $storageClient->createTable($tableName);
             
-            $entity = new TSTest_TestEntity('partition1', '000001');
-            $entity->FullName = 'Maarten';
-            $entity->Age = 25;
-            $entity->Visible = true;
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
             
             $result = $storageClient->insertEntity($tableName, $entity);
 
@@ -278,16 +272,93 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             $storageClient = $this->createStorageInstance();
             $storageClient->createTable($tableName);
             
-            $entity = new TSTest_TestEntity('partition1', '000001');
-            $entity->FullName = 'Maarten';
-            $entity->Age = 25;
-            $entity->Visible = true;
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
             
             $storageClient->insertEntity($tableName, $entity);
             
-            $result = $storageClient->retrieveEntityById('TSTest_TestEntity', $tableName, 'partition1', '000001');
+            $result = $storageClient->retrieveEntityById('TSTest_TestEntity', $tableName, $entity->getPartitionKey(), $entity->getRowKey());
             $this->assertEquals($entity, $result);
         }
+    }
+    
+    /**
+     * Test update entity, not taking etag into account
+     */
+    public function testUpdateEntity_NoEtag()
+    {
+        if (TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
+            
+            $storageClient->insertEntity($tableName, $entity);
+            $entity->Age = 0;
+            
+            $result = $storageClient->updateEntity($tableName, $entity);
+
+            $this->assertNotEquals('0001-01-01T00:00:00', $result->getTimestamp());
+            $this->assertNotEquals('', $result->getEtag());
+            $this->assertEquals(0, $result->Age);
+            $this->assertEquals($entity, $result);
+        }
+    }
+    
+    /**
+     * Test update entity, taking etag into account
+     */
+    public function testUpdateEntity_Etag()
+    {
+        if (TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
+            
+            $storageClient->insertEntity($tableName, $entity);
+            $entity->Age = 0;
+            
+            // Set "old" etag
+            $entity->setEtag('W/"datetime\'2009-05-27T12%3A15%3A15.3321531Z\'"');
+            
+            $exceptionThrown = false;
+            try {
+                $storageClient->updateEntity($tableName, $entity, true);
+            } catch (Exception $ex) {
+                $exceptionThrown = true;
+            }
+            $this->assertTrue($exceptionThrown);
+        }
+    }
+    
+    /**
+     * Generate entities
+     * 
+     * @param int 		$amount Number of entities to generate
+     * @return array 			Array of TSTest_TestEntity
+     */
+    protected function _generateEntities($amount = 1)
+    {
+        $returnValue = array();
+        
+        for ($i = 0; $i < $amount; $i++)
+        {
+            $entity = new TSTest_TestEntity('partition1', 'row' . ($i + 1));
+            $entity->FullName = md5(uniqid(rand(), true));
+            $entity->Age      = rand(1, 130);
+            $entity->Visible  = true;
+            
+            $returnValue[] = $entity;
+        }
+        
+        return $returnValue;
     }
 }
 
