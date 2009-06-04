@@ -59,12 +59,14 @@ define('TESTS_STORAGE_KEY_PROD',       'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqY
 /**
  * Blob storage tests
  */
-define('TESTS_BLOB_RUNONPROD',          false);
+define('TESTS_BLOB_RUNTESTS',           true);
+define('TESTS_BLOB_RUNONPROD',          true);
 define('TESTS_BLOB_CONTAINER_PREFIX',   'phpazuretest');
 
 /**
  * Table storage tests
  */
+define('TESTS_TABLE_RUNTESTS',          true);
 define('TESTS_TABLE_RUNONPROD',         true);
 define('TESTS_TABLE_TABLENAME_PREFIX',  'phpazuretest');
 define('TESTS_TABLE_DEVCNSTRING',       'Driver={SQL Native Client};Server=.\SQLEXPRESS;Database=AzureTableStorage; Uid=php;Pwd=php;');

@@ -170,15 +170,20 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testListContainers()
     {
-        $containerName1 = $this->generateName();
-        $containerName2 = $this->generateName();
-        $containerName3 = $this->generateName();
+        $containerName1 = 'testlist1';
+        $containerName2 = 'testlist2';
+        $containerName3 = 'testlist3';
         $storageClient = $this->createStorageInstance();
         $storageClient->createContainer($containerName1);
         $storageClient->createContainer($containerName2);
         $storageClient->createContainer($containerName3);
-        $result = $storageClient->listContainers();
+        $result = $storageClient->listContainers('testlist');
 
+        // cleanup first
+        $storageClient->deleteContainer($containerName1);
+        $storageClient->deleteContainer($containerName2);
+        $storageClient->deleteContainer($containerName3);
+        
         $this->assertEquals(3, count($result));
         $this->assertEquals($containerName2, $result[1]->Name);
     }
@@ -293,6 +298,25 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
         $result = $storageClient->listBlobs($containerName);
         $this->assertEquals(5, count($result));
         $this->assertEquals('images/WindowsAzure5.gif', $result[4]->Name);
+    }
+    
+    /**
+     * Test copy blob
+     */
+    public function testCopyBlob()
+    {
+        $containerName = $this->generateName();
+        $storageClient = $this->createStorageInstance();
+        $storageClient->createContainer($containerName);
+        $source = $storageClient->putBlob($containerName, 'images/WindowsAzure.gif', self::$path . 'WindowsAzure.gif');
+
+        $this->assertEquals($containerName, $source->Container);
+        $this->assertEquals('images/WindowsAzure.gif', $source->Name);
+        
+        $destination = $storageClient->copyBlob($containerName, 'images/WindowsAzure.gif', $containerName, 'images/WindowsAzureCopy.gif');
+
+        $this->assertEquals($containerName, $destination->Container);
+        $this->assertEquals('images/WindowsAzureCopy.gif', $destination->Name);
     }
     
     /**

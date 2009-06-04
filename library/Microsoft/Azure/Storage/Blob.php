@@ -512,6 +512,62 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	}
 	
 	/**
+	 * Copy blob
+	 *
+	 * @param string $sourceContainerName       Source container name
+	 * @param string $sourceBlobName            Source blob name
+	 * @param string $destinationContainerName  Destination container name
+	 * @param string $destinationBlobName       Destination blob name
+	 * @param array  $metadata                  Key/value pairs of meta data
+	 * @return object Partial blob properties
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function copyBlob($sourceContainerName = '', $sourceBlobName = '', $destinationContainerName = '', $destinationBlobName = '', $metadata = array())
+	{
+		if ($sourceContainerName === '')
+			throw new Microsoft_Azure_Exception('Source container name is not specified.');
+		if ($sourceBlobName === '')
+			throw new Microsoft_Azure_Exception('Source blob name is not specified.');
+		if ($destinationContainerName === '')
+			throw new Microsoft_Azure_Exception('Destination container name is not specified.');
+		if ($destinationBlobName === '')
+			throw new Microsoft_Azure_Exception('Destination blob name is not specified.');
+
+		// Create metadata headers
+		$headers = array();
+		foreach ($metadata as $key => $value)
+		{
+		    $headers["x-ms-meta-" . strtolower($key)] = $value;
+		}
+		
+		// Set source blob
+		$headers["x-ms-copy-source"] = '/' . $this->_accountName . '/' . $sourceContainerName . '/' . $sourceBlobName;
+
+		// Perform request
+		$response = $this->performRequest($destinationContainerName . '/' . $destinationBlobName, '', Microsoft_Http_Transport::VERB_PUT, $headers, false, null);
+		if ($response->isSuccessful())
+		{
+			return new Microsoft_Azure_Storage_BlobInstance(
+				$destinationContainerName,
+				$destinationBlobName,
+				$response->getHeader('Etag'),
+				$response->getHeader('Last-modified'),
+				$this->getBaseUrl() . '/' . $destinationContainerName . '/' . $destinationBlobName,
+				0,
+				'',
+				'',
+				'',
+				false,
+		        $metadata
+			);
+		}
+		else
+		{
+			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		}
+	}
+	
+	/**
 	 * Get blob
 	 *
 	 * @param string $containerName Container name

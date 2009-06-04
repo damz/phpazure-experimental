@@ -73,9 +73,15 @@ class Microsoft_Azure_AllTests
         $suite->addTestSuite('Microsoft_Azure_SharedKeyLiteCredentialsTest');
         $suite->addTestSuite('Microsoft_Azure_RetryPolicyTest');
         $suite->addTestSuite('Microsoft_Azure_StorageTest');
-        $suite->addTestSuite('Microsoft_Azure_BlobStorageTest');
-        $suite->addTestSuite('Microsoft_Azure_TableEntityTest');
-        $suite->addTestSuite('Microsoft_Azure_TableStorageTest');
+        if (TESTS_BLOB_RUNTESTS)
+        {
+            $suite->addTestSuite('Microsoft_Azure_BlobStorageTest');
+        }
+        if (TESTS_TABLE_RUNTESTS)
+        {
+            $suite->addTestSuite('Microsoft_Azure_TableEntityTest');
+            $suite->addTestSuite('Microsoft_Azure_TableStorageTest');
+        }
 
         return $suite;
     }
