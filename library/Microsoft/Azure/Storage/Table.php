@@ -230,17 +230,16 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	/**
 	 * List tables
 	 *
+	 * @param  string $nextTableName Next table name, used for listing tables when total amount of tables is > 1000.
 	 * @return array
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function listTables()
+	public function listTables($nextTableName = '')
 	{
 		// Perform request
 		$response = $this->performRequest('Tables', '', Microsoft_Http_Transport::VERB_GET, null, true);
 		if ($response->isSuccessful())
-		{
-		    // TODO: Use NextTableName when working with > 1000 tables (http://msdn.microsoft.com/en-us/library/dd179405.aspx)
-		    
+		{	    
 		    // Parse result
 		    $result = $this->parseResponse($response);	
 		    
@@ -267,7 +266,13 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		            (string)$entry->link['href'],
 		            (string)$entry->updated
 		        );
-		    } 
+		    }
+		    
+			// More tables?
+		    if (!is_null($response->getHeader('x-ms-continuation-NextTableName')))
+		    {
+		        $returnValue = array_merge($returnValue, $this->listTables($response->getHeader('x-ms-continuation-NextTableName')));
+		    }
 
 		    return $returnValue;
 		}
