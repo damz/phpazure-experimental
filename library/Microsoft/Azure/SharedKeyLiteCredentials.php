@@ -67,11 +67,7 @@ class Microsoft_Azure_SharedKeyLiteCredentials extends Microsoft_Azure_Credentia
 			$path = substr($path, strpos($path, '/'));
 
 		// Determine query
-		if (strlen($queryString) > 0 && strpos($queryString, '?') !== 0)
-			$queryString = '?' . $queryString;	
-
-		if (strpos($queryString, '&') !== false)
-			$queryString = substr($queryString, 0, strpos($queryString, '&'));
+		$queryString = $this->prepareQueryStringForSigning($queryString);
 
 		// Build canonicalized resource string
 		$canonicalizedResource  = '/' . $this->_accountName;
@@ -79,7 +75,7 @@ class Microsoft_Azure_SharedKeyLiteCredentials extends Microsoft_Azure_Credentia
 			$canonicalizedResource .= '/' . $this->_accountName;
 		$canonicalizedResource .= $path;
 		if ($queryString !== '')
-		    $canonicalizedResource .= '/' . $queryString;
+		    $canonicalizedResource .= $queryString;
 
 		// Request date
 		$requestDate = '';

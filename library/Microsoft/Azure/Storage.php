@@ -210,7 +210,7 @@ class Microsoft_Azure_Storage
 	protected function performRequest($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null)
 	{
 	    // Clean path
-		if (strpos($path, '/') !== 1) 
+		if (strpos($path, '/') !== 0) 
 			$path = '/' . $path;
 			
 		// Clean headers
@@ -225,7 +225,7 @@ class Microsoft_Azure_Storage
 		$queryString    = self::urlencode($queryString);
 
 		// Generate URL and sign request
-		$requestUrl     = $this->getBaseUrl() . $path . ($queryString !== '' ? '/' . $queryString : '');
+		$requestUrl     = $this->getBaseUrl() . $path . $queryString;
 		$requestHeaders = $this->_credentials->signRequest($httpVerb, $path, $queryString, $headers, $forTableStorage);
 
 		$requestClient  = Microsoft_Http_Transport::createChannel();
@@ -269,6 +269,12 @@ class Microsoft_Azure_Storage
         return $xml;
 	}
 	
+	/**
+	 * URL encode function
+	 * 
+	 * @param  string $value Value to encode
+	 * @return string        Encoded value
+	 */
 	public static function urlencode($value)
 	{
 	    return str_replace(' ', '%20', $value);

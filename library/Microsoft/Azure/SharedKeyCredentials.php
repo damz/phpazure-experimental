@@ -70,12 +70,11 @@ class Microsoft_Azure_SharedKeyCredentials extends Microsoft_Azure_Credentials
 			$path = substr($path, strpos($path, '/'));
 
 		// Determine query
-		if (strlen($queryString) > 0 && strpos($queryString, '?') !== 0)
-			$queryString = '?' . $queryString;	
-
-		if (strpos($queryString, '&') !== false)
-			$queryString = substr($queryString, 0, strpos($queryString, '&'));
+		$queryString = $this->prepareQueryStringForSigning($queryString);
 	
+		// Canonicalized headers
+		$canonicalizedHeaders = array();
+		
 		// Request date
 		$requestDate = '';
 		if (isset($headers[self::PREFIX_STORAGE_HEADER . 'date']))
@@ -85,11 +84,10 @@ class Microsoft_Azure_SharedKeyCredentials extends Microsoft_Azure_Credentials
 		else 
 		{
 		    $requestDate = gmdate('D, d M Y H:i:s', time()) . ' GMT'; // RFC 1123
+		    $canonicalizedHeaders[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate;
 		}
 		
 		// Build canonicalized headers
-		$canonicalizedHeaders = array();
-		$canonicalizedHeaders[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate;
 		if (!is_null($headers))
 		{
 			foreach ($headers as $header => $value) {
@@ -109,7 +107,7 @@ class Microsoft_Azure_SharedKeyCredentials extends Microsoft_Azure_Credentials
 			$canonicalizedResource .= '/' . $this->_accountName;
 		$canonicalizedResource .= $path;
 		if ($queryString !== '')
-		    $canonicalizedResource .= '/' . $queryString;
+		    $canonicalizedResource .= $queryString;
 
 		// Create string to sign   
 		$stringToSign = array();

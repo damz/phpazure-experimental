@@ -115,7 +115,7 @@ class Microsoft_Azure_SharedKeyLiteCredentialsTest extends PHPUnit_Framework_Tes
   
         $this->assertType('array', $signedHeaders);
         $this->assertEquals(2, count($signedHeaders));
-        $this->assertEquals("SharedKeyLite devstoreaccount1:3hRhJfWP8LIEYidrMPsl55soq6V8GvXDcvLm3vgt4C8=", $signedHeaders["Authorization"]);
+        $this->assertEquals("SharedKeyLite devstoreaccount1:iRQpXGzlMRb1A57bkcryX7Bg/3Uf5YOfNCG+XIingJI=", $signedHeaders["Authorization"]);
     }
     
     /**
@@ -172,7 +172,7 @@ class Microsoft_Azure_SharedKeyLiteCredentialsTest extends PHPUnit_Framework_Tes
   
         $this->assertType('array', $signedHeaders);
         $this->assertEquals(2, count($signedHeaders));
-        $this->assertEquals("SharedKeyLite testing:g9tSOs3u9PJfT+/L6AnVX2e2VzhJrzAkK/bWoukw4NY=", $signedHeaders["Authorization"]);
+        $this->assertEquals("SharedKeyLite testing:vZdOn/j0gW5FG0kAUG9NhSBO9eBjZqfe6RwALPYUtqU=", $signedHeaders["Authorization"]);
     }
 }
 

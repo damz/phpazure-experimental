@@ -104,4 +104,32 @@ abstract class Microsoft_Azure_Credentials
 	 * @return array Array of headers
 	 */
 	public abstract function signRequest($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false);
+	
+	
+	/**
+	 * Prepare query string for signing
+	 * 
+	 * @param  string $value Original query string
+	 * @return string        Query string for signing
+	 */
+	protected function prepareQueryStringForSigning($value)
+	{
+	    // Check for 'comp='
+	    if (strpos($value, 'comp=') === false)
+	    {
+	        // If not found, no query string needed
+	        return '';
+	    }
+	    else
+	    {
+	        // If found, make sure it is the only parameter being used
+    		if (strlen($value) > 0 && strpos($value, '?') !== 0)
+    			$value = '?' . $value;	
+    
+    		if (strpos($value, '&') !== false)
+    			$value = substr($value, 0, strpos($value, '&'));
+    			
+			return $value;
+	    }
+	}
 }

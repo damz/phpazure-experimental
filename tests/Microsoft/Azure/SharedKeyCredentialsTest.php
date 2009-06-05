@@ -77,7 +77,7 @@ class Microsoft_Azure_SharedKeyCredentialsTest extends PHPUnit_Framework_TestCas
                           
         $this->assertType('array', $signedHeaders);
         $this->assertEquals(2, count($signedHeaders));
-        $this->assertEquals("SharedKey devstoreaccount1:kI769hyw/ca6o08arhdiKR9gszAj8SdSoo8eV8N63DY=", $signedHeaders["Authorization"]);
+        $this->assertEquals("SharedKey devstoreaccount1:ijwRTxfJgqvmfdWPSLCpgxfvHpl6Kbbo/qJTzlI7wUw=", $signedHeaders["Authorization"]);
     }
     
     /**
@@ -96,7 +96,7 @@ class Microsoft_Azure_SharedKeyCredentialsTest extends PHPUnit_Framework_TestCas
   
         $this->assertType('array', $signedHeaders);
         $this->assertEquals(2, count($signedHeaders));
-        $this->assertEquals("SharedKey devstoreaccount1:lM0mWrQTzQS7utfStELdG+x+6VImjvOiyKunhcm8/tU=", $signedHeaders["Authorization"]);
+        $this->assertEquals("SharedKey devstoreaccount1:ZLs/nBsEaoyCqHpqcQUfXO5zIHBTMcrzVaIxwQNBL9k=", $signedHeaders["Authorization"]);
     }
     
     /**
@@ -115,7 +115,7 @@ class Microsoft_Azure_SharedKeyCredentialsTest extends PHPUnit_Framework_TestCas
   
         $this->assertType('array', $signedHeaders);
         $this->assertEquals(2, count($signedHeaders));
-        $this->assertEquals("SharedKey devstoreaccount1:cnz0NLXnAoxcFY/zqnka1vrlAtEgP7CXqZLJMr4QGSU=", $signedHeaders["Authorization"]);
+        $this->assertEquals("SharedKey devstoreaccount1:ijwRTxfJgqvmfdWPSLCpgxfvHpl6Kbbo/qJTzlI7wUw=", $signedHeaders["Authorization"]);
     }
     
     /**
@@ -134,7 +134,7 @@ class Microsoft_Azure_SharedKeyCredentialsTest extends PHPUnit_Framework_TestCas
                           
         $this->assertType('array', $signedHeaders);
         $this->assertEquals(2, count($signedHeaders));
-        $this->assertEquals("SharedKey testing:njuCEe7YLp9SGitpAcu2nTe72f7wLk2edJ/MULv0cBM=", $signedHeaders["Authorization"]);
+        $this->assertEquals("SharedKey testing:TEYBENKs+6laykL+zCxlIbUT9v019rtMWECYwgP/OuU=", $signedHeaders["Authorization"]);
     }
     
     /**
@@ -153,7 +153,7 @@ class Microsoft_Azure_SharedKeyCredentialsTest extends PHPUnit_Framework_TestCas
   
         $this->assertType('array', $signedHeaders);
         $this->assertEquals(2, count($signedHeaders));
-        $this->assertEquals("SharedKey testing:E9LshWm0s13ZakO0DZ29UZcOv7nwYBeIcukCY+JcUSM=", $signedHeaders["Authorization"]);
+        $this->assertEquals("SharedKey testing:d2kcDGCQ603wPuZ3KHbeILtNhIXMXyTNVn2x9d5aF60=", $signedHeaders["Authorization"]);
     }
     
     /**
@@ -172,7 +172,7 @@ class Microsoft_Azure_SharedKeyCredentialsTest extends PHPUnit_Framework_TestCas
   
         $this->assertType('array', $signedHeaders);
         $this->assertEquals(2, count($signedHeaders));
-        $this->assertEquals("SharedKey testing:amrwlsNIVCk+VKwKWJ2XTHcfEjUpTq6nocCragU4PEE=", $signedHeaders["Authorization"]);
+        $this->assertEquals("SharedKey testing:TEYBENKs+6laykL+zCxlIbUT9v019rtMWECYwgP/OuU=", $signedHeaders["Authorization"]);
     }
 }
 
