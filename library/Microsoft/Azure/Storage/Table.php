@@ -79,6 +79,11 @@ require_once 'Microsoft/Azure/Storage/TableInstance.php';
 require_once 'Microsoft/Azure/Storage/TableEntity.php';
 
 /**
+ * @see Microsoft_Azure_Storage_TableEntityQuery
+ */
+require_once 'Microsoft/Azure/Storage/TableEntityQuery.php';
+
+/**
  * @see Microsoft_Azure_Exception
  */
 require_once 'Microsoft/Azure/Exception.php';
@@ -511,6 +516,117 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		    $entity->setEtag($etag);
 		    
 		    return $entity;
+		}
+		else
+		{
+		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+		}
+	}
+	
+	/**
+	 * Create a new Microsoft_Azure_Storage_TableEntityQuery
+	 * 
+	 * @return Microsoft_Azure_Storage_TableEntityQuery
+	 */
+	public function select()
+	{
+	    return new Microsoft_Azure_Storage_TableEntityQuery();
+	}
+	
+	/**
+	 * Retrieve entities from table
+	 * 
+	 * @param string $entityClass                                           Entity class name
+	 * @param string $tableName|Microsoft_Azure_Storage_TableEntityQuery    Table name -or- Microsoft_Azure_Storage_TableEntityQuery instance
+	 * @param string $filter                                                Filter condition (not applied when $tableName is a Microsoft_Azure_Storage_TableEntityQuery instance)
+	 * @return array Array of Microsoft_Azure_Storage_TableEntity
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function retrieveEntities($entityClass = '', $tableName = '', $filter = '')
+	{
+		if ($entityClass === '')
+			throw new Microsoft_Azure_Exception('Entity class is not specified.');
+		if ($tableName === '')
+			throw new Microsoft_Azure_Exception('Table name is not specified.');
+
+		// Query string
+		$queryString = '';
+
+		// Determine query
+		if (is_string($tableName))
+		{
+		    // Option 1: $tableName is a string
+		    
+    	    // Build query
+    	    $query = array();
+    	    
+    		// Filter?
+    		if ($filter !== '')
+    		{
+    		    $query[] = '$filter=' . rawurlencode($filter);
+    		}
+    		    
+    	    // Build queryString
+    	    if (count($query) > 0)
+    	    {
+    	        $queryString = '?' . implode('&', $query);
+    	    }
+		}
+		else if (get_class($tableName) == 'Microsoft_Azure_Storage_TableEntityQuery')
+		{
+		    // Option 2: $tableName is a Microsoft_Azure_Storage_TableEntityQuery instance
+
+		    // Build queryString
+		    $queryString = $tableName->assembleQueryString(true);
+
+		    // Change $tableName
+		    $tableName = $tableName->assembleFrom(false);
+		}
+		else
+		{
+		    throw new Microsoft_Azure_Exception('Invalid argument: $tableName');
+		}
+
+		// Perform request
+		$response = $this->performRequest($tableName . '()', $queryString, Microsoft_Http_Transport::VERB_GET, array(), true, null);
+		if ($response->isSuccessful())
+		{
+		    // Parse result
+		    $result = $this->parseResponse($response);
+
+		    if (!$result || !$result->entry)
+		        return array();
+		        
+		    $entries = null;
+		    if (count($result->entry) > 1) {
+		        $entries = $result->entry;
+		    } else {
+		        $entries = array($result->entry);
+		    }
+
+		    // Create return value
+		    $returnValue = array();		    
+		    foreach ($entries as $entry)
+		    {
+    		    // Parse properties
+    		    $properties = $entry->xpath('.//m:properties');
+    		    $properties = $properties[0]->children('http://schemas.microsoft.com/ado/2007/08/dataservices');
+    		    
+    		    // Create entity
+    		    $entity = new $entityClass('', '');
+    		    $entity->setAzureValues((array)$properties, true);
+    
+    		    // Update etag
+    		    $etag      = $entry->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
+    		    $etag      = (string)$etag['etag'];
+    		    $entity->setEtag($etag);
+    		    
+    		    // Add to result
+    		    $returnValue[] = $entity;
+		    }
+		    
+		    // Return
+		    return $returnValue;
 		}
 		else
 		{
