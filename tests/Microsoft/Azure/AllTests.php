@@ -48,6 +48,7 @@ require_once 'Microsoft/Azure/RetryPolicyTest.php';
 require_once 'Microsoft/Azure/StorageTest.php';
 require_once 'Microsoft/Azure/BlobStorageTest.php';
 require_once 'Microsoft/Azure/TableEntityTest.php';
+require_once 'Microsoft/Azure/DynamicTableEntityTest.php';
 require_once 'Microsoft/Azure/TableEntityQueryTest.php';
 require_once 'Microsoft/Azure/TableStorageTest.php';
 
@@ -81,10 +82,10 @@ class Microsoft_Azure_AllTests
         if (TESTS_TABLE_RUNTESTS)
         {
             $suite->addTestSuite('Microsoft_Azure_TableEntityTest');
+            $suite->addTestSuite('Microsoft_Azure_DynamicTableEntityTest');
             $suite->addTestSuite('Microsoft_Azure_TableEntityQueryTest');
             $suite->addTestSuite('Microsoft_Azure_TableStorageTest');
         }
-
         return $suite;
     }
 }

@@ -134,6 +134,34 @@ class Microsoft_Azure_Storage
 	protected $_retryPolicy = null;
 	
 	/**
+	 * Use proxy?
+	 * 
+	 * @var boolean
+	 */
+	protected $_useProxy = false;
+	
+	/**
+	 * Proxy url
+	 * 
+	 * @var string
+	 */
+	protected $_proxyUrl = '';
+	
+	/**
+	 * Proxy port
+	 * 
+	 * @var int
+	 */
+	protected $_proxyPort = 80;
+	
+	/**
+	 * Proxy credentials
+	 * 
+	 * @var string
+	 */
+	protected $_proxyCredentials = '';
+	
+	/**
 	 * Creates a new Microsoft_Azure_Storage instance
 	 *
 	 * @param string $host Storage host name
@@ -171,6 +199,22 @@ class Microsoft_Azure_Storage
 		$this->_retryPolicy = $retryPolicy;
 		if (is_null($this->_retryPolicy))
 		    $this->_retryPolicy = Microsoft_Azure_RetryPolicy::noRetry();
+	}
+	
+	/**
+	 * Set proxy
+	 * 
+	 * @param boolean $useProxy         Use proxy?
+	 * @param string  $proxyUrl         Proxy URL
+	 * @param int     $proxyPort        Proxy port
+	 * @param string  $proxyCredentials Proxy credentials
+	 */
+	public function setProxy($useProxy = false, $proxyUrl = '', $proxyPort = 80, $proxyCredentials = '')
+	{
+	    $this->_useProxy = $useProxy;
+	    $this->_proxyUrl = $proxyUrl;
+	    $this->_proxyPort = $proxyPort;
+	    $this->_proxyCredentials = $proxyCredentials;
 	}
 	
 	/**
@@ -229,6 +273,10 @@ class Microsoft_Azure_Storage
 		$requestHeaders = $this->_credentials->signRequest($httpVerb, $path, $queryString, $headers, $forTableStorage);
 
 		$requestClient  = Microsoft_Http_Transport::createChannel();
+		if ($this->_useProxy)
+		{
+		    $requestClient->setProxy($this->_useProxy, $this->_proxyUrl, $this->_proxyPort, $this->_proxyCredentials);
+		}
 		$response = $this->_retryPolicy->execute(
 		    array($requestClient, 'request'),
 		    array($httpVerb, $requestUrl, array(), $requestHeaders, $rawData)

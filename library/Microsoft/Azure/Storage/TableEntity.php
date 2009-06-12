@@ -251,7 +251,7 @@ abstract class Microsoft_Azure_Storage_TableEntity
     }
     
     /**
-     * Get Azure accessors from current instance
+     * Get Azure accessors from class
      * 
      * @param string $className Class to get accessors for
      * @return array

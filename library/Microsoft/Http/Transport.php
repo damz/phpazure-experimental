@@ -65,16 +65,49 @@ abstract class Microsoft_Http_Transport
     const VERB_HEAD     = 'HEAD';
     const VERB_MERGE    = 'MERGE';
     
-    /**
-     * Create channel
-     * 
-     * @param $type string   Transport channel type
-     * @return Microsoft_Http_Transport
-     */
-    public static function createChannel($type = 'Microsoft_Http_Transport_Curl')
-    {
-        return new $type();
-    }
+	/**
+	 * Use proxy?
+	 * 
+	 * @var boolean
+	 */
+	protected $_useProxy = false;
+	
+	/**
+	 * Proxy url
+	 * 
+	 * @var string
+	 */
+	protected $_proxyUrl = '';
+	
+	/**
+	 * Proxy port
+	 * 
+	 * @var int
+	 */
+	protected $_proxyPort = 80;
+	
+	/**
+	 * Proxy credentials
+	 * 
+	 * @var string
+	 */
+	protected $_proxyCredentials = '';
+	
+	/**
+	 * Set proxy
+	 * 
+	 * @param boolean $useProxy         Use proxy?
+	 * @param string  $proxyUrl         Proxy URL
+	 * @param int     $proxyPort        Proxy port
+	 * @param string  $proxyCredentials Proxy credentials
+	 */
+	public function setProxy($useProxy = false, $proxyUrl = '', $proxyPort = 80, $proxyCredentials = '')
+	{
+	    $this->_useProxy = $useProxy;
+	    $this->_proxyUrl = $proxyUrl;
+	    $this->_proxyPort = $proxyPort;
+	    $this->_proxyCredentials = $proxyCredentials;
+	}
     
     /**
      * User agent string
@@ -150,4 +183,15 @@ abstract class Microsoft_Http_Transport
      * @return Microsoft_Http_Response
      */
     public abstract function request($httpVerb, $url, $variables = array(), $headers = array(), $rawBody = null);
+    
+    /**
+     * Create channel
+     * 
+     * @param $type string   Transport channel type
+     * @return Microsoft_Http_Transport
+     */
+    public static function createChannel($type = 'Microsoft_Http_Transport_Curl')
+    {
+        return new $type();
+    }
 }

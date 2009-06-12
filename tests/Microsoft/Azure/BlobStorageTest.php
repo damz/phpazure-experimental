@@ -98,6 +98,11 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
         {
             $storageClient = new Microsoft_Azure_Storage_Blob(TESTS_BLOB_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_Azure_RetryPolicy::retryN(10, 250));
         }
+        
+        if (TESTS_STORAGE_USEPROXY)
+        {
+            $storageClient->setProxy(TESTS_STORAGE_USEPROXY, TESTS_STORAGE_PROXY, TESTS_STORAGE_PROXY_PORT, TESTS_STORAGE_PROXY_CREDENTIALS);
+        }
 
         return $storageClient;
     }

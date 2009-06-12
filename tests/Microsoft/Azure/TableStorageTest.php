@@ -100,6 +100,11 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             $storageClient = new Microsoft_Azure_Storage_Table(TESTS_TABLE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_Azure_RetryPolicy::retryN(10, 250));
             $storageClient->setOdbcSettings(TESTS_TABLE_DEVCNSTRING, TESTS_TABLE_DEVCNUSER, TESTS_TABLE_DEVCNPASS);
         }
+        
+        if (TESTS_STORAGE_USEPROXY)
+        {
+            $storageClient->setProxy(TESTS_STORAGE_USEPROXY, TESTS_STORAGE_PROXY, TESTS_STORAGE_PROXY_PORT, TESTS_STORAGE_PROXY_CREDENTIALS);
+        }
 
         return $storageClient;
     }
@@ -277,8 +282,30 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             
             $storageClient->insertEntity($tableName, $entity);
             
-            $result = $storageClient->retrieveEntityById('TSTest_TestEntity', $tableName, $entity->getPartitionKey(), $entity->getRowKey());
+            $result = $storageClient->retrieveEntityById($tableName, $entity->getPartitionKey(), $entity->getRowKey(), 'TSTest_TestEntity');
             $this->assertEquals($entity, $result);
+        }
+    }
+    
+    /**
+     * Test retrieve entity by id, DynamicTableEntity
+     */
+    public function testRetrieveEntityById_DynamicTableEntity()
+    {
+        if (!false && TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
+            
+            $storageClient->insertEntity($tableName, $entity);
+            
+            $result = $storageClient->retrieveEntityById($tableName, $entity->getPartitionKey(), $entity->getRowKey());
+            $this->assertEquals($entity->FullName, $result->Name);
+            $this->assertType('Microsoft_Azure_Storage_DynamicTableEntity', $result);
         }
     }
     
@@ -355,8 +382,35 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
                 $storageClient->insertEntity($tableName, $entity);
             }
             
-            $result = $storageClient->retrieveEntities('TSTest_TestEntity', $tableName);
+            $result = $storageClient->retrieveEntities($tableName, 'TSTest_TestEntity');
             $this->assertEquals(20, count($result));
+        }
+    }
+    
+    /**
+     * Test retrieve entities, all, DynamicTableEntity
+     */
+    public function testRetrieveEntities_All_DynamicTableEntity()
+    {
+        if (TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(20);
+            foreach ($entities as $entity)
+            {
+                $storageClient->insertEntity($tableName, $entity);
+            }
+            
+            $result = $storageClient->retrieveEntities($tableName);
+            $this->assertEquals(20, count($result));
+            
+            foreach ($result as $item)
+            {
+                $this->assertType('Microsoft_Azure_Storage_DynamicTableEntity', $item);
+            }
         }
     }
     
@@ -377,7 +431,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
                 $storageClient->insertEntity($tableName, $entity);
             }
             
-            $result = $storageClient->retrieveEntities('TSTest_TestEntity', $tableName, 'PartitionKey eq \'' . $entities[0]->getPartitionKey() . '\' and RowKey eq \'' . $entities[0]->getRowKey() . '\'');
+            $result = $storageClient->retrieveEntities($tableName, 'PartitionKey eq \'' . $entities[0]->getPartitionKey() . '\' and RowKey eq \'' . $entities[0]->getRowKey() . '\'', 'TSTest_TestEntity');
             $this->assertEquals(1, count($result));
         }
     }
@@ -400,11 +454,11 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             }
             
             $result = $storageClient->retrieveEntities(
-                'TSTest_TestEntity',
                 $storageClient->select()
                               ->from($tableName)
                               ->where('Name eq ?', $entities[0]->FullName)
-                              ->andWhere('RowKey eq ?', $entities[0]->getRowKey())
+                              ->andWhere('RowKey eq ?', $entities[0]->getRowKey()),
+                'TSTest_TestEntity'
             );
             
             $this->assertEquals(1, count($result));

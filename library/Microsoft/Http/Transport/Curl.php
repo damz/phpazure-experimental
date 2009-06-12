@@ -116,7 +116,15 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         // Ensure headers are returned
         curl_setopt($curlHandle, CURLOPT_HEADER,          true);
         
-        // Ensure response is returned 
+        // Set proxy?
+        if ($this->_useProxy)
+        {
+            curl_setopt($curlHandle, CURLOPT_PROXY,        $this->_proxyUrl); 
+            curl_setopt($curlHandle, CURLOPT_PROXYPORT,    $this->_proxyPort); 
+            curl_setopt($curlHandle, CURLOPT_PROXYUSERPWD, $this->_proxyCredentials); 
+        }
+        
+        // Ensure response is returned
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER,  true);
         
         // Set post fields / raw data

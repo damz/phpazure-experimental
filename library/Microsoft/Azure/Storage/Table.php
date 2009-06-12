@@ -475,23 +475,23 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	/**
 	 * Retrieve entity from table, by id
 	 * 
-	 * @param string $entityClass  Entity class name
 	 * @param string $tableName    Table name
 	 * @param string $partitionKey Partition key
 	 * @param string $rowKey       Row key
+	 * @param string $entityClass  Entity class name* 
 	 * @return Microsoft_Azure_Storage_TableEntity
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function retrieveEntityById($entityClass = '', $tableName = '', $partitionKey = '', $rowKey = '')
+	public function retrieveEntityById($tableName = '', $partitionKey = '', $rowKey = '', $entityClass = 'Microsoft_Azure_Storage_DynamicTableEntity')
 	{
-		if ($entityClass === '')
-			throw new Microsoft_Azure_Exception('Entity class is not specified.');
 		if ($tableName === '')
 			throw new Microsoft_Azure_Exception('Table name is not specified.');
 		if ($partitionKey === '')
 			throw new Microsoft_Azure_Exception('Partition key is not specified.');
 		if ($rowKey === '')
 			throw new Microsoft_Azure_Exception('Row key is not specified.');
+		if ($entityClass === '')
+			throw new Microsoft_Azure_Exception('Entity class is not specified.');
 		                     
 		// Perform request
 		$response = $this->performRequest($tableName . '(PartitionKey=\'' . $partitionKey . '\', RowKey=\'' . $rowKey . '\')', '', Microsoft_Http_Transport::VERB_GET, array(), true, null);
@@ -509,6 +509,20 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		    // Create entity
 		    $entity = new $entityClass('', '');
 		    $entity->setAzureValues((array)$properties, true);
+		    
+		    // If we have a Microsoft_Azure_Storage_DynamicTableEntity, make sure all property types are OK
+		    if ($entity instanceof Microsoft_Azure_Storage_DynamicTableEntity)
+		    {
+		        foreach ($properties as $key => $value)
+		        {  
+		            $attributes = $value->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
+		            $type = (string)$attributes['type'];
+		            if ($type !== '')
+		            {
+		                $entity->setAzurePropertyType($key, $type);
+		            }
+		        }
+		    }
 
 		    // Update etag
 		    $etag      = $result->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
@@ -536,19 +550,26 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	/**
 	 * Retrieve entities from table
 	 * 
-	 * @param string $entityClass                                           Entity class name
 	 * @param string $tableName|Microsoft_Azure_Storage_TableEntityQuery    Table name -or- Microsoft_Azure_Storage_TableEntityQuery instance
 	 * @param string $filter                                                Filter condition (not applied when $tableName is a Microsoft_Azure_Storage_TableEntityQuery instance)
+	 * @param string $entityClass                                           Entity class name
 	 * @return array Array of Microsoft_Azure_Storage_TableEntity
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function retrieveEntities($entityClass = '', $tableName = '', $filter = '')
+	public function retrieveEntities($tableName = '', $filter = '', $entityClass = 'Microsoft_Azure_Storage_DynamicTableEntity')
 	{
-		if ($entityClass === '')
-			throw new Microsoft_Azure_Exception('Entity class is not specified.');
 		if ($tableName === '')
 			throw new Microsoft_Azure_Exception('Table name is not specified.');
+		if ($entityClass === '')
+			throw new Microsoft_Azure_Exception('Entity class is not specified.');
 
+		// Convenience...
+		if (class_exists($filter))
+		{
+		    $entityClass = $filter;
+		    $filter = '';
+		}
+			
 		// Query string
 		$queryString = '';
 
@@ -615,6 +636,20 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
     		    // Create entity
     		    $entity = new $entityClass('', '');
     		    $entity->setAzureValues((array)$properties, true);
+    		    
+    		    // If we have a Microsoft_Azure_Storage_DynamicTableEntity, make sure all property types are OK
+    		    if ($entity instanceof Microsoft_Azure_Storage_DynamicTableEntity)
+    		    {
+    		        foreach ($properties as $key => $value)
+    		        {  
+    		            $attributes = $value->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
+    		            $type = (string)$attributes['type'];
+    		            if ($type !== '')
+    		            {
+    		                $entity->setAzurePropertyType($key, $type);
+    		            }
+    		        }
+    		    }
     
     		    // Update etag
     		    $etag      = $entry->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
