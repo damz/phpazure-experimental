@@ -69,6 +69,11 @@ require_once 'Microsoft/Http/Response.php';
 require_once 'Microsoft/Azure/Storage.php';
 
 /**
+ * @see Microsoft_Azure_Storage_BatchStorage
+ */
+require_once 'Microsoft/Azure/Storage/BatchStorage.php';
+
+/**
  * @see Microsoft_Azure_Storage_TableInstance
  */
 require_once 'Microsoft/Azure/Storage/TableInstance.php';
@@ -96,7 +101,7 @@ require_once 'Microsoft/Azure/Exception.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
+class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 {
     /**
      * ODBC connection string
@@ -418,7 +423,16 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
         $headers['Content-Type'] = 'application/atom+xml';
 
 		// Perform request
-		$response = $this->performRequest($tableName, '', Microsoft_Http_Transport::VERB_POST, $headers, true, $requestBody);
+	    $response = null;
+	    if ($this->isInBatch())
+		{
+		    $this->getCurrentBatch()->enlistOperation($tableName, '', Microsoft_Http_Transport::VERB_POST, $headers, true, $requestBody);
+		    return null;
+		}
+		else
+		{
+		    $response = $this->performRequest($tableName, '', Microsoft_Http_Transport::VERB_POST, $headers, true, $requestBody);
+		}
 		if ($response->isSuccessful())
 		{
 		    // Parse result
@@ -471,7 +485,16 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
         }
 
 		// Perform request
-		$response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
+	    $response = null;
+	    if ($this->isInBatch())
+		{
+		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
+		    return null;
+		}
+		else
+		{
+		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
+		}
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
@@ -609,7 +632,6 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		{
 		    // Parse result
 		    $result = $this->parseResponse($response);
-
 		    if (!$result)
 		        return array();
 
@@ -627,7 +649,16 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		    }
 		    else
 		    {
-		        $entries = array($result);
+		        // This one is tricky... If we have properties defined, we have an entity.
+		        $properties = $result->xpath('//m:properties');
+		        if ($properties)
+		        {
+		            $entries = array($result);
+		        } 
+		        else
+		        {
+		            return array();
+		        }
 		    }
 
 		    // Create return value
@@ -742,7 +773,16 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
         }
         
 		// Perform request
-		$response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_PUT, $headers, true, $requestBody);
+		$response = null;
+	    if ($this->isInBatch())
+		{
+		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_PUT, $headers, true, $requestBody);
+		    return null;
+		}
+		else
+		{
+		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_PUT, $headers, true, $requestBody);
+		}
 		if ($response->isSuccessful())
 		{
 		    // Update properties

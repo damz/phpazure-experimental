@@ -139,7 +139,7 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
             curl_setopt($curlHandle, CURLOPT_POSTFIELDS,  is_null($rawBody) ? $variables : $rawBody);
         }
 
-        // Clear Content-Type header if required
+        // Set Content-Type header if required
         if (!isset($headers["Content-Type"])) {
             $headers["Content-Type"] = '';
         }

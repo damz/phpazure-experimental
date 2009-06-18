@@ -467,6 +467,153 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test batch commit, success
+     */
+    public function testBatchCommit_Success()
+    {
+        if (TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(10);
+            
+            // Start batch
+            $batch = $storageClient->startBatch();
+            $this->assertType('Microsoft_Azure_Storage_Batch', $batch);
+            
+            // Insert entities in batch
+            foreach ($entities as $entity)
+            {
+                $storageClient->insertEntity($tableName, $entity);
+            }
+            
+            // Commit
+            $batch->commit();
+            
+            // Verify
+            $result = $storageClient->retrieveEntities($tableName);
+            $this->assertEquals(10, count($result));
+        }
+    }
+    
+    /**
+     * Test batch rollback, success
+     */
+    public function testBatchRollback_Success()
+    {
+        if (TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(10);
+            
+            // Start batch
+            $batch = $storageClient->startBatch();
+            $this->assertType('Microsoft_Azure_Storage_Batch', $batch);
+            
+            // Insert entities in batch
+            foreach ($entities as $entity)
+            {
+                $storageClient->insertEntity($tableName, $entity);
+            }
+            
+            // Rollback
+            $batch->rollback();
+            
+            // Verify
+            $result = $storageClient->retrieveEntities($tableName);
+            $this->assertEquals(0, count($result));
+        }
+    }
+    
+    /**
+     * Test batch commit, fail updates
+     */
+    public function testBatchCommit_FailUpdates()
+    {
+        if (TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(10);
+            foreach ($entities as $entity)
+            {
+                $storageClient->insertEntity($tableName, $entity);
+            }
+            
+            // Make some entity updates with "old" etags
+            $entities[0]->Age = 0;
+            $entities[0]->setEtag('W/"datetime\'2009-05-27T12%3A15%3A15.3321531Z\'"');
+            $entities[1]->Age = 0;
+            $entities[1]->setEtag('W/"datetime\'2009-05-27T12%3A15%3A15.3321531Z\'"');
+            $entities[2]->Age = 0;
+            
+            // Start batch
+            $batch = $storageClient->startBatch();
+            $this->assertType('Microsoft_Azure_Storage_Batch', $batch);
+            
+            // Update entities in batch
+            $storageClient->updateEntity($tableName, $entities[0], true);
+            $storageClient->updateEntity($tableName, $entities[1], true);
+            $storageClient->updateEntity($tableName, $entities[2], true);
+            
+            // Commit
+            $exceptionThrown = false;
+            try {
+                $batch->commit();
+            } catch (Exception $ex) {
+                $exceptionThrown = true;
+            }
+            $this->assertTrue($exceptionThrown);
+        }
+    }
+    
+    /**
+     * Test batch commit, fail partition
+     */
+    public function testBatchCommit_FailPartition()
+    {
+        if (TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(10);
+            
+            // Start batch
+            $batch = $storageClient->startBatch();
+            $this->assertType('Microsoft_Azure_Storage_Batch', $batch);
+            
+            // Insert entities in batch
+            foreach ($entities as $entity)
+            {
+                $entity->setPartitionKey('partition' . rand(1, 9));
+                $storageClient->insertEntity($tableName, $entity);
+            }
+            
+            // Commit
+            $exceptionThrown = false;
+            try {
+                $batch->commit();
+            } catch (Exception $ex) {
+                $exceptionThrown = true;
+            }
+            $this->assertTrue($exceptionThrown);
+            
+            // Verify
+            $result = $storageClient->retrieveEntities($tableName);
+            $this->assertEquals(0, count($result));
+        }
+    }
+    
+    /**
      * Generate entities
      * 
      * @param int 		$amount Number of entities to generate
@@ -490,6 +637,9 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
 }
 
+/**
+ * Test Microsoft_Azure_Storage_TableEntity class
+ */
 class TSTest_TestEntity extends Microsoft_Azure_Storage_TableEntity
 {
     /**
