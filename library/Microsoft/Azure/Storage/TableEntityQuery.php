@@ -64,25 +64,25 @@ class Microsoft_Azure_Storage_TableEntityQuery
 	protected $_orderBy = array();
 	
 	/**
-	 * Skip
-	 * 
-	 * @var int
-	 */
-	protected $_skip = null;
-	
-	/**
-	 * Take
-	 * 
-	 * @var int
-	 */
-	protected $_take = null;
-	
-	/**
 	 * Top
 	 * 
 	 * @var int
 	 */
 	protected $_top = null;
+	
+	/**
+	 * Partition key
+	 * 
+	 * @var string
+	 */
+	protected $_partitionKey = null;
+
+	/**
+	 * Row key
+	 * 
+	 * @var string
+	 */
+	protected $_rowKey = null;
 	
 	/**
 	 * Select clause
@@ -104,6 +104,30 @@ class Microsoft_Azure_Storage_TableEntityQuery
 	{
 		$this->_from = $name;
 		return $this;
+	}
+	
+	/**
+	 * Specify partition key
+	 * 
+	 * @param string $value Partition key to query for
+	 * @return Microsoft_Azure_Storage_TableEntityQuery
+	 */
+	public function wherePartitionKey($value = null)
+	{
+	    $this->_partitionKey = $value;
+	    return $this;
+	}
+	
+	/**
+	 * Specify row key
+	 * 
+	 * @param string $value Row key to query for
+	 * @return Microsoft_Azure_Storage_TableEntityQuery
+	 */
+	public function whereRowKey($value = null)
+	{
+	    $this->_rowKey = $value;
+	    return $this;
 	}
 	
 	/**
@@ -172,44 +196,6 @@ class Microsoft_Azure_Storage_TableEntityQuery
 		$this->_orderBy[] = $column . ' ' . $direction;
 		return $this;
 	}
-	
-	/**
-	 * Limit clause
-	 * 
-	 * @param int $count  Number of entities to fetch
-	 * @param int $offset First entity to fetch
-	 * @return Microsoft_Azure_Storage_TableEntityQuery
-	 */
-    public function limit($count = null, $offset = null)
-    {
-        $this->_take  = (int)$count;
-        $this->_skip  = (int)$offset;
-        return $this;
-    }
-    
-	/**
-	 * Skip clause
-	 * 
-	 * @param int $offset First entity to fetch
-	 * @return Microsoft_Azure_Storage_TableEntityQuery
-	 */
-    public function skip($offset = null)
-    {
-        $this->_skip  = (int)$offset;
-        return $this;
-    }
-    
-	/**
-	 * Take clause
-	 * 
-	 * @param int $count  Number of entities to fetch
-	 * @return Microsoft_Azure_Storage_TableEntityQuery
-	 */
-    public function take($count = null)
-    {
-        $this->_take  = (int)$count;
-        return $this;
-    }
     
 	/**
 	 * Top clause
@@ -242,14 +228,6 @@ class Microsoft_Azure_Storage_TableEntityQuery
 		    $orderBy = implode(',', $this->_orderBy);
 			$query[] = '$orderby=' . ($urlEncode ? urlencode($orderBy) : $orderBy);
 		}
-		if (!is_null($this->_skip))
-		{
-			$query[] = '$skip=' . $this->_skip;
-		}
-		if (!is_null($this->_take))
-		{
-			$query[] = '$take=' . $this->_take;
-		}
 		if (!is_null($this->_top))
 		{
 			$query[] = '$top=' . $this->_top;
@@ -270,7 +248,23 @@ class Microsoft_Azure_Storage_TableEntityQuery
 	 */
 	public function assembleFrom($includeParentheses = true)
 	{
-		return $this->_from . ($includeParentheses ? '()' : '');
+	    $identifier = '';
+	    if ($includeParentheses)
+	    {
+	        $identifier .= '(';
+	        
+	        if (!is_null($this->_partitionKey))
+	            $identifier .= 'PartitionKey=\'' . $this->_partitionKey . '\'';
+	            
+	        if (!is_null($this->_partitionKey) && !is_null($this->_rowKey))
+	            $identifier .= ', ';
+	            
+	        if (!is_null($this->_rowKey))
+	            $identifier .= 'RowKey=\'' . $this->_rowKey . '\'';
+	            
+	        $identifier .= ')';
+	    }
+		return $this->_from . $identifier;
 	}
 	
 	/**

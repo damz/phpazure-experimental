@@ -252,9 +252,12 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		        return array();
 	        
 		    $entries = null;
-		    if (count($result->entry) > 1) {
+		    if (count($result->entry) > 1)
+		    {
 		        $entries = $result->entry;
-		    } else {
+		    } 
+		    else 
+		    {
 		        $entries = array($result->entry);
 		    }
 
@@ -458,9 +461,12 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
         $headers = array();
         $headers['Content-Type']   = 'application/atom+xml';
         $headers['Content-Length'] = 0;
-        if (!$verifyEtag) {
+        if (!$verifyEtag)
+        {
             $headers['If-Match']       = '*';
-        } else {
+        } 
+        else 
+        {
             $headers['If-Match']       = $entity->getEtag();
         }
 
@@ -493,48 +499,23 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		if ($entityClass === '')
 			throw new Microsoft_Azure_Exception('Entity class is not specified.');
 		                     
-		// Perform request
-		$response = $this->performRequest($tableName . '(PartitionKey=\'' . $partitionKey . '\', RowKey=\'' . $rowKey . '\')', '', Microsoft_Http_Transport::VERB_GET, array(), true, null);
-		if ($response->isSuccessful())
-		{
-		    // Parse result
-		    $result = $this->parseResponse($response);
-		    if (!$result)
-		        return null;
-
-		    // Parse properties
-		    $properties = $result->xpath('.//m:properties');
-		    $properties = $properties[0]->children('http://schemas.microsoft.com/ado/2007/08/dataservices');
-		    
-		    // Create entity
-		    $entity = new $entityClass('', '');
-		    $entity->setAzureValues((array)$properties, true);
-		    
-		    // If we have a Microsoft_Azure_Storage_DynamicTableEntity, make sure all property types are OK
-		    if ($entity instanceof Microsoft_Azure_Storage_DynamicTableEntity)
-		    {
-		        foreach ($properties as $key => $value)
-		        {  
-		            $attributes = $value->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
-		            $type = (string)$attributes['type'];
-		            if ($type !== '')
-		            {
-		                $entity->setAzurePropertyType($key, $type);
-		            }
-		        }
-		    }
-
-		    // Update etag
-		    $etag      = $result->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
-		    $etag      = (string)$etag['etag'];
-		    $entity->setEtag($etag);
-		    
-		    return $entity;
-		}
-		else
-		{
-		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
-		}
+		// Fetch entities from Azure
+        $result = $this->retrieveEntities(
+            $this->select()
+                 ->from($tableName)
+                 ->wherePartitionKey($partitionKey)
+                 ->whereRowKey($rowKey),
+            '',
+            $entityClass
+        );
+        
+        // Return
+        if (count($result) == 1)
+        {
+            return $result[0];
+        }
+        
+        return null;
 	}
 	
 	/**
@@ -553,10 +534,12 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 	 * @param string $tableName|Microsoft_Azure_Storage_TableEntityQuery    Table name -or- Microsoft_Azure_Storage_TableEntityQuery instance
 	 * @param string $filter                                                Filter condition (not applied when $tableName is a Microsoft_Azure_Storage_TableEntityQuery instance)
 	 * @param string $entityClass                                           Entity class name
+	 * @param string $nextPartitionKey                                      Next partition key, used for listing entities when total amount of entities is > 1000.
+	 * @param string $nextRowKey                                            Next row key, used for listing entities when total amount of entities is > 1000.
 	 * @return array Array of Microsoft_Azure_Storage_TableEntity
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function retrieveEntities($tableName = '', $filter = '', $entityClass = 'Microsoft_Azure_Storage_DynamicTableEntity')
+	public function retrieveEntities($tableName = '', $filter = '', $entityClass = 'Microsoft_Azure_Storage_DynamicTableEntity', $nextPartitionKey = null, $nextRowKey = null)
 	{
 		if ($tableName === '')
 			throw new Microsoft_Azure_Exception('Table name is not specified.');
@@ -577,6 +560,9 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		if (is_string($tableName))
 		{
 		    // Option 1: $tableName is a string
+		    
+		    // Append parentheses
+		    $tableName .= '()';
 		    
     	    // Build query
     	    $query = array();
@@ -601,28 +587,47 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
 		    $queryString = $tableName->assembleQueryString(true);
 
 		    // Change $tableName
-		    $tableName = $tableName->assembleFrom(false);
+		    $tableName = $tableName->assembleFrom(true);
 		}
 		else
 		{
 		    throw new Microsoft_Azure_Exception('Invalid argument: $tableName');
 		}
+		
+		// Add continuation querystring parameters?
+		if (!is_null($nextPartitionKey) && !is_null($nextRowKey))
+		{
+		    if ($queryString !== '')
+		        $queryString .= '&';
+		        
+		    $queryString .= '&NextPartitionKey=' . rawurlencode($nextPartitionKey) . '&NextRowKey=' . rawurlencode($nextRowKey);
+		}
 
 		// Perform request
-		$response = $this->performRequest($tableName . '()', $queryString, Microsoft_Http_Transport::VERB_GET, array(), true, null);
+		$response = $this->performRequest($tableName, $queryString, Microsoft_Http_Transport::VERB_GET, array(), true, null);
 		if ($response->isSuccessful())
 		{
 		    // Parse result
 		    $result = $this->parseResponse($response);
 
-		    if (!$result || !$result->entry)
+		    if (!$result)
 		        return array();
-		        
+
 		    $entries = null;
-		    if (count($result->entry) > 1) {
-		        $entries = $result->entry;
-		    } else {
-		        $entries = array($result->entry);
+		    if ($result->entry)
+		    {
+    		    if (count($result->entry) > 1)
+    		    {
+    		        $entries = $result->entry;
+    		    }
+    		    else
+    		    {
+    		        $entries = array($result->entry);
+    		    }
+		    }
+		    else
+		    {
+		        $entries = array($result);
 		    }
 
 		    // Create return value
@@ -659,6 +664,12 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
     		    // Add to result
     		    $returnValue[] = $entity;
 		    }
+
+			// More entities?
+		    if (!is_null($response->getHeader('x-ms-continuation-NextPartitionKey')) && !is_null($response->getHeader('x-ms-continuation-NextRowKey')))
+		    {
+		        $returnValue = array_merge($returnValue, $this->retrieveEntities($tableName, $filter, $entityClass, $response->getHeader('x-ms-continuation-NextPartitionKey'), $response->getHeader('x-ms-continuation-NextRowKey')));
+		    }
 		    
 		    // Return
 		    return $returnValue;
@@ -688,9 +699,12 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
         $headers = array();
         $headers['Content-Type']   = 'application/atom+xml';
         $headers['Content-Length'] = 0;
-        if (!$verifyEtag) {
+        if (!$verifyEtag) 
+        {
             $headers['If-Match']       = '*';
-        } else {
+        } 
+        else 
+        {
             $headers['If-Match']       = $entity->getEtag();
         }
 
@@ -718,9 +732,12 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage
         // Add header information
         $headers = array();
         $headers['Content-Type'] = 'application/atom+xml';
-	    if (!$verifyEtag) {
+	    if (!$verifyEtag) 
+	    {
             $headers['If-Match']       = '*';
-        } else {
+        } 
+        else 
+        {
             $headers['If-Match']       = $entity->getEtag();
         }
         

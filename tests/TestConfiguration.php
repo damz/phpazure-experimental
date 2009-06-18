@@ -43,7 +43,7 @@ define('TESTS_GENERATE_REPORT_TARGET', '/path/to/target');
  */
 define('TESTS_STORAGE_USEPROXY',          false);
 define('TESTS_STORAGE_PROXY',             '');
-define('TESTS_STORAGE_PROXY_PORT',        '');
+define('TESTS_STORAGE_PROXY_PORT',        80);
 define('TESTS_STORAGE_PROXY_CREDENTIALS', '');
 
 /**
@@ -67,7 +67,7 @@ define('TESTS_STORAGE_KEY_PROD',       'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqY
 /**
  * Blob storage tests
  */
-define('TESTS_BLOB_RUNTESTS',           false);
+define('TESTS_BLOB_RUNTESTS',           true);
 define('TESTS_BLOB_RUNONPROD',          true);
 define('TESTS_BLOB_CONTAINER_PREFIX',   'phpazuretest');
 

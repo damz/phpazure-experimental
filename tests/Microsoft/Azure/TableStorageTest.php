@@ -138,7 +138,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateTable()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -157,7 +157,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testListTables()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName1 = $this->generateName();
             $tableName2 = $this->generateName();
@@ -178,7 +178,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteTable()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -196,7 +196,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testInsertEntity()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -218,7 +218,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteEntity_NoEtag()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -240,7 +240,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteEntity_Etag()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -271,7 +271,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testRetrieveEntityById()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -292,7 +292,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testRetrieveEntityById_DynamicTableEntity()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -314,7 +314,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testUpdateEntity_NoEtag()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -340,7 +340,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testUpdateEntity_Etag()
     {
-        if (!false && TESTS_TABLE_RUNONPROD) 
+        if (TESTS_TABLE_RUNONPROD) 
         {
             $tableName = $this->generateName();
             $storageClient = $this->createStorageInstance();

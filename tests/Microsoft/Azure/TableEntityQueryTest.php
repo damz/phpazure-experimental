@@ -74,30 +74,43 @@ class Microsoft_Azure_TableEntityQueryTest extends PHPUnit_Framework_TestCase
     }
     
     /**
-     * Test limit records query
+     * Test partition key query
      */
-    public function testLimitQuery()
+    public function testPartitionKeyQuery()
     {
         $target = new Microsoft_Azure_Storage_TableEntityQuery();
         $target->select()
                ->from('MyTable')
-               ->limit(10,20);
+               ->wherePartitionKey('test');
                
-        $this->assertEquals('MyTable()?$skip=20&$take=10', $target->__toString());
+        $this->assertEquals('MyTable(PartitionKey=\'test\')', $target->__toString());
     }
     
     /**
-     * Test skip/take records query
+     * Test row key query
      */
-    public function testSkipTakeQuery()
+    public function testRowKeyQuery()
     {
         $target = new Microsoft_Azure_Storage_TableEntityQuery();
         $target->select()
                ->from('MyTable')
-               ->skip(10)
-               ->take(20);
+               ->whereRowKey('test');
                
-        $this->assertEquals('MyTable()?$skip=10&$take=20', $target->__toString());
+        $this->assertEquals('MyTable(RowKey=\'test\')', $target->__toString());
+    }
+    
+    /**
+     * Test identifier query
+     */
+    public function testIdentifierQuery()
+    {
+        $target = new Microsoft_Azure_Storage_TableEntityQuery();
+        $target->select()
+               ->from('MyTable')
+               ->wherePartitionKey('test')
+               ->whereRowKey('123');
+               
+        $this->assertEquals('MyTable(PartitionKey=\'test\', RowKey=\'123\')', $target->__toString());
     }
     
     /**
