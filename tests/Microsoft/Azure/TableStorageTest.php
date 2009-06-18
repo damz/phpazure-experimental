@@ -93,7 +93,6 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
         if (TESTS_TABLE_RUNONPROD)
         {
             $storageClient = new Microsoft_Azure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_Azure_RetryPolicy::retryN(10, 250));
-            $storageClient->setCredentials(new Microsoft_Azure_SharedKeyLiteCredentials(TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false));
         }
         else
         {

@@ -136,11 +136,9 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 	public function __construct($host = Microsoft_Azure_Storage::URL_DEV_TABLE, $accountName = Microsoft_Azure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_Azure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_Azure_RetryPolicy $retryPolicy = null)
 	{
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
-		if ($host == Microsoft_Azure_Storage::URL_DEV_TABLE)
-	    {
-	        // Use SharedKeyLite authentication on development storage
-	        $this->_credentials = new Microsoft_Azure_SharedKeyLiteCredentials($accountName, $accountKey, $this->_usePathStyleUri);
-	    }
+
+	    // Always use SharedKeyLite authentication
+	    $this->_credentials = new Microsoft_Azure_SharedKeyLiteCredentials($accountName, $accountKey, $this->_usePathStyleUri);
 	}
 	
 	/**
