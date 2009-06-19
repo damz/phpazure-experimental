@@ -38,9 +38,11 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 }
 
 /**
- * Test helper
+ * Test helpers
  */
 require_once dirname(__FILE__) . '/../../TestHelper.php';
+require_once dirname(__FILE__) . '/../../TestConfigurationAzure.php';
+require_once 'PHPUnit/Framework/TestCase.php';
 
 /** Microsoft_Azure_Storage_TableEntity */
 require_once 'Microsoft/Azure/Storage/TableEntity.php';

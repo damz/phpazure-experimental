@@ -33,50 +33,12 @@
  */
 
 /**
+ * Load Microsoft Azure test configuration
+ */
+require_once dirname(__FILE__) . '/TestConfigurationAzure.php';
+
+/**
  * PHPUnit Code Coverage / Test Report
  */
 define('TESTS_GENERATE_REPORT',        false);
 define('TESTS_GENERATE_REPORT_TARGET', '/path/to/target');
-
-/**
- * Proxy settings
- */
-define('TESTS_STORAGE_USEPROXY',          false);
-define('TESTS_STORAGE_PROXY',             '');
-define('TESTS_STORAGE_PROXY_PORT',        80);
-define('TESTS_STORAGE_PROXY_CREDENTIALS', '');
-
-/**
- * Azure hosts
- */
-define('TESTS_BLOB_HOST_DEV',          '127.0.0.1:10000');
-define('TESTS_QUEUE_HOST_DEV',         '127.0.0.1:10001');
-define('TESTS_TABLE_HOST_DEV',         '127.0.0.1:10002');
-define('TESTS_BLOB_HOST_PROD',         'blob.core.windows.net');
-define('TESTS_QUEUE_HOST_PROD',        'queue.core.windows.net');
-define('TESTS_TABLE_HOST_PROD',        'table.core.windows.net');
-
-/**
- * Credentials
- */
-define('TESTS_STORAGE_ACCOUNT_DEV',    'devstoreaccount1');
-define('TESTS_STORAGE_KEY_DEV',        'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==');
-define('TESTS_STORAGE_ACCOUNT_PROD',   'phpstorage');
-define('TESTS_STORAGE_KEY_PROD',       'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqYQ/uxbMpEx+7S/jo9sT3ZIkEucZGbEafDuxD1kwFOXf3xyw==');
-
-/**
- * Blob storage tests
- */
-define('TESTS_BLOB_RUNTESTS',           true);
-define('TESTS_BLOB_RUNONPROD',          true);
-define('TESTS_BLOB_CONTAINER_PREFIX',   'phpazuretest');
-
-/**
- * Table storage tests
- */
-define('TESTS_TABLE_RUNTESTS',          true);
-define('TESTS_TABLE_RUNONPROD',         true);
-define('TESTS_TABLE_TABLENAME_PREFIX',  'phpazuretest');
-define('TESTS_TABLE_DEVCNSTRING',       'Driver={SQL Native Client};Server=.\SQLEXPRESS;Database=AzureTableStorage; Uid=php;Pwd=php;');
-define('TESTS_TABLE_DEVCNUSER',         'php');
-define('TESTS_TABLE_DEVCNPASS',         'php');

@@ -26,76 +26,51 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @category   Microsoft
- * @package    Microsoft_Examples
- * @subpackage UnitTests
- * @version    $Id$
+ * @package    UnitTests
+ * @version    $Id: TestConfiguration.php 21617 2009-06-12 10:46:31Z unknown $
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 
-if (!defined('PHPUnit_MAIN_METHOD')) {
-    define('PHPUnit_MAIN_METHOD', 'Microsoft_DummyTest::main');
-}
+/**
+ * Proxy settings
+ */
+define('TESTS_STORAGE_USEPROXY',          false);
+define('TESTS_STORAGE_PROXY',             '');
+define('TESTS_STORAGE_PROXY_PORT',        '80');
+define('TESTS_STORAGE_PROXY_CREDENTIALS', '');
 
 /**
- * Test helper
+ * Azure hosts
  */
-require_once dirname(__FILE__) . '/../TestHelper.php';
-
-/** INCLUDES HERE */
+define('TESTS_BLOB_HOST_DEV',          '127.0.0.1:10000');
+define('TESTS_QUEUE_HOST_DEV',         '127.0.0.1:10001');
+define('TESTS_TABLE_HOST_DEV',         '127.0.0.1:10002');
+define('TESTS_BLOB_HOST_PROD',         'blob.core.windows.net');
+define('TESTS_QUEUE_HOST_PROD',        'queue.core.windows.net');
+define('TESTS_TABLE_HOST_PROD',        'table.core.windows.net');
 
 /**
- * @category   Microsoft
- * @package    Microsoft_Examples
- * @subpackage UnitTests
- * @version    $Id$
- * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
- * @license    http://phpazure.codeplex.com/license
+ * Credentials
  */
-class Microsoft_DummyTest extends PHPUnit_Framework_TestCase
-{
-    public static function main()
-    {
-        $suite  = new PHPUnit_Framework_TestSuite("Microsoft_DummyTest");
-        $result = PHPUnit_TextUI_TestRunner::run($suite);
-    }
+define('TESTS_STORAGE_ACCOUNT_DEV',    'devstoreaccount1');
+define('TESTS_STORAGE_KEY_DEV',        'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==');
+define('TESTS_STORAGE_ACCOUNT_PROD',   'phpstorage');
+define('TESTS_STORAGE_KEY_PROD',       'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqYQ/uxbMpEx+7S/jo9sT3ZIkEucZGbEafDuxD1kwFOXf3xyw==');
 
-    /**
-     * Test that 1 + 2 = 3
-     */
-    public function testSum1And2()
-    {
-        // Act
-        $this->_testSum(1, 2, 3);
-    }
-    
-    /**
-     * Test that 4 + 4 = 8
-     */
-    public function testSum4And4()
-    {
-        // Act
-        $this->_testSum(4, 4, 8);
-    }
-    
-    /**
-     * Test that 4 + 4 = 8
-     */
-    protected function _testSum($a, $b, $expectedValue)
-    {
-        // Arrange
+/**
+ * Blob storage tests
+ */
+define('TESTS_BLOB_RUNTESTS',           true);
+define('TESTS_BLOB_RUNONPROD',          true);
+define('TESTS_BLOB_CONTAINER_PREFIX',   'phpazuretest');
 
-        // Act
-        $result = $a + $b;
-        
-        // Assert
-        $this->assertType('int', $result);
-        $this->assertEquals($expectedValue, $result);
-        // $this->assertTrue($expectedValue == $result);
-    }
-}
-
-// Call Microsoft_DummyTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_DummyTest::main") {
-    Microsoft_DummyTest::main();
-}
+/**
+ * Table storage tests
+ */
+define('TESTS_TABLE_RUNTESTS',          true);
+define('TESTS_TABLE_RUNONPROD',         true);
+define('TESTS_TABLE_TABLENAME_PREFIX',  'phpazuretest');
+define('TESTS_TABLE_DEVCNSTRING',       'Driver={SQL Native Client};Server=.\SQLEXPRESS;Database=AzureTableStorage; Uid=php;Pwd=php;');
+define('TESTS_TABLE_DEVCNUSER',         'php');
+define('TESTS_TABLE_DEVCNPASS',         'php');

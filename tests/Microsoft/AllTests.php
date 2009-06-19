@@ -42,7 +42,6 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
     define('PHPUnit_MAIN_METHOD', 'Microsoft_AllTests::main');
 }
 
-require_once 'Microsoft/DummyTest.php';
 require_once 'Microsoft/Azure/AllTests.php';
 
 /**
@@ -64,9 +63,7 @@ class Microsoft_AllTests
     {
         $suite = new PHPUnit_Framework_TestSuite('Microsoft');
 
-        $suite->addTestSuite('Microsoft_DummyTest');
         $suite->addTest(Microsoft_Azure_AllTests::suite());
-        //$suite->addTestSuite('Zend_OpenIdTest');
 
         return $suite;
     }
