@@ -1,0 +1,377 @@
+<sect1 id="microsoft.azure.storage.table">
+  <title>Microsoft_Azure_Storage_Table</title>
+
+  <sect2 id="microsoft.azure.storage.table">
+    <title>Introduction</title>
+
+    <para>
+      The Table service offers structured storage in the form of tables.
+    </para>
+
+    <para>
+      Table Storage is offered by Windows Azure as a REST API which is wrapped
+      by the <code>Microsoft_Azure_Storage_Table</code> class in order to provide
+      a native PHP interface to the storage account.
+    </para>
+  </sect2>
+
+  <sect2 id="microsoft.azure.storage.table.api">
+    <title>API Examples</title>
+
+    <para>
+      This topic lists some examples of using the <code>Microsoft_Azure_Storage_Table</code> class.
+      Other features are available in the download package, as well as a detailed API documentation
+      of those features.
+    </para>
+
+    <para>
+      Note that development table storage (in the Windows Azure SDK) does not support all features
+      provided by the API.
+      Therefore, the examples listed on this page are to be used on Windows Azure production table storage.
+    </para>
+  </sect2>
+
+
+
+  <sect2 id="microsoft.azure.storage.table.api.table">
+    <title>Operations on tables</title>
+
+    <para>
+      This topic lists some samples of operations that can be executed on tables.
+    </para>
+  </sect2>
+
+  <sect2 id="microsoft.azure.storage.table.api.table.create">
+    <title>Creating a table</title>
+
+    <para>
+      Using the following code, a table can be created on Windows Azure production table storage.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.table.create">
+      <title>Creating a table</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+$result = $storageClient->createTable('testtable');
+
+echo 'New table name is: ' . $result->Name;
+]]>
+      </programlisting>
+    </example>
+  </sect2>
+
+  <sect2 id="microsoft.azure.storage.table.api.table.list">
+    <title>Listing all tables</title>
+
+    <para>
+      Using the following code, a list of all tables in Windows Azure production table storage can be queried.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.table.list">
+      <title>Listing all tables</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+$result = $storageClient->listTables();
+foreach ($result as $table)
+{
+    echo 'Table name is: ' . $table->Name . "\r\n";
+}
+]]>
+      </programlisting>
+    </example>
+  </sect2>
+
+
+
+  <sect2 id="microsoft.azure.storage.table.api.entities">
+    <title>Operations on entities</title>
+
+    <!-- TODO: http://phpazure.codeplex.com/Wiki/View.aspx?title=Defining%20entities%20for%20Table%20Storage&referringTitle=Getting%20Started -->
+    
+    <para>
+      All examples will make use of the following enforced schema class.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.entities.schema">
+      <title>Enforced schema used in samples</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+class SampleEntity extends Microsoft_Azure_Storage_TableEntity
+{
+    /**
+     * @azure Name
+     */
+    public $Name;
+    
+    /**
+     * @azure Age Edm.Int64
+     */
+    public $Age;
+    
+    /**
+     * @azure Visible Edm.Boolean
+     */
+    public $Visible = false;
+}
+]]>
+      </programlisting>
+    </example>
+
+    <para>
+      Note that if no schema class is passed into table storage methods, <code>Microsoft_Azure_Storage_Table</code>
+      automatically works with <code>Microsoft_Azure_Storage_DynamicTableEntity</code>.
+    </para>
+  </sect2>
+
+  <sect2 id="microsoft.azure.storage.table.api.entities.insert">
+    <title>Inserting an entity</title>
+
+    <para>
+      Using the following code, an entity can be inserted into a table named 'testtable'.
+      Note that the table has already been created before.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.entities.insert">
+      <title>Inserting an entity</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$entity = new SampleEntity ('partition1', 'row1');
+$entity->FullName = "Maarten";
+$entity->Age = 25;
+$entity->Visible = true;
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+$result = $storageClient->insertEntity('testtable', $entity);
+
+// Check the timestamp and etag of the newly inserted entity
+echo 'Timestamp: ' . $result->getTimestamp() . "\n";
+echo 'Etag: ' . $result->getEtag() . "\n";
+]]>
+      </programlisting>
+    </example>
+  </sect2>
+
+  <sect2 id="microsoft.azure.storage.table.api.entities.retrieve-by-id">
+    <title>Retrieving an entity by partition key and row key</title>
+
+    <para>
+      Using the following code, an entity can be retrieved by partition key and row key.
+      Note that the table and entity have already been created before.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.entities.retrieve-by-id">
+      <title>Retrieving an entity by partition key and row key</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+$entity= $storageClient->retrieveEntityById('testtable', 'partition1', 'row1', 'SampleEntity');
+]]>
+      </programlisting>
+    </example>
+  </sect2>
+
+  <sect2 id="microsoft.azure.storage.table.api.entities.updating">
+    <title>Updating an entity</title>
+
+    <para>
+      Using the following code, an entity can be updated.
+      Note that the table and entity have already been created before.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.entities.updating">
+      <title>Updating an entity</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+$entity = $storageClient->retrieveEntityById('testtable', 'partition1', 'row1', 'SampleEntity');
+
+$entity->Name = 'New name';
+$result = $storageClient->updateEntity('testtable', $entity);
+]]>
+      </programlisting>
+    </example>
+
+    <para>
+      If you want to make sure the entity has not been updated before, you can make sure the Etag of
+      the entity is checked. If the entity already has had an update, the update will fail to make
+      sure you do not overwrite any newer data.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.entities.updating-etag">
+      <title>Updating an entity (with Etag check)</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+$entity = $storageClient->retrieveEntityById('testtable', 'partition1', 'row1', 'SampleEntity');
+
+$entity->Name = 'New name';
+$result = $storageClient->updateEntity('testtable', $entity, true); // last parameter instructs the Etag check
+]]>
+      </programlisting>
+    </example>
+  </sect2>
+
+  <sect2 id="microsoft.azure.storage.table.api.entities.delete">
+    <title>Deleting an entity</title>
+
+    <para>
+      Using the following code, an entity can be deleted.
+      Note that the table and entity have already been created before.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.delete">
+      <title>Deleting an entity</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+$entity = $storageClient->retrieveEntityById('testtable', 'partition1', 'row1', 'SampleEntity');
+$result = $storageClient->deleteEntity('testtable', $entity);
+]]>
+      </programlisting>
+    </example>
+  </sect2>
+
+  <sect2 id="microsoft.azure.storage.table.api.entities.querying">
+    <title>Performing queries</title>
+
+    <para>
+      Queries in <code>Microsoft_Azure_Storage_Table</code> table storage can be performed in two ways:
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            By manually creating a filter condition (involving learning a new query language)
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            By using the fluent interface provided by the <code>Microsoft_Azure_Storage_Table</code>
+          </para>
+        </listitem>
+      </itemizedlist>
+    </para>
+
+    <para>
+      Using the following code, a table can be queried using a filter condition.
+      Note that the table and entities have already been created before.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.entities.querying">
+      <title>Performing queries using a filter condition</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+$entities = $storageClient->storageClient->retrieveEntities(
+    'testtable',
+    'Name eq \'Maarten\' and PartitionKey eq \'partition1\'',
+    'SampleEntity'
+);
+
+foreach ($entities as $entity)
+{
+    echo 'Name: ' . $entity->Name . "\n";
+}
+]]>
+      </programlisting>
+    </example>
+
+    <para>
+      Using the following code, a table can be queried using a fluent interface.
+      Note that the table and entities have already been created before.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.entities.querying">
+      <title>Performing queries using a fluent interface</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+$entities = $storageClient->storageClient->retrieveEntities(
+    'testtable',
+    $storageClient->select()
+                  ->from($tableName)
+                  ->where('Name eq ?', 'Maarten')
+                  ->andWhere('PartitionKey eq ?', 'partition1'),
+    'SampleEntity'
+);
+
+foreach ($entities as $entity)
+{
+    echo 'Name: ' . $entity->Name . "\n";
+}
+]]>
+      </programlisting>
+    </example>
+  </sect2>
+
+
+
+  <sect2 id="microsoft.azure.storage.table.api.batch">
+    <title>Batch operations</title>
+
+    <para>
+      This topic demonstrates how to use the table entity group transaction features provided
+      by Windows Azure table storage. Windows Azure table storage supports batch transactions
+      on entities that are in the same table and belong to the same partition group.
+      A transaction can include at most 100 entities.
+    </para>
+    <para>
+      The following example uses a batch operation (transaction) to insert a set of entities
+      into the 'testtable' table. Note that the table has already been created before.
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.batch">
+      <title>Executing a batch operation</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+
+// Start batch
+$batch = $storageClient->startBatch();
+            
+// Insert entities in batch
+$entities = generateEntities();
+foreach ($entities as $entity)
+{
+    $storageClient->insertEntity($tableName, $entity);
+}
+            
+// Commit
+$batch->commit();
+]]>
+      </programlisting>
+    </example>
+  </sect2>
+</sect1>
