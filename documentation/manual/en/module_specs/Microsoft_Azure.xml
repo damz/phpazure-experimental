@@ -38,7 +38,7 @@
     </para>
 
     <para>
-      The first case requires you to install the <ulink url="http://www.microsoft.com/downloads/details.aspx?familyid=11B451C4-7A7B-4537-A769-E1D157BAD8C6&displaylang=en">Windows Azure SDK</ulink> on your development machine.
+      The first case requires you to install the <ulink url="http://www.microsoft.com/downloads/details.aspx?familyid=11B451C4-7A7B-4537-A769-E1D157BAD8C6&amp;displaylang=en">Windows Azure SDK</ulink> on your development machine.
       It is currently only available for Windows environments, progress is being made on a Java-based version of the
       SDK which can run on any platform.
     </para>

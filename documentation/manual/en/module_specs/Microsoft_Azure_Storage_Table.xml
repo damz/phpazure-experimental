@@ -93,9 +93,37 @@ foreach ($result as $table)
 
   <sect2 id="microsoft.azure.storage.table.api.entities">
     <title>Operations on entities</title>
-
-    <!-- TODO: http://phpazure.codeplex.com/Wiki/View.aspx?title=Defining%20entities%20for%20Table%20Storage&referringTitle=Getting%20Started -->
     
+    <para>
+      Tables store data as collections of entities. Entities are similar to rows.
+      An entity has a primary key and a set of properties. A property is a name, 
+      typed-value pair, similar to a column.
+    </para>
+    
+    <para>
+      The Table service does not enforce any schema for tables, so two entities 
+      in the same table may have different sets of properties. Developers may choose
+      to enforce a schema on the client side. A table may contain any number of entities.
+    </para>
+    
+    <para>
+      <code>Microsoft_Azure_Storage_Table</code> provides 2 ways of working with entities:
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            Enforced schema
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            No enforced schema
+          </para>
+        </listitem>
+      </itemizedlist>
+    </para>
+
     <para>
       All examples will make use of the following enforced schema class.
     </para>
@@ -130,6 +158,255 @@ class SampleEntity extends Microsoft_Azure_Storage_TableEntity
       automatically works with <code>Microsoft_Azure_Storage_DynamicTableEntity</code>.
     </para>
   </sect2>
+
+
+
+  <sect2 id="microsoft.azure.storage.table.api.schema.enforced">
+    <title>Enforced schema entities</title>
+
+    <para>
+      To enforce a schema on the client side using the <code>Microsoft_Azure_Storage_Table</code> class,
+      you can create a class which inherits <code>Microsoft_Azure_Storage_TableEntity</code>.
+      This class provides some basic functionality for the <code>Microsoft_Azure_Storage_Table</code> class
+      to work with a client-side schema.
+    </para>
+
+    <para>
+      Base properties provided by <code>Microsoft_Azure_Storage_TableEntity</code> are:
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            PartitionKey (exposed trough getPartitionKey() and setPartitionKey())
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            RowKey (exposed trough getRowKey() and setRowKey())
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Timestamp (exposed trough getTimestamp() and setTimestamp())
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Etag value (exposed trough getEtag() and setEtag())
+          </para>
+        </listitem>
+      </itemizedlist>
+    </para>
+
+    <para>
+      Here's a sample class inheriting <code>Microsoft_Azure_Storage_TableEntity</code>:
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.schema.enforced">
+      <title>Sample enforced schema class</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+class SampleEntity extends Microsoft_Azure_Storage_TableEntity
+{
+    /**
+     * @azure Name
+     */
+    public $Name;
+    
+    /**
+     * @azure Age Edm.Int64
+     */
+    public $Age;
+    
+    /**
+     * @azure Visible Edm.Boolean
+     */
+    public $Visible = false;
+}
+]]>
+      </programlisting>
+    </example>
+
+    <para>
+      The <code>Microsoft_Azure_Storage_Table</code> class will map any class inherited from
+      <code>Microsoft_Azure_Storage_TableEntity</code> to Windows Azure table storage entities
+      with the correct data type and property name. All there is to storing a property in
+      Windows Azure is adding a docblock comment to a public property or public
+      getter/setter, in the following format:
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.schema.enforced-property">
+      <title>Enforced property</title>
+      <programlisting role="php">
+        <![CDATA[
+/**
+ * @azure <property name in Windows Azure> <optional property type>
+ */
+public $<property name in PHP>;
+]]>
+      </programlisting>
+    </example>
+
+    <para>
+      Let's see how to define a propety "Age" as an integer on Windows Azure table storage:
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.schema.enforced-property-sample">
+      <title>Sample enforced property</title>
+      <programlisting role="php">
+        <![CDATA[
+/**
+ * @azure Age Edm.Int64
+ */
+public $Age;
+]]>
+      </programlisting>
+    </example>
+
+    <para>
+      Note that a property does not necessarily have to be named the same on
+      Windows Azure table storage. The Windows Azure table storage property
+      name can be defined as well as the type.
+    </para>
+
+    <para>
+      The following data types are supported:
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            Edm.Binary - An array of bytes up to 64 KB in size.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Edm.Boolean - A boolean value.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Edm.DateTime - A 64-bit value expressed as Coordinated Universal Time (UTC). The supported DateTime range begins from 12:00 midnight, January 1, 1601 A.D. (C.E.), Coordinated Universal Time (UTC). The range ends at December 31st, 9999.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Edm.Double - A 64-bit floating point value.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Edm.Guid - A 128-bit globally unique identifier.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Edm.Int32 - A 32-bit integer.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Edm.Int64 - A 64-bit integer.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Edm.String - A UTF-16-encoded value. String values may be up to 64 KB in size.
+          </para>
+        </listitem>
+      </itemizedlist>
+    </para>
+  </sect2>
+
+  <sect2 id="microsoft.azure.storage.table.api.schema.notenforced">
+    <title>No enforced schema entities (a.k.a. DynamicEntity)</title>
+
+    <para>
+      To use the <code>Microsoft_Azure_Storage_Table</code> class without defining a schema,
+      you can make use of the <code>Microsoft_Azure_Storage_DynamicTableEntity</code> class.
+      This class inherits <code>Microsoft_Azure_Storage_TableEntity</code> like an enforced schema
+      class does, but contains additional logic to make it dynamic and not bound to a schema.
+    </para>
+
+    <para>
+      Base properties provided by <code>Microsoft_Azure_Storage_DynamicTableEntity</code> are:
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            PartitionKey (exposed trough getPartitionKey() and setPartitionKey())
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            RowKey (exposed trough getRowKey() and setRowKey())
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Timestamp (exposed trough getTimestamp() and setTimestamp())
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Etag value (exposed trough getEtag() and setEtag())
+          </para>
+        </listitem>
+      </itemizedlist>
+    </para>
+
+    <para>
+      Other properties can be added on the fly. Their Windows Azure table storage type will be determined on-the-fly:
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.schema.notenforced-sample1">
+      <title>Dynamicaly adding properties to Microsoft_Azure_Storage_DynamicTableEntity</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+$target = new Microsoft_Azure_Storage_DynamicTableEntity('partition1', '000001');
+$target->Name = 'Name'; // Will add property "Name" of type "Edm.String"
+$target->Age  = 25; // Will add property "Age" of type "Edm.Int32"
+]]>
+      </programlisting>
+    </example>
+
+    <para>
+      Optionally, a property type can be enforced:
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.schema.notenforced-sample2">
+      <title>Forcing property types on Microsoft_Azure_Storage_DynamicTableEntity</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+$target = new Microsoft_Azure_Storage_DynamicTableEntity('partition1', '000001');
+$target->Name = 'Name'; // Will add property "Name" of type "Edm.String"
+$target->Age  = 25; // Will add property "Age" of type "Edm.Int32"
+
+$target->setAzurePropertyType('Age', 'Edm.Int64'); // Changes type of property "Age" to "Edm.Int32"
+]]>
+      </programlisting>
+    </example>
+
+    <para>
+      The <code>Microsoft_Azure_Storage_Table</code> class automatically works with
+      <code>Microsoft_Azure_Storage_TableEntity</code> if no specific class is passed
+      into Table Storage methods.
+    </para>
+  </sect2>
+  
+  
 
   <sect2 id="microsoft.azure.storage.table.api.entities.insert">
     <title>Inserting an entity</title>
