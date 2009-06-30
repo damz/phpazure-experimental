@@ -84,6 +84,11 @@ require_once 'Microsoft/Azure/Storage/TableInstance.php';
 require_once 'Microsoft/Azure/Storage/TableEntity.php';
 
 /**
+ * @see Microsoft_Azure_Storage_DynamicTableEntity
+ */
+require_once 'Microsoft/Azure/Storage/DynamicTableEntity.php';
+
+/**
  * @see Microsoft_Azure_Storage_TableEntityQuery
  */
 require_once 'Microsoft/Azure/Storage/TableEntityQuery.php';
@@ -719,6 +724,33 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 	 */
 	public function updateEntity($tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
+	    return $this->changeEntity(Microsoft_Http_Transport::VERB_PUT, $tableName, $entity, $verifyEtag);
+	}
+	
+	/**
+	 * Update entity by adding properties
+	 * 
+	 * @param string                              $tableName   Table name
+	 * @param Microsoft_Azure_Storage_TableEntity $entity      Entity to update
+	 * @param boolean                             $verifyEtag  Verify etag of the entity (used for concurrency)
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function mergeEntity($tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null, $verifyEtag = false)
+	{
+	    return $this->changeEntity(Microsoft_Http_Transport::VERB_MERGE, $tableName, $entity, $verifyEtag);
+	}
+	
+	/**
+	 * Update entity / merge entity
+	 * 
+	 * @param string                              $httpVerb    HTTP verb to use (PUT = update, MERGE = merge)
+	 * @param string                              $tableName   Table name
+	 * @param Microsoft_Azure_Storage_TableEntity $entity      Entity to update
+	 * @param boolean                             $verifyEtag  Verify etag of the entity (used for concurrency)
+	 * @throws Microsoft_Azure_Exception
+	 */
+	protected function changeEntity($httpVerb = Microsoft_Http_Transport::VERB_PUT, $tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null, $verifyEtag = false)
+	{
 		if ($tableName === '')
 			throw new Microsoft_Azure_Exception('Table name is not specified.');
 		if (is_null($entity))
@@ -774,12 +806,12 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		$response = null;
 	    if ($this->isInBatch())
 		{
-		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_PUT, $headers, true, $requestBody);
+		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', $httpVerb, $headers, true, $requestBody);
 		    return null;
 		}
 		else
 		{
-		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_PUT, $headers, true, $requestBody);
+		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', $httpVerb, $headers, true, $requestBody);
 		}
 		if ($response->isSuccessful())
 		{

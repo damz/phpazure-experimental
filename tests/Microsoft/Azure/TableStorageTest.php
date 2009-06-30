@@ -370,6 +370,74 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test merge entity, not taking etag into account
+     */
+    public function testMergeEntity_NoEtag()
+    {
+        if (TESTS_TABLE_RUNTESTS && TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
+            
+            $storageClient->insertEntity($tableName, $entity);
+            
+            $dynamicEntity = new Microsoft_Azure_Storage_DynamicTableEntity($entity->getPartitionKey(), $entity->getRowKey());
+            $dynamicEntity->Myproperty = 10;
+            $dynamicEntity->Otherproperty = "Test";
+            $dynamicEntity->Age = 0;
+            
+            $storageClient->mergeEntity($tableName, $dynamicEntity);
+            
+            $result = $storageClient->retrieveEntityById($tableName, $entity->getPartitionKey(), $entity->getRowKey());
+
+            $this->assertNotEquals('0001-01-01T00:00:00', $result->getTimestamp());
+            $this->assertNotEquals('', $result->getEtag());
+            $this->assertEquals(0, $result->Age);
+            $this->assertEquals($entity->FullName, $result->Name);
+            $this->assertEquals($dynamicEntity->Myproperty, $result->Myproperty);
+            $this->assertEquals($dynamicEntity->Otherproperty, $result->Otherproperty);
+        }
+    }
+    
+    /**
+     * Test merge entity, taking etag into account
+     */
+    public function testMergeEntity_Etag()
+    {
+        if (TESTS_TABLE_RUNTESTS && TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
+            
+            $storageClient->insertEntity($tableName, $entity);
+            
+            $dynamicEntity = new Microsoft_Azure_Storage_DynamicTableEntity($entity->getPartitionKey(), $entity->getRowKey());
+            $dynamicEntity->Myproperty = 10;
+            $dynamicEntity->Otherproperty = "Test";
+            $dynamicEntity->Age = 0;
+            
+            // Set "old" etag
+            $entity->setEtag('W/"datetime\'2009-05-27T12%3A15%3A15.3321531Z\'"');
+            
+            $exceptionThrown = false;
+            try {
+                $storageClient->mergeEntity($tableName, $dynamicEntity, true);
+            } catch (Exception $ex) {
+                $exceptionThrown = true;
+            }
+            $this->assertTrue($exceptionThrown);
+        }
+    }
+    
+    /**
      * Test retrieve entities, all
      */
     public function testRetrieveEntities_All()

@@ -98,7 +98,7 @@ class Microsoft_Azure_DynamicTableEntityTest extends PHPUnit_Framework_TestCase
     /**
      * Test set Azure values
      */
-    public function testSetAzureValuesSuccess()
+    public function testSetAzureValues()
     {
         $values = array(
             'PartitionKey' => 'partition1',
