@@ -749,13 +749,14 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 * List blobs
 	 *
 	 * @param string $containerName Container name
+	 * @param string $prefix     Optional. Filters the results to return only blobs whose name begins with the specified prefix.
 	 * @param string $delimiter  Optional. Delimiter, i.e. '/', for specifying folder hierarchy
 	 * @param int    $maxResults Optional. Specifies the maximum number of blobs to return per call to Azure storage. This does NOT affect list size returned by this function. (maximum: 5000)
 	 * @param string $marker     Optional string value that identifies the portion of the list to be returned with the next list operation.
 	 * @return array
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function listBlobs($containerName = '', $delimiter = '', $maxResults = null, $marker = null)
+	public function listBlobs($containerName = '', $prefix = '', $delimiter = '', $maxResults = null, $marker = null)
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
@@ -764,6 +765,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			
 	    // Build query string
 	    $queryString = '?comp=list';
+        if (!is_null($prefix))
+	        $queryString .= '&prefix=' . $prefix;
 		if ($delimiter !== '')
 			$queryString .= '&delimiter=' . $delimiter;
 	    if (!is_null($maxResults))
@@ -825,7 +828,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			$xmlMarker = (string)$this->parseResponse($response)->NextMarker;
 			if (!is_null($xmlMarker) && $xmlMarker != '')
 			{
-			    $blobs = array_merge($blobs, $this->listBlobs($containerName, $delimiter, $maxResults, $marker));
+			    $blobs = array_merge($blobs, $this->listBlobs($containerName, $prefix, $delimiter, $maxResults, $marker));
 			}
 			
 			return $blobs;
