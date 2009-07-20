@@ -129,6 +129,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 			
 		// Create metadata headers
 		$headers = array();
@@ -165,6 +167,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 
 		// Perform request
 		$response = $this->performRequest($containerName, '?comp=acl', Microsoft_Http_Transport::VERB_GET);
@@ -185,6 +189,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 
 		// Perform request
 		$response = $this->performRequest($containerName, '?comp=acl', Microsoft_Http_Transport::VERB_PUT, array('x-ms-prop-publicaccess' => $acl));
@@ -203,6 +209,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		    
 		// Perform request
 		$response = $this->performRequest($containerName, '', Microsoft_Http_Transport::VERB_GET);	
@@ -243,6 +251,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		
 	    return $this->getContainer($containerName)->Metadata;
 	}
@@ -260,6 +270,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if (count($metadata) == 0)
 		    return;
 		    
@@ -287,6 +299,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 			
 		// Perform request
 		$response = $this->performRequest($containerName, '', Microsoft_Http_Transport::VERB_DELETE);
@@ -360,6 +374,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
 		if ($localFileName === '')
@@ -419,6 +435,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
 		if ($localFileName === '')
@@ -526,10 +544,14 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($sourceContainerName === '')
 			throw new Microsoft_Azure_Exception('Source container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Source container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($sourceBlobName === '')
 			throw new Microsoft_Azure_Exception('Source blob name is not specified.');
 		if ($destinationContainerName === '')
 			throw new Microsoft_Azure_Exception('Destination container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Destination container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($destinationBlobName === '')
 			throw new Microsoft_Azure_Exception('Destination blob name is not specified.');
 
@@ -579,6 +601,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
 		if ($localFileName === '')
@@ -604,6 +628,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
 		    
@@ -654,6 +680,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
 		
@@ -674,6 +702,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
 		if (count($metadata) == 0)
@@ -704,6 +734,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
 			
@@ -727,6 +759,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 			
 	    // Build query string
 	    $queryString = '?comp=list';
@@ -801,6 +835,29 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
 		}
 	}
+	
+	/**
+	 * Is valid container name?
+	 *
+	 * @param string $containerName Container name
+	 * @return boolean
+	 */
+    public static function isValidContainerName($containerName = '')
+    {
+        if (!ereg("^[a-z0-9][a-z0-9-]*", $containerName))
+            return false;
+    
+        if (strpos($containerName, '--') !== false)
+            return false;
+    
+        if (strtolower($containerName) != $containerName)
+            return false;
+    
+        if (strlen($containerName) < 3 || strlen($containerName) > 63)
+            return false;
+    
+        return true;
+    }
 	
 	/**
 	 * Generate block id
