@@ -174,7 +174,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 	    // Check if we can do this...
 	    if (!function_exists('odbc_connect'))
 	        throw new Microsoft_Azure_Exception('Function odbc_connect does not exist. Please enable the php_odbc.dll module in your php.ini.');
-	    if ($this->_odbcConnectionString == '' || $this->_odbcUserame == '' || $this->_odbcPassword == '')
+	    if ($this->_odbcConnectionString == '')
 	        throw new Microsoft_Azure_Exception('Please specify ODBC settings first using setOdbcSettings().');
 	    if ($entityClass === '')
 			throw new Microsoft_Azure_Exception('Entity class is not specified.');
@@ -218,7 +218,8 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
                 	[Timestamp] [datetime] NULL,
                 	[PartitionKey] [nvarchar](1000) NOT NULL,
                 	[RowKey] [nvarchar](1000) NOT NULL
-                )';
+                );
+                ALTER TABLE [dbo].[{tpl:TableName}] ADD PRIMARY KEY (PartitionKey, RowKey);';
 
         $sql = $this->fillTemplate($sql, array(
             'TableName'       => $tableName,
