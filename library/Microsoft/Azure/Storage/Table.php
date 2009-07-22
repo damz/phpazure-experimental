@@ -250,8 +250,15 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 	 */
 	public function listTables($nextTableName = '')
 	{
+	    // Build query string
+	    $queryString = '';
+	    if ($nextTableName != '')
+	    {
+	        $queryString = '?NextTableName=' . $nextTableName;
+	    }
+	    
 		// Perform request
-		$response = $this->performRequest('Tables', '', Microsoft_Http_Transport::VERB_GET, null, true);
+		$response = $this->performRequest('Tables', $queryString, Microsoft_Http_Transport::VERB_GET, null, true);
 		if ($response->isSuccessful())
 		{	    
 		    // Parse result
