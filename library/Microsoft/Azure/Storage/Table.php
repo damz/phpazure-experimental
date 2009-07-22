@@ -891,17 +891,20 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		    
 		    if (!is_null($azureValue->Value))
 		    {
-		        if ($azureValue->Value === true)
-		            $value[] = 1;
-		        else if ($azureValue->Value === false)
-		            $value[] = 0;
+		        if (strtolower($azureValue->Type) == 'edm.boolean')
+		        {
+		            $value[] = ($azureValue->Value == true ? '1' : '0');
+		        }
 		        else
+		        {
 		            $value[] = $azureValue->Value;
+		        }
 		    }
 		    
 		    $value[] = '</d:' . $azureValue->Name . '>';
 		    $azureRepresentation[] = implode('', $value);
 		}
+
 		return implode('', $azureRepresentation);
 	}
 }

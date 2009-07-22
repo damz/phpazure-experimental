@@ -229,6 +229,26 @@ abstract class Microsoft_Azure_Storage_TableEntity
         foreach ($accessors as $accessor)
         {
             if (isset($values[$accessor->AzurePropertyName])) {
+                // Cast to correct type
+                if ($accessor->AzurePropertyType != '')
+                {
+                    switch (strtolower($accessor->AzurePropertyType))
+        	        {
+        	            case 'edm.int32':
+        	            case 'edm.int64':
+        	                $values[$accessor->AzurePropertyName] = intval($values[$accessor->AzurePropertyName]); break;
+        	            case 'edm.boolean':
+        	                if ($values[$accessor->AzurePropertyName] == 'true' || $values[$accessor->AzurePropertyName] == '1')
+        	                    $values[$accessor->AzurePropertyName] = true;
+        	                else
+        	                    $values[$accessor->AzurePropertyName] = false;
+        	                break;
+        	            case 'edm.double':
+        	                $values[$accessor->AzurePropertyName] = floatval($values[$accessor->AzurePropertyName]); break;
+        	        }
+                }
+                
+                // Assign value
                 if ($accessor->EntityType == 'ReflectionProperty')
                 {
                     $property = $accessor->EntityAccessor;
