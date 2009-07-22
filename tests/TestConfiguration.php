@@ -61,8 +61,9 @@ define('TESTS_STORAGE_KEY_PROD',       'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqY
 /**
  * Blob storage tests
  */
-define('TESTS_BLOB_RUNTESTS',           false);
+define('TESTS_BLOB_RUNTESTS',           true);
 define('TESTS_BLOB_RUNONPROD',          true);
+define('TESTS_BLOB_RUNLARGEBLOB',       true);
 define('TESTS_BLOB_CONTAINER_PREFIX',   'phpazuretest');
 
 /**

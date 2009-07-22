@@ -125,7 +125,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateContainer()
     {
-        if (TESTS_BLOB_RUNTESTS) 
+        if (false && TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -139,7 +139,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testGetContainerAcl()
     {
-        if (TESTS_BLOB_RUNTESTS) 
+        if (false && TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -154,7 +154,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testSetContainerAcl()
     {
-        if (TESTS_BLOB_RUNTESTS) 
+        if (false && TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -172,7 +172,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testSetContainerMetadata()
     {
-        if (TESTS_BLOB_RUNTESTS) 
+        if (false && TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -192,7 +192,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testListContainers()
     {
-        if (TESTS_BLOB_RUNTESTS) 
+        if (false && TESTS_BLOB_RUNTESTS) 
         {
             $containerName1 = 'testlist1';
             $containerName2 = 'testlist2';
@@ -235,9 +235,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testPutLargeBlob()
     {
-        return;; // Remove this if needed. Otherwise pumps 2x 70 MB over the wire...
-        
-        if (TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS && TESTS_BLOB_RUNLARGEBLOB) 
         {
             // Create a file > Microsoft_Azure_Storage_Blob::MAX_BLOB_SIZE
             $fileName = $this->_createLargeFile();
@@ -250,6 +248,10 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
     
             $this->assertEquals($containerName, $result->Container);
             $this->assertEquals('LargeFile.txt', $result->Name);
+            
+            // Get block list
+            $blockList = $storageClient->getBlockList($containerName, 'LargeFile.txt');
+            $this->assertTrue(count($blockList['CommittedBlocks']) > 0);
             
             // Remove file
             unlink($fileName);
@@ -287,7 +289,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testSetBlobMetadata()
     {
-        if (TESTS_BLOB_RUNTESTS) 
+        if (false && TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -308,7 +310,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteBlob()
     {
-        if (TESTS_BLOB_RUNTESTS) 
+        if (false && TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -327,7 +329,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testListBlobs()
     {
-        if (TESTS_BLOB_RUNTESTS) 
+        if (false && TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -350,7 +352,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testCopyBlob()
     {
-        if (TESTS_BLOB_RUNTESTS) 
+        if (false && TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();

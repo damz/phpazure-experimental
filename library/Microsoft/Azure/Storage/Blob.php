@@ -471,30 +471,81 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			
 			// Read contents
 			$fileContents = fread($fp, self::MAX_BLOB_TRANSFER_SIZE);
-
-			// Upload
-			$response = $this->performRequest($containerName . '/' . $blobName, '?comp=block&blockid=' . base64_encode($blockIdentifiers[$i]), Microsoft_Http_Transport::VERB_PUT, null, false, $fileContents);
-			if (!$response->isSuccessful())
-			{
-				throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
-			}
+			
+			// Put block
+			$this->putBlock($containerName, $blobName, $blockIdentifiers[$i], $fileContents);
 		}
 		
 		// Close file
 		fclose($fp);
 		
-		// Generate block list
-		$blockList = '';
-		foreach ($blockIdentifiers as $block)
+		// Put block list
+		$this->putBlockList($containerName, $blobName, $blockIdentifiers, $metadata);
+		
+		// Return information of the blob
+		return $this->getBlobInstance($containerName, $blobName);
+	}			
+			
+	/**
+	 * Put large blob block
+	 *
+	 * @param string $containerName Container name
+	 * @param string $blobName      Blob name
+	 * @param string $identifier    Block ID
+	 * @param array  $contents      Contents of the block
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function putBlock($containerName = '', $blobName = '', $identifier = '', $contents = '')
+	{
+		if ($containerName === '')
+			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		if ($identifier === '')
+			throw new Microsoft_Azure_Exception('Block identifier is not specified.');
+		if (strlen($contents) > self::MAX_BLOB_TRANSFER_SIZE)
+			throw new Microsoft_Azure_Exception('Block size is too big.');
+			
+    	// Upload
+		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=block&blockid=' . base64_encode($identifier), Microsoft_Http_Transport::VERB_PUT, null, false, $contents);
+		if (!$response->isSuccessful())
 		{
-			$blockList .= '  <Block>' . base64_encode($block) . '</Block>' . "\n";
+			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		}
+	}
+	
+	/**
+	 * Put block list
+	 *
+	 * @param string $containerName Container name
+	 * @param string $blobName      Blob name
+	 * @param array $blockList      Array of block identifiers
+	 * @param array  $metadata      Key/value pairs of meta data
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function putBlockList($containerName = '', $blobName = '', $blockList = array(), $metadata = array())
+	{
+		if ($containerName === '')
+			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		if ($blobName === '')
+			throw new Microsoft_Azure_Exception('Blob name is not specified.');
+		if (count($blockList) == 0)
+			throw new Microsoft_Azure_Exception('Block list does not contain any elements.');
+		
+		// Generate block list
+		$blocks = '';
+		foreach ($blockList as $block)
+		{
+			$blocks .= '  <Block>' . base64_encode($block) . '</Block>' . "\n";
 		}
 		
 		// Generate block list request
 		$fileContents = utf8_encode(implode("\n", array(
 			'<?xml version="1.0" encoding="utf-8"?>',
 			'<BlockList>',
-			$blockList,
+			$blocks,
 			'</BlockList>'
 		)));
 		
@@ -507,28 +558,71 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 
 		// Perform request
 		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=blocklist', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents);
-		if ($response->isSuccessful())
-		{
-			return new Microsoft_Azure_Storage_BlobInstance(
-				$containerName,
-				$blobName,
-				$response->getHeader('Etag'),
-				$response->getHeader('Last-modified'),
-				$this->getBaseUrl() . '/' . $containerName . '/' . $blobName,
-				filesize($localFileName),
-				'',
-				'',
-				'',
-				false,
-		        $metadata
-			);
-		}
-		else
+		if (!$response->isSuccessful())
 		{
 			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
 		}
 	}
 	
+	/**
+	 * Get block list
+	 *
+	 * @param string $containerName Container name
+	 * @param string $blobName      Blob name
+	 * @param integer $type         Type of block list to retrieve. 0 = all, 1 = committed, 2 = uncommitted
+	 * @return array
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function getBlockList($containerName = '', $blobName = '', $type = 0)
+	{
+		if ($containerName === '')
+			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		if ($blobName === '')
+			throw new Microsoft_Azure_Exception('Blob name is not specified.');
+		if ($type < 0 || $type > 2)
+			throw new Microsoft_Azure_Exception('Invalid type of block list to retrieve.');
+			
+		// Set $blockListType
+		$blockListType = 'all';
+		if ($type == 1)
+		    $blockListType = 'committed';
+		if ($type == 2)
+		    $blockListType = 'uncommitted';
+			
+		// Perform request
+		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=blocklist&blocklisttype=' . $blockListType, Microsoft_Http_Transport::VERB_GET);
+		if ($response->isSuccessful())
+		{
+		    // Parse response
+		    $blockList = $this->parseResponse($response);
+		    
+		    // Create return value
+		    $returnValue = array();
+		    foreach ($blockList->CommittedBlocks->Block as $block)
+		    {
+		        $returnValue['CommittedBlocks'][] = (object)array(
+		            'Name' => (string)$block->Name,
+		            'Size' => (string)$block->Size
+		        );
+		    }
+		    foreach ($blockList->UncommittedBlocks->Block as $block)
+		    {
+		        $returnValue['UncommittedBlocks'][] = (object)array(
+		            'Name' => (string)$block->Name,
+		            'Size' => (string)$block->Size
+		        );
+		    }
+		    
+		    return $returnValue;
+		}
+		else
+		{
+		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		}
+	}
+			
 	/**
 	 * Copy blob
 	 *
