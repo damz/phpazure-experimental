@@ -125,7 +125,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateContainer()
     {
-        if (false && TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -139,7 +139,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testGetContainerAcl()
     {
-        if (false && TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -154,7 +154,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testSetContainerAcl()
     {
-        if (false && TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -172,7 +172,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testSetContainerMetadata()
     {
-        if (false && TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -192,7 +192,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testListContainers()
     {
-        if (false && TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS) 
         {
             $containerName1 = 'testlist1';
             $containerName2 = 'testlist2';
@@ -289,7 +289,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testSetBlobMetadata()
     {
-        if (false && TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -310,7 +310,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteBlob()
     {
-        if (false && TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -329,7 +329,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testListBlobs()
     {
-        if (false && TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -352,7 +352,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testCopyBlob()
     {
-        if (false && TESTS_BLOB_RUNTESTS) 
+        if (TESTS_BLOB_RUNTESTS) 
         {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
