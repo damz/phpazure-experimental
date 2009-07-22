@@ -700,7 +700,7 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             $entity = new TSTest_TestEntity('partition1', 'row' . ($i + 1));
             $entity->FullName = md5(uniqid(rand(), true));
             $entity->Age      = rand(1, 130);
-            $entity->Visible  = true;
+            $entity->Visible  = rand(1,2) == 1;
             
             $returnValue[] = $entity;
         }

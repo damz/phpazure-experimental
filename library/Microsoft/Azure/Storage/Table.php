@@ -887,8 +887,17 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		    if (is_null($azureValue->Value))
 		        $value[] = ' m:null="true"'; 
 		    $value[] = '>';
+		    
 		    if (!is_null($azureValue->Value))
-		        $value[] = $azureValue->Value;
+		    {
+		        if ($azureValue->Value === true)
+		            $value[] = 1;
+		        else if ($azureValue->Value === false)
+		            $value[] = 0;
+		        else
+		            $value[] = $azureValue->Value;
+		    }
+		    
 		    $value[] = '</d:' . $azureValue->Name . '>';
 		    $azureRepresentation[] = implode('', $value);
 		}
