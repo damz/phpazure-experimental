@@ -172,8 +172,8 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
 
             $result = $storageClient->listTables();
             $this->assertEquals(2, count($result));
-            $this->assertEquals($tableName1, $result1[0]->Name);
-            $this->assertEquals($tableName2, $result1[1]->Name);
+            $this->assertEquals($tableName1, $result[0]->Name);
+            $this->assertEquals($tableName2, $result[1]->Name);
         }
     }
     
