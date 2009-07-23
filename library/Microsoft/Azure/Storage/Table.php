@@ -484,7 +484,8 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		                     
         // Add header information
         $headers = array();
-        $headers['Content-Type']   = 'application/atom+xml';
+        if (!$this->isInBatch()) // http://social.msdn.microsoft.com/Forums/en-US/windowsazure/thread/9e255447-4dc7-458a-99d3-bdc04bdc5474/
+            $headers['Content-Type']   = 'application/atom+xml';
         $headers['Content-Length'] = 0;
         if (!$verifyEtag)
         {

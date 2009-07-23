@@ -576,16 +576,30 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
             $storageClient = $this->createStorageInstance();
             $storageClient->createTable($tableName);
             
-            $entities = $this->_generateEntities(10);
+            $entities = $this->_generateEntities(20);
+            $entities1 = array_slice($entities, 0, 10);
+            $entities2 = array_slice($entities, 10, 10);
+            
+            // Insert entities
+            foreach ($entities1 as $entity)
+            {
+                $storageClient->insertEntity($tableName, $entity);
+            }
             
             // Start batch
             $batch = $storageClient->startBatch();
             $this->assertType('Microsoft_Azure_Storage_Batch', $batch);
             
             // Insert entities in batch
-            foreach ($entities as $entity)
+            foreach ($entities2 as $entity)
             {
                 $storageClient->insertEntity($tableName, $entity);
+            }
+            
+            // Delete entities
+            foreach ($entities1 as $entity)
+            {
+                $storageClient->deleteEntity($tableName, $entity);
             }
             
             // Commit

@@ -163,7 +163,8 @@ class Microsoft_Azure_Storage_Batch
 		    
 		// Add headers
 		$headers['Content-ID'] = count($this->_operations) + 1;
-		$headers['Content-Type'] = 'application/atom+xml;type=entry';
+		if ($httpVerb != Microsoft_Http_Transport::VERB_DELETE)
+		    $headers['Content-Type'] = 'application/atom+xml;type=entry';
 		$headers['Content-Length'] = strlen($rawData);
 		    
 		// Generate $operation
