@@ -533,7 +533,19 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 			throw new Microsoft_Azure_Exception('Row key is not specified.');
 		if ($entityClass === '')
 			throw new Microsoft_Azure_Exception('Entity class is not specified.');
-		                     
+
+			
+		// Check for combined size of partition key and row key
+		// http://msdn.microsoft.com/en-us/library/dd179421.aspx
+		if (strlen($partitionKey . $rowKey) >= 256)
+		{
+		    // Start a batch if possible
+		    if ($this->isInBatch())
+		        throw new Microsoft_Azure_Exception('Entity cannot be retrieved. A transaction is required to retrieve the entity, but another transaction is already active.');
+		        
+		    $this->startBatch();
+		}
+		
 		// Fetch entities from Azure
         $result = $this->retrieveEntities(
             $this->select()
@@ -639,7 +651,22 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		}
 
 		// Perform request
-		$response = $this->performRequest($tableName, $queryString, Microsoft_Http_Transport::VERB_GET, array(), true, null);
+	    $response = null;
+	    if ($this->isInBatch() && $this->getCurrentBatch()->getOperationCount() == 0)
+		{
+		    $this->getCurrentBatch()->enlistOperation($tableName, $queryString, Microsoft_Http_Transport::VERB_GET, array(), true, null);
+		    $response = $this->getCurrentBatch()->commit();
+		    
+		    // Get inner response (multipart)
+		    $innerResponse = $response->getBody();
+		    $innerResponse = substr($innerResponse, strpos($innerResponse, 'HTTP/1.1 200 OK'));
+		    $innerResponse = substr($innerResponse, 0, strpos($innerResponse, '--batchresponse'));
+		    $response = Microsoft_Http_Response::fromString($innerResponse);
+		}
+		else
+		{
+		    $response = $this->performRequest($tableName, $queryString, Microsoft_Http_Transport::VERB_GET, array(), true, null);
+		}
 		if ($response->isSuccessful())
 		{
 		    // Parse result
@@ -711,7 +738,6 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 			// More entities?
 		    if (!is_null($response->getHeader('x-ms-continuation-NextPartitionKey')) && !is_null($response->getHeader('x-ms-continuation-NextRowKey')))
 		    {
-		        // TODO: http://social.msdn.microsoft.com/Forums/en-US/windowsazure/thread/6edca968-253e-435d-af56-373eddbe939b
 		        if (strpos($queryString, '$top') === false)
 		            $returnValue = array_merge($returnValue, $this->retrieveEntities($tableName, $filter, $entityClass, $response->getHeader('x-ms-continuation-NextPartitionKey'), $response->getHeader('x-ms-continuation-NextRowKey')));
 		    }

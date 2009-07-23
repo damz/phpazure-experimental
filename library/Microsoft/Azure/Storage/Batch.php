@@ -81,6 +81,13 @@ class Microsoft_Azure_Storage_Batch
     protected $_operations = array();
     
     /**
+     * Does the batch contain a single select?
+     * 
+     * @var boolean
+     */
+    protected $_isSingleSelect = false;
+    
+    /**
      * Creates a new Microsoft_Azure_Storage_Batch
      * 
      * @param Microsoft_Azure_Storage_BatchStorage $storageClient Storage client the batch is defined on
@@ -122,7 +129,6 @@ class Microsoft_Azure_Storage_Batch
         $this->_storageClient = null;
         unset($this);
     }
-    
 
 	/**
 	 * Enlist operation in current batch
@@ -133,6 +139,7 @@ class Microsoft_Azure_Storage_Batch
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @param mixed $rawData Optional RAW HTTP data to be sent over the wire
+	 * @throws Microsoft_Azure_Exception
 	 */
 	public function enlistOperation($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null)
 	{
@@ -140,6 +147,14 @@ class Microsoft_Azure_Storage_Batch
 	    if ($forTableStorage)
 	    {
 	        $this->_forTableStorage = true;
+	    }
+	    
+	    // Set _isSingleSelect
+	    if ($httpVerb == Microsoft_Http_Transport::VERB_GET)
+	    {
+	        if (count($this->_operations) > 0)
+	            throw new Microsoft_Azure_Exception("Select operations can only be performed in an empty batch transaction.");
+	        $this->_isSingleSelect = true;
 	    }
 	    
 	    // Clean path
@@ -162,10 +177,13 @@ class Microsoft_Azure_Storage_Batch
 		    $rawData = '';
 		    
 		// Add headers
-		$headers['Content-ID'] = count($this->_operations) + 1;
-		if ($httpVerb != Microsoft_Http_Transport::VERB_DELETE)
-		    $headers['Content-Type'] = 'application/atom+xml;type=entry';
-		$headers['Content-Length'] = strlen($rawData);
+		if ($httpVerb != Microsoft_Http_Transport::VERB_GET)
+		{
+    		$headers['Content-ID'] = count($this->_operations) + 1;
+    		if ($httpVerb != Microsoft_Http_Transport::VERB_DELETE)
+    		    $headers['Content-Type'] = 'application/atom+xml;type=entry';
+    		$headers['Content-Length'] = strlen($rawData);
+		}
 		    
 		// Generate $operation
 		$operation = '';
@@ -186,12 +204,13 @@ class Microsoft_Azure_Storage_Batch
     /**
      * Commit current batch
      * 
+     * @return Microsoft_Http_Response
      * @throws Microsoft_Azure_Exception
      */
     public function commit()
     {
         // Perform batch
-        $response = $this->_storageClient->performBatch($this->_operations, $this->_forTableStorage);
+        $response = $this->_storageClient->performBatch($this->_operations, $this->_forTableStorage, $this->_isSingleSelect);
         
         // Dispose
         $this->clean();
@@ -205,6 +224,9 @@ class Microsoft_Azure_Storage_Batch
         {
             throw new Microsoft_Azure_Exception('An error has occured while committing a batch: ' . $errors[2][0]);
         }
+        
+        // Return
+        return $response;
     }
     
     /**
@@ -214,5 +236,25 @@ class Microsoft_Azure_Storage_Batch
     {
         // Dispose
         $this->clean();
+    }
+    
+    /**
+     * Get operation count
+     * 
+     * @return integer
+     */
+    public function getOperationCount()
+    {
+        return count($this->_operations);
+    }
+    
+    /**
+     * Is single select?
+     * 
+     * @return boolean
+     */
+    public function isSingleSelect()
+    {
+        return $this->_isSingleSelect;
     }
 }

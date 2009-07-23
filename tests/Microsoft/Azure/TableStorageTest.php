@@ -292,6 +292,29 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test retrieve entity by id (> 256 key characters)
+     */
+    public function testRetrieveEntityById_Large()
+    {
+        if (TESTS_TABLE_RUNTESTS && TESTS_TABLE_RUNONPROD) 
+        {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
+            $entity->setPartitionKey(str_repeat('a', 200));
+            $entity->setRowKey(str_repeat('a', 200));
+            
+            $storageClient->insertEntity($tableName, $entity);
+            
+            $result = $storageClient->retrieveEntityById($tableName, $entity->getPartitionKey(), $entity->getRowKey(), 'TSTest_TestEntity');
+            $this->assertEquals($entity, $result);
+        }
+    }
+    
+    /**
      * Test retrieve entity by id, DynamicTableEntity
      */
     public function testRetrieveEntityById_DynamicTableEntity()

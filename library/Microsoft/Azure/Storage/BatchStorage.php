@@ -125,9 +125,10 @@ abstract class Microsoft_Azure_Storage_BatchStorage extends Microsoft_Azure_Stor
 	 *
 	 * @param array $operations Operations in batch
 	 * @param boolean $forTableStorage Is the request for table storage?
+	 * @param boolean $isSingleSelect Is the request a single select statement?
 	 * @return Microsoft_Http_Response
 	 */
-	public function performBatch($operations = array(), $forTableStorage = false)
+	public function performBatch($operations = array(), $forTableStorage = false, $isSingleSelect = false)
 	{
 	    // Generate boundaries
 	    $batchBoundary = 'batch_' . md5(time() . microtime());
@@ -150,21 +151,35 @@ abstract class Microsoft_Azure_Storage_BatchStorage extends Microsoft_Azure_Stor
 		$httpVerb = Microsoft_Http_Transport::VERB_POST;
 		
 		// Generate raw data
-		$rawData = '';
-		$rawData .= '--' . $batchBoundary . "\n";
-		$rawData .= 'Content-Type: multipart/mixed; boundary=' . $changesetBoundary . "\n\n";
-		
-		    // Add operations
-		    foreach ($operations as $operation)
-		    {
-        		$rawData .= '--' . $changesetBoundary . "\n";
-        		$rawData .= 'Content-Type: application/http' . "\n";
-        		$rawData .= 'Content-Transfer-Encoding: binary' . "\n\n";
-        		$rawData .= $operation;
-		    }
-		    $rawData .= '--' . $changesetBoundary . '--' . "\n";
-		    
-		$rawData .= '--' . $batchBoundary . '--';
+    	$rawData = '';
+    		
+		// Single select?
+		if ($isSingleSelect)
+		{
+		    $operation = $operations[0];
+		    $rawData .= '--' . $batchBoundary . "\n";
+            $rawData .= 'Content-Type: application/http' . "\n";
+            $rawData .= 'Content-Transfer-Encoding: binary' . "\n\n";
+            $rawData .= $operation; 
+            $rawData .= '--' . $batchBoundary . '--';
+		} 
+		else 
+		{
+    		$rawData .= '--' . $batchBoundary . "\n";
+    		$rawData .= 'Content-Type: multipart/mixed; boundary=' . $changesetBoundary . "\n\n";
+    		
+        		// Add operations
+        		foreach ($operations as $operation)
+        		{
+                    $rawData .= '--' . $changesetBoundary . "\n";
+                	$rawData .= 'Content-Type: application/http' . "\n";
+                	$rawData .= 'Content-Transfer-Encoding: binary' . "\n\n";
+                	$rawData .= $operation;
+        		}
+        		$rawData .= '--' . $changesetBoundary . '--' . "\n";
+    		    		    
+    		$rawData .= '--' . $batchBoundary . '--';
+		}
 
 		// Generate URL and sign request
 		$requestUrl     = $this->getBaseUrl() . $path . $queryString;
