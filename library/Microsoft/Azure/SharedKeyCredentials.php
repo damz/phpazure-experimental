@@ -62,7 +62,6 @@ class Microsoft_Azure_SharedKeyCredentials extends Microsoft_Azure_Credentials
 	 */
 	public function signRequest($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false)
 	{
-		// TODO: Use $forTableStorage
 		// http://github.com/sriramk/winazurestorage/blob/214010a2f8931bac9c96dfeb337d56fe084ca63b/winazurestorage.py
 
 		// Determine path
