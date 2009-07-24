@@ -154,14 +154,7 @@
   </target>
 
   <target name="runTests" depends="rebranding">
-    <phpunit haltonerror="true">
-      <formatter type="plain" usefile="false" />
-      <batchtest>
-        <fileset dir="./build/tests/">
-          <include name="**/*Test.php"/>
-        </fileset>
-      </batchtest>
-    </phpunit>
+
   </target>
   
   <target name="release" depends="runTests">

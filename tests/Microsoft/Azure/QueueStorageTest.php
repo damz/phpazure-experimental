@@ -192,6 +192,139 @@ class Microsoft_Azure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $this->assertEquals(1, count($result2));
         }
     }
+    
+    /**
+     * Test put message
+     */
+    public function testPutMessage()
+    {
+        if (TESTS_QUEUE_RUNTESTS)  
+        {
+            $queueName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createQueue($queueName);
+            $storageClient->putMessage($queueName, 'Test message', 120);
+            
+            sleep(25); // wait for the message to appear in the queue...
+            
+            $messages = $storageClient->getMessages($queueName);
+            $this->assertEquals(1, count($messages));
+            $this->assertEquals('Test message', $messages[0]->MessageText);
+        }
+    }
+    
+    /**
+     * Test get messages
+     */
+    public function testGetMessages()
+    {
+        if (TESTS_QUEUE_RUNTESTS)  
+        {
+            $queueName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createQueue($queueName);
+            $storageClient->putMessage($queueName, 'Test message 1', 120);
+            $storageClient->putMessage($queueName, 'Test message 2', 120);
+            $storageClient->putMessage($queueName, 'Test message 3', 120);
+            $storageClient->putMessage($queueName, 'Test message 4', 120);
+            
+            sleep(25); // wait for the messages to appear in the queue...
+            
+            $messages1 = $storageClient->getMessages($queueName, 2);
+            $messages2 = $storageClient->getMessages($queueName, 2);
+            $messages3 = $storageClient->getMessages($queueName);
+            
+            $this->assertEquals(2, count($messages1));
+            $this->assertEquals(2, count($messages2));
+            $this->assertEquals(0, count($messages3));
+        }
+    }
+    
+    /**
+     * Test peek messages
+     */
+    public function testPeekMessages()
+    {
+        if (TESTS_QUEUE_RUNTESTS)  
+        {
+            $queueName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createQueue($queueName);
+            $storageClient->putMessage($queueName, 'Test message 1', 120);
+            $storageClient->putMessage($queueName, 'Test message 2', 120);
+            $storageClient->putMessage($queueName, 'Test message 3', 120);
+            $storageClient->putMessage($queueName, 'Test message 4', 120);
+            
+            sleep(25); // wait for the messages to appear in the queue...
+            
+            $messages1 = $storageClient->peekMessages($queueName, 4);
+            $messages2 = $storageClient->getMessages($queueName, 4);
+            
+            $this->assertEquals(4, count($messages1));
+            $this->assertEquals(4, count($messages2));
+        }
+    }
+    
+    /**
+     * Test clear messages
+     */
+    public function testClearMessages()
+    {
+        if (TESTS_QUEUE_RUNTESTS)  
+        {
+            $queueName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createQueue($queueName);
+            $storageClient->putMessage($queueName, 'Test message 1', 120);
+            $storageClient->putMessage($queueName, 'Test message 2', 120);
+            $storageClient->putMessage($queueName, 'Test message 3', 120);
+            $storageClient->putMessage($queueName, 'Test message 4', 120);
+            
+            sleep(25); // wait for the messages to appear in the queue...
+            
+            $messages1 = $storageClient->peekMessages($queueName, 4);
+            $storageClient->clearMessages($queueName);
+            
+            sleep(25); // wait for the GC...
+            
+            $messages2 = $storageClient->peekMessages($queueName, 4);
+            
+            $this->assertEquals(4, count($messages1));
+            $this->assertEquals(0, count($messages2));
+        }
+    }
+    
+    /**
+     * Test delete message
+     */
+    public function testDeleteMessage()
+    {
+        if (TESTS_QUEUE_RUNTESTS)  
+        {
+            $queueName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createQueue($queueName);
+            $storageClient->putMessage($queueName, 'Test message 1', 120);
+            $storageClient->putMessage($queueName, 'Test message 2', 120);
+            $storageClient->putMessage($queueName, 'Test message 3', 120);
+            $storageClient->putMessage($queueName, 'Test message 4', 120);
+            
+            sleep(25); // wait for the messages to appear in the queue...
+            
+            $messages1 = $storageClient->getMessages($queueName, 2, 10);
+            foreach ($messages1 as $message)
+            {
+                $storageClient->deleteMessage($queueName, $message);
+            }
+            
+            sleep(25); // wait for the GC...
+            
+            $messages2 = $storageClient->getMessages($queueName, 4);
+            
+            $this->assertEquals(2, count($messages1));
+            $this->assertEquals(2, count($messages2));
+        }
+    }
 }
 
 // Call Microsoft_Azure_QueueStorageTest::main() if this source file is executed directly.

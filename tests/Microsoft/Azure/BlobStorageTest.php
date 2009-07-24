@@ -348,7 +348,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
             $this->assertEquals(5, count($result1));
             $this->assertEquals('images/WindowsAzure5.gif', $result1[4]->Name);
             
-            $result2 = $storageClient->listBlobs($containerName, 2);
+            $result2 = $storageClient->listBlobs($containerName, '', '', 2);
             $this->assertEquals(2, count($result2));
         }
     }

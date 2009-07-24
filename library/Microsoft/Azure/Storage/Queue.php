@@ -64,6 +64,11 @@ require_once 'Microsoft/Azure/Storage.php';
 require_once 'Microsoft/Azure/Storage/QueueInstance.php';
 
 /**
+ * Microsoft_Azure_Storage_QueueMessage
+ */
+require_once 'Microsoft/Azure/Storage/QueueMessage.php';
+
+/**
  * @see Microsoft_Azure_Exception
  */
 require_once 'Microsoft/Azure/Exception.php';
@@ -78,6 +83,16 @@ require_once 'Microsoft/Azure/Exception.php';
  */
 class Microsoft_Azure_Storage_Queue extends Microsoft_Azure_Storage
 {
+	/**
+	 * Maximal message size (in bytes)
+	 */
+	const MAX_MESSAGE_SIZE = 8388608;
+	
+	/**
+	 * Maximal message ttl (in seconds)
+	 */
+	const MAX_MESSAGE_TTL = 604800;
+	
 	/**
 	 * Creates a new Microsoft_Azure_Storage_Queue instance
 	 *
@@ -291,6 +306,176 @@ class Microsoft_Azure_Storage_Queue extends Microsoft_Azure_Storage
 			return $queues;
 		}
 		else 
+		{
+			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		}
+	}
+	
+	/**
+	 * Put message into queue
+	 *
+	 * @param string $queueName  Queue name
+	 * @param string $message    Message
+	 * @param int    $ttl        Message Time-To-Live (in seconds). Defaults to 7 days if the parameter is omitted.
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function putMessage($queueName = '', $message = '', $ttl = null)
+	{
+		if ($queueName === '')
+			throw new Microsoft_Azure_Exception('Queue name is not specified.');
+		if (!self::isValidQueueName($queueName))
+		    throw new Microsoft_Azure_Exception('Queue name does not adhere to queue naming conventions. See http://msdn.microsoft.com/en-us/library/dd179349.aspx for more information.');
+		if (strlen($message) > self::MAX_MESSAGE_SIZE)
+		    throw new Microsoft_Azure_Exception('Message is too big. Message content should be < 8KB.');
+		if ($message == '')
+		    throw new Microsoft_Azure_Exception('Message is not specified.');
+		if (!is_null($ttl) && ($ttl < 0 || $ttl > self::MAX_MESSAGE_SIZE))
+		    throw new Microsoft_Azure_Exception('Message TTL is invalid. Maximal TTL is 7 days (' . self::MAX_MESSAGE_SIZE . ' seconds)');
+		    
+	    // Build query string
+	    $queryString = '';
+	    if (!is_null($ttl))
+	        $queryString .= '?messagettl=' . $ttl;
+	        
+	    // Build body
+	    $rawData = '';
+	    $rawData .= '<QueueMessage>';
+	    $rawData .= '    <MessageText>' . base64_encode($message) . '</MessageText>';
+	    $rawData .= '</QueueMessage>';
+	        
+		// Perform request
+		$response = $this->performRequest($queueName . '/messages', $queryString, Microsoft_Http_Transport::VERB_POST, array(), false, $rawData);
+
+		if (!$response->isSuccessful())
+		{
+			throw new Microsoft_Azure_Exception('Error putting message into queue.');
+		}
+	}
+	
+	/**
+	 * Get queue messages
+	 *
+	 * @param string $queueName         Queue name
+	 * @param string $numOfMessages     Optional. A nonzero integer value that specifies the number of messages to retrieve from the queue, up to a maximum of 32. By default, a single message is retrieved from the queue with this operation.
+	 * @param int    $visibilityTimeout Optional. An integer value that specifies the message's visibility timeout in seconds. The maximum value is 2 hours. The default message visibility timeout is 30 seconds.
+	 * @param string $peek              Peek only?
+	 * @return array
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function getMessages($queueName = '', $numOfMessages = 1, $visibilityTimeout = null, $peek = false)
+	{
+		if ($queueName === '')
+			throw new Microsoft_Azure_Exception('Queue name is not specified.');
+		if (!self::isValidQueueName($queueName))
+		    throw new Microsoft_Azure_Exception('Queue name does not adhere to queue naming conventions. See http://msdn.microsoft.com/en-us/library/dd179349.aspx for more information.');
+		if ($numOfMessages < 1 || $numOfMessages > 32)
+		    throw new Microsoft_Azure_Exception('Invalid number of messages to retrieve.');
+		if (!is_null($visibilityTimeout) && ($visibilityTimeout < 0 || $visibilityTimeout > 7200))
+		    throw new Microsoft_Azure_Exception('Visibility timeout is invalid. Maximum value is 2 hours (7200 seconds).');
+		    
+	    // Build query string
+	    $query = array();
+    	if ($peek)
+    	    $query[] = 'peekonly=true';
+    	if ($numOfMessages > 1)
+	        $query[] = 'numofmessages=' . $numOfMessages;
+    	if (!$peek && !is_null($visibilityTimeout))
+	        $query[] = 'visibilitytimeout=' . $visibilityTimeout;   
+    	$queryString = '?' . implode('&', $query);
+	        
+		// Perform request
+		$response = $this->performRequest($queueName . '/messages', $queryString, Microsoft_Http_Transport::VERB_GET);	
+		if ($response->isSuccessful())
+		{
+		    // Parse results
+			$result = $this->parseResponse($response);
+		    if (!$result)
+		        return array();
+
+		    $xmlMessages = null;
+		    if (count($result->QueueMessage) > 1)
+    		{
+    		    $xmlMessages = $result->QueueMessage;
+    		}
+    		else
+    		{
+    		    $xmlMessages = array($result->QueueMessage);
+    		}
+
+			$messages = array();
+			for ($i = 0; $i < count($xmlMessages); $i++)
+			{
+				$messages[] = new Microsoft_Azure_Storage_QueueMessage(
+					(string)$xmlMessages[$i]->MessageId,
+					(string)$xmlMessages[$i]->InsertionTime,
+					(string)$xmlMessages[$i]->ExpirationTime,
+					($peek ? '' : (string)$xmlMessages[$i]->PopReceipt),
+					($peek ? '' : (string)$xmlMessages[$i]->TimeNextVisible),
+					base64_decode((string)$xmlMessages[$i]->MessageText)
+			    );
+			}
+			    
+			return $messages;
+		}
+		else 
+		{
+			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		}
+	}
+	
+	/**
+	 * Peek queue messages
+	 *
+	 * @param string $queueName         Queue name
+	 * @param string $numOfMessages     Optional. A nonzero integer value that specifies the number of messages to retrieve from the queue, up to a maximum of 32. By default, a single message is retrieved from the queue with this operation.
+	 * @return array
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function peekMessages($queueName = '', $numOfMessages = 1)
+	{
+	    return $this->getMessages($queueName, $numOfMessages, null, true);
+	}
+	
+	/**
+	 * Clear queue messages
+	 *
+	 * @param string $queueName         Queue name
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function clearMessages($queueName = '')
+	{
+		if ($queueName === '')
+			throw new Microsoft_Azure_Exception('Queue name is not specified.');
+		if (!self::isValidQueueName($queueName))
+		    throw new Microsoft_Azure_Exception('Queue name does not adhere to queue naming conventions. See http://msdn.microsoft.com/en-us/library/dd179349.aspx for more information.');
+
+		// Perform request
+		$response = $this->performRequest($queueName . '/messages', '', Microsoft_Http_Transport::VERB_DELETE);	
+		if (!$response->isSuccessful())
+		{
+			throw new Microsoft_Azure_Exception('Error clearing messages from queue.');
+		}
+	}
+	
+	/**
+	 * Delete queue message
+	 *
+	 * @param string $queueName         					Queue name
+	 * @param Microsoft_Azure_Storage_QueueMessage $message Message to delete from queue. A message retrieved using "peekMessages" can NOT be deleted!
+	 * @throws Microsoft_Azure_Exception
+	 */
+	public function deleteMessage($queueName = '', Microsoft_Azure_Storage_QueueMessage $message)
+	{
+		if ($queueName === '')
+			throw new Microsoft_Azure_Exception('Queue name is not specified.');
+		if (!self::isValidQueueName($queueName))
+		    throw new Microsoft_Azure_Exception('Queue name does not adhere to queue naming conventions. See http://msdn.microsoft.com/en-us/library/dd179349.aspx for more information.');
+		if ($message->PopReceipt == '')
+		    throw new Microsoft_Azure_Exception('A message retrieved using "peekMessages" can NOT be deleted! Use "getMessages" instead.');
+
+		// Perform request
+		$response = $this->performRequest($queueName . '/messages/' . $message->MessageId, '?popreceipt=' . $message->PopReceipt, Microsoft_Http_Transport::VERB_DELETE);	
+		if (!$response->isSuccessful())
 		{
 			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
 		}
