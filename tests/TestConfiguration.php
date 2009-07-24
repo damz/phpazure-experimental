@@ -77,6 +77,13 @@ define('TESTS_TABLE_DEVCNUSER',         'php');
 define('TESTS_TABLE_DEVCNPASS',         'php');
 
 /**
+ * Queue storage tests
+ */
+define('TESTS_QUEUE_RUNTESTS',          true);
+define('TESTS_QUEUE_RUNONPROD',         true);
+define('TESTS_QUEUE_PREFIX',            'phpazuretest');
+
+/**
  * PHPUnit Code Coverage / Test Report
  */
 define('TESTS_GENERATE_REPORT',        false);

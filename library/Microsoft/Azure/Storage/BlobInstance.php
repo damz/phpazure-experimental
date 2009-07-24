@@ -108,6 +108,7 @@ class Microsoft_Azure_Storage_BlobInstance
     public function __set($name, $value) {
         if (array_key_exists(strtolower($name), $this->_data)) {
             $this->_data[strtolower($name)] = $value;
+            return;
         }
 
         throw new Exception("Unknown property: " . $name);

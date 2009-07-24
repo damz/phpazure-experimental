@@ -30,7 +30,7 @@
  * @subpackage Storage
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
- * @version    $Id: BlobInstance.php 14561 2009-05-07 08:05:12Z unknown $
+ * @version    $Id: BlobContainer.php 17553 2009-05-15 10:40:55Z unknown $
  */
 
 /**
@@ -46,12 +46,11 @@ require_once 'Microsoft/Azure/Exception.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  * 
- * @property string  $Id              Id
- * @property string  $Name            Name
- * @property string  $Href            Href
- * @property string  $Updated         Updated
+ * @property string  $Name                     Name of the queue
+ * @property array   $Metadata                 Key/value pairs of meta data
+ * @property integer $ApproximateMessageCount  The approximate number of messages in the queue
  */
-class Microsoft_Azure_Storage_TableInstance
+class Microsoft_Azure_Storage_QueueInstance
 {
     /**
      * Data
@@ -63,18 +62,15 @@ class Microsoft_Azure_Storage_TableInstance
     /**
      * Constructor
      * 
-     * @param string  $id              Id
-     * @param string  $name            Name
-     * @param string  $href            Href
-     * @param string  $updated         Updated
+     * @param string $name          Name
+     * @param array  $metadata      Key/value pairs of meta data
      */
-    public function __construct($id, $name, $href, $updated) 
-    {	        
+    public function __construct($name, $metadata = array()) 
+    {
         $this->_data = array(
-            'id'               => $id,
-            'name'             => $name,
-            'href'             => $href,
-            'updated'          => $updated
+            'name'         => $name,
+            'metadata'     => $metadata,
+            'approximatemessagecount' => 0
         );
     }
     

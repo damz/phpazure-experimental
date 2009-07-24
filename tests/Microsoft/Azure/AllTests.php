@@ -53,6 +53,7 @@ require_once 'Microsoft/Azure/TableEntityTest.php';
 require_once 'Microsoft/Azure/DynamicTableEntityTest.php';
 require_once 'Microsoft/Azure/TableEntityQueryTest.php';
 require_once 'Microsoft/Azure/TableStorageTest.php';
+require_once 'Microsoft/Azure/QueueStorageTest.php';
 
 /**
  * @category   Microsoft
@@ -87,6 +88,10 @@ class Microsoft_Azure_AllTests
             $suite->addTestSuite('Microsoft_Azure_DynamicTableEntityTest');
             $suite->addTestSuite('Microsoft_Azure_TableEntityQueryTest');
             $suite->addTestSuite('Microsoft_Azure_TableStorageTest');
+        }
+        if (TESTS_QUEUE_RUNTESTS)
+        {
+            $suite->addTestSuite('Microsoft_Azure_QueueStorageTest');
         }
         return $suite;
     }
