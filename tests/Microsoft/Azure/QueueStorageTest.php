@@ -205,7 +205,7 @@ class Microsoft_Azure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->createQueue($queueName);
             $storageClient->putMessage($queueName, 'Test message', 120);
             
-            sleep(25); // wait for the message to appear in the queue...
+            sleep(30); // wait for the message to appear in the queue...
             
             $messages = $storageClient->getMessages($queueName);
             $this->assertEquals(1, count($messages));
@@ -228,7 +228,7 @@ class Microsoft_Azure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->putMessage($queueName, 'Test message 3', 120);
             $storageClient->putMessage($queueName, 'Test message 4', 120);
             
-            sleep(25); // wait for the messages to appear in the queue...
+            sleep(30); // wait for the messages to appear in the queue...
             
             $messages1 = $storageClient->getMessages($queueName, 2);
             $messages2 = $storageClient->getMessages($queueName, 2);
@@ -255,7 +255,7 @@ class Microsoft_Azure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->putMessage($queueName, 'Test message 3', 120);
             $storageClient->putMessage($queueName, 'Test message 4', 120);
             
-            sleep(25); // wait for the messages to appear in the queue...
+            sleep(30); // wait for the messages to appear in the queue...
             
             $messages1 = $storageClient->peekMessages($queueName, 4);
             $messages2 = $storageClient->getMessages($queueName, 4);
@@ -280,12 +280,12 @@ class Microsoft_Azure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->putMessage($queueName, 'Test message 3', 120);
             $storageClient->putMessage($queueName, 'Test message 4', 120);
             
-            sleep(25); // wait for the messages to appear in the queue...
+            sleep(30); // wait for the messages to appear in the queue...
             
             $messages1 = $storageClient->peekMessages($queueName, 4);
             $storageClient->clearMessages($queueName);
             
-            sleep(25); // wait for the GC...
+            sleep(30); // wait for the GC...
             
             $messages2 = $storageClient->peekMessages($queueName, 4);
             
@@ -309,7 +309,7 @@ class Microsoft_Azure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->putMessage($queueName, 'Test message 3', 120);
             $storageClient->putMessage($queueName, 'Test message 4', 120);
             
-            sleep(25); // wait for the messages to appear in the queue...
+            sleep(30); // wait for the messages to appear in the queue...
             
             $messages1 = $storageClient->getMessages($queueName, 2, 10);
             foreach ($messages1 as $message)
@@ -317,7 +317,7 @@ class Microsoft_Azure_QueueStorageTest extends PHPUnit_Framework_TestCase
                 $storageClient->deleteMessage($queueName, $message);
             }
             
-            sleep(25); // wait for the GC...
+            sleep(30); // wait for the GC...
             
             $messages2 = $storageClient->getMessages($queueName, 4);
             

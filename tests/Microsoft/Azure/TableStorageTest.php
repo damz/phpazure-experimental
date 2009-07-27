@@ -57,11 +57,8 @@ require_once 'Microsoft/Azure/Storage/Table.php';
  */
 class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
 {
-    static $path;
-    
     public function __construct()
     {
-        self::$path = dirname(__FILE__).'/_files/';
     }
     
     public static function main()

@@ -54,6 +54,7 @@ require_once 'Microsoft/Azure/DynamicTableEntityTest.php';
 require_once 'Microsoft/Azure/TableEntityQueryTest.php';
 require_once 'Microsoft/Azure/TableStorageTest.php';
 require_once 'Microsoft/Azure/QueueStorageTest.php';
+require_once 'Microsoft/Azure/SessionHandlerTest.php';
 
 /**
  * @category   Microsoft
@@ -92,6 +93,10 @@ class Microsoft_Azure_AllTests
         if (TESTS_QUEUE_RUNTESTS)
         {
             $suite->addTestSuite('Microsoft_Azure_QueueStorageTest');
+        }
+        if (TESTS_SESSIONHANDLER_RUNTESTS)
+        {
+            $suite->addTestSuite('Microsoft_Azure_SessionHandlerTest');
         }
         return $suite;
     }
