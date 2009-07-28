@@ -49,6 +49,7 @@ require_once 'Microsoft/Azure/SharedKeyLiteCredentialsTest.php';
 require_once 'Microsoft/Azure/RetryPolicyTest.php';
 require_once 'Microsoft/Azure/StorageTest.php';
 require_once 'Microsoft/Azure/BlobStorageTest.php';
+require_once 'Microsoft/Azure/BlobStreamTest.php';
 require_once 'Microsoft/Azure/TableEntityTest.php';
 require_once 'Microsoft/Azure/DynamicTableEntityTest.php';
 require_once 'Microsoft/Azure/TableEntityQueryTest.php';
@@ -82,6 +83,7 @@ class Microsoft_Azure_AllTests
         if (TESTS_BLOB_RUNTESTS)
         {
             $suite->addTestSuite('Microsoft_Azure_BlobStorageTest');
+            $suite->addTestSuite('Microsoft_Azure_BlobStreamTest');
         }
         if (TESTS_TABLE_RUNTESTS)
         {

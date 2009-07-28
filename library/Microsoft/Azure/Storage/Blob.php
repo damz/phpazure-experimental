@@ -103,6 +103,13 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 */
 	const MAX_BLOB_TRANSFER_SIZE = 4194304;
 	
+    /**
+     * Stream wrapper clients
+     *
+     * @var array
+     */
+    protected static $_wrapperClients = array();
+	
 	/**
 	 * Creates a new Microsoft_Azure_Storage_Blob instance
 	 *
@@ -152,7 +159,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		else
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -173,9 +180,13 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		// Perform request
 		$response = $this->performRequest($containerName, '?comp=acl', Microsoft_Http_Transport::VERB_GET);
 		if ($response->isSuccessful())
+		{
 			return $response->getHeader('x-ms-prop-publicaccess') == 'True';
+		}
 		else
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		{
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
 	}
 	
 	/**
@@ -195,7 +206,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		// Perform request
 		$response = $this->performRequest($containerName, '?comp=acl', Microsoft_Http_Transport::VERB_PUT, array('x-ms-prop-publicaccess' => $acl));
 		if (!$response->isSuccessful())
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		{
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
 	}
 	
 	/**
@@ -236,7 +249,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		else
 		{
-		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -286,7 +299,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$response = $this->performRequest($containerName, '?comp=metadata', Microsoft_Http_Transport::VERB_PUT, $headers);
 
 		if (!$response->isSuccessful())
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		{
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
 	}
 	
 	/**
@@ -305,7 +320,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		// Perform request
 		$response = $this->performRequest($containerName, '', Microsoft_Http_Transport::VERB_DELETE);
 		if (!$response->isSuccessful())
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		{
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
 	}
 	
 	/**
@@ -363,7 +380,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		else 
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -424,7 +441,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		else
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -517,7 +534,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=block&blockid=' . base64_encode($identifier), Microsoft_Http_Transport::VERB_PUT, null, false, $contents);
 		if (!$response->isSuccessful())
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -567,7 +584,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=blocklist', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents);
 		if (!$response->isSuccessful())
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -626,7 +643,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		else
 		{
-		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 			
@@ -693,7 +710,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		else
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -721,7 +738,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		if ($response->isSuccessful())
 			file_put_contents($localFileName, $response->getBody());
 		else
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		{
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
 	}
 	
 	/**
@@ -740,7 +759,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
-		    
+	        
 		// Perform request
 		$response = $this->performRequest($containerName . '/' . $blobName, '', Microsoft_Http_Transport::VERB_HEAD);
 		if ($response->isSuccessful())
@@ -772,7 +791,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		else
 		{
-		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -828,7 +847,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=metadata', Microsoft_Http_Transport::VERB_PUT, $headers);
 
 		if (!$response->isSuccessful())
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		{
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
 	}
 	
 	/**
@@ -850,7 +871,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		// Perform request
 		$response = $this->performRequest($containerName . '/' . $blobName, '', Microsoft_Http_Transport::VERB_DELETE);
 		if (!$response->isSuccessful())
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		{
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
 	}
 	
 	/**
@@ -949,10 +972,73 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			return $blobs;
 		}
 		else 
-		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->Message);
+		{		        
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
+	
+    /**
+     * Register this object as stream wrapper client
+     *
+     * @param  string $name Protocol name
+     * @return Microsoft_Azure_Storage_Blob
+     */
+    public function registerAsClient($name)
+    {
+        self::$_wrapperClients[$name] = $this;
+        return $this;
+    }
+
+    /**
+     * Unregister this object as stream wrapper client
+     *
+     * @param  string $name Protocol name
+     * @return Microsoft_Azure_Storage_Blob
+     */
+    public function unregisterAsClient($name)
+    {
+        unset(self::$_wrapperClients[$name]);
+        return $this;
+    }
+
+    /**
+     * Get wrapper client for stream type
+     *
+     * @param  string $name Protocol name
+     * @return Microsoft_Azure_Storage_Blob
+     */
+    public static function getWrapperClient($name)
+    {
+        return self::$_wrapperClients[$name];
+    }
+
+    /**
+     * Register this object as stream wrapper
+     *
+     * @param  string $name Protocol name
+     */
+    public function registerStreamWrapper($name = 'azure')
+    {
+        /**
+         * @see Microsoft_Azure_Storage_Blob_Stream
+         */
+        require_once 'Microsoft/Azure/Storage/Blob/Stream.php';
+
+        stream_register_wrapper($name, 'Microsoft_Azure_Storage_Blob_Stream');
+        $this->registerAsClient($name);
+    }
+
+    /**
+     * Unregister this object as stream wrapper
+     *
+     * @param  string $name Protocol name
+     * @return Microsoft_Azure_Storage_Blob
+     */
+    public function unregisterStreamWrapper($name = 'azure')
+    {
+        stream_wrapper_unregister($name);
+        $this->unregisterAsClient($name);
+    }
 	
 	/**
 	 * Is valid container name?
@@ -976,6 +1062,22 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
     
         return true;
     }
+    
+	/**
+	 * Get error message from Microsoft_Http_Response
+	 * 
+	 * @param Microsoft_Http_Response $response Repsonse
+	 * @param string $alternativeError Alternative error message
+	 * @return string
+	 */
+	protected function getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknwon error.')
+	{
+		$response = $this->parseResponse($response);
+		if ($response && $response->Message)
+		    return (string)$response->Message;
+		else
+		    return $alternativeError;
+	}
 	
 	/**
 	 * Generate block id

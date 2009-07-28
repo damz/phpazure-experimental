@@ -37,7 +37,7 @@
  */
 define('TESTS_STORAGE_USEPROXY',                false);
 define('TESTS_STORAGE_PROXY',                   '');
-define('TESTS_STORAGE_PROXY_PORT',              '80');
+define('TESTS_STORAGE_PROXY_PORT',              '8080');
 define('TESTS_STORAGE_PROXY_CREDENTIALS',       '');
 
 /**
@@ -64,14 +64,15 @@ define('TESTS_STORAGE_KEY_PROD',                'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSb
 define('TESTS_BLOB_RUNTESTS',                   true);
 define('TESTS_BLOB_RUNONPROD',                  true);
 define('TESTS_BLOB_RUNLARGEBLOB',               true);
-define('TESTS_BLOB_CONTAINER_PREFIX',           'phpazuretest');
+define('TESTS_BLOB_CONTAINER_PREFIX',           'phpazuretestblob');
+define('TESTS_BLOBSTREAM_CONTAINER_PREFIX',     'phpazureteststream');
 
 /**
  * Table storage tests
  */
 define('TESTS_TABLE_RUNTESTS',                  true);
 define('TESTS_TABLE_RUNONPROD',                 true);
-define('TESTS_TABLE_TABLENAME_PREFIX',          'phpazuretest');
+define('TESTS_TABLE_TABLENAME_PREFIX',          'phpazuretesttable');
 define('TESTS_TABLE_DEVCNSTRING',               'Driver={SQL Native Client};Server=.\SQLEXPRESS;Database=AzureTableStorage; Uid=php;Pwd=php;');
 define('TESTS_TABLE_DEVCNUSER',                 'php');
 define('TESTS_TABLE_DEVCNPASS',                 'php');
@@ -81,7 +82,7 @@ define('TESTS_TABLE_DEVCNPASS',                 'php');
  */
 define('TESTS_QUEUE_RUNTESTS',                  true);
 define('TESTS_QUEUE_RUNONPROD',                 true);
-define('TESTS_QUEUE_PREFIX',                    'phpazuretest');
+define('TESTS_QUEUE_PREFIX',                    'phpazuretestqueue');
 
 /**
  * SessionHandler tests

@@ -302,7 +302,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		}
 		else
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+			throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -366,7 +366,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		}
 		else
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+			throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -389,7 +389,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		$response = $this->performRequest('Tables(\'' . $tableName . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
 		if (!$response->isSuccessful())
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+			throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -463,7 +463,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		}
 		else
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+			throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -509,7 +509,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		}
 		if (!$response->isSuccessful())
 		{
-		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -747,7 +747,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		}
 		else
 		{
-		    throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -775,6 +775,22 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 	public function mergeEntity($tableName = '', Microsoft_Azure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
 	    return $this->changeEntity(Microsoft_Http_Transport::VERB_MERGE, $tableName, $entity, $verifyEtag);
+	}
+	
+	/**
+	 * Get error message from Microsoft_Http_Response
+	 * 
+	 * @param Microsoft_Http_Response $response Repsonse
+	 * @param string $alternativeError Alternative error message
+	 * @return string
+	 */
+	protected function getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknwon error.')
+	{
+		$response = $this->parseResponse($response);
+		if ($response && $response->message)
+		    return (string)$response->message;
+		else
+		    return $alternativeError;
 	}
 	
 	/**
@@ -860,7 +876,7 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 		}
 		else
 		{
-			throw new Microsoft_Azure_Exception((string)$this->parseResponse($response)->message);
+			throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
