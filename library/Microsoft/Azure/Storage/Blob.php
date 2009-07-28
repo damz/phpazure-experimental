@@ -638,10 +638,11 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 * @param string $destinationContainerName  Destination container name
 	 * @param string $destinationBlobName       Destination blob name
 	 * @param array  $metadata                  Key/value pairs of meta data
+	 * @param array  $additionalHeaders         Additional headers. See http://msdn.microsoft.com/en-us/library/dd894037.aspx for more information.
 	 * @return object Partial blob properties
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function copyBlob($sourceContainerName = '', $sourceBlobName = '', $destinationContainerName = '', $destinationBlobName = '', $metadata = array())
+	public function copyBlob($sourceContainerName = '', $sourceBlobName = '', $destinationContainerName = '', $destinationBlobName = '', $metadata = array(), $additionalHeaders = array())
 	{
 		if ($sourceContainerName === '')
 			throw new Microsoft_Azure_Exception('Source container name is not specified.');
@@ -661,6 +662,12 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		foreach ($metadata as $key => $value)
 		{
 		    $headers["x-ms-meta-" . strtolower($key)] = $value;
+		}
+		
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value)
+		{
+		    $headers[$key] = $value;
 		}
 		
 		// Set source blob
