@@ -182,4 +182,56 @@ $storageClient->setContainerAcl('testcontainer', Microsoft_Azure_Storage_Blob::A
       </programlisting>
     </example>
   </sect2>
+  
+  <sect2 id="microsoft.azure.storage.blob.api.wrapper">
+    <title>Blob storage stream wrapper</title>
+
+    <para>
+      The PHP SDK for Windows Azure provides support for registering a blob storage
+      client as a PHP file stream wrapper. The blob storage stream wrapper provides
+      support for using regular file operations on Windows Azure Blob Storage.
+      For example, one can open a file from Windows Azure Blob Storage with
+      the fopen() function:
+    </para>
+
+    <example id="microsoft.azure.storage.blob.api.wrapper-sample">
+      <title>Example usage of blob storage stream wrapper</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+$fileHandle = fopen('azure://mycontainer/myfile.txt', 'r');
+
+// ...
+
+fclose($fileHandle);
+]]>
+      </programlisting>
+    </example>
+    
+    <para>
+      In order to do this, the PHP SDK for Windows Azure blob storage client
+      must be registered as a stream wrapper. This can be done by calling the
+      registerStreamWrapper() function:
+    </para>
+
+    <example id="microsoft.azure.storage.blob.api.wrapper-register">
+      <title>Registering the blob storage stream wrapper</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Blob */
+require_once 'Microsoft/Azure/Storage/Blob.php';
+
+$storageClient = new Microsoft_Azure_Storage_Blob();
+$storageClient->registerStreamWrapper(); // registers azure:// on this storage client
+
+// or:
+
+$storageClient->registerStreamWrapper('blob://'); // regiters blob:// on this storage client
+]]>
+      </programlisting>
+    </example>
+    
+    <para>
+      To unregister the stream wrapper, the unregisterStreamWrapper() function can be used.
+    </para>
+  </sect2>
 </sect1>

@@ -651,4 +651,76 @@ $batch->commit();
       </programlisting>
     </example>
   </sect2>
+  
+  
+  
+  <sect2 id="microsoft.azure.storage.table.api.sessionhandler">
+    <title>Table storage session handler</title>
+
+    <para>
+      When running a PHP application on the Windows Azure platform in a load-balanced mode
+      (running 2 Web Role instances or more), it is important that PHP session data can be
+      shared between multiple Web Role instances. The PHP SDK for Windows Azure provides
+      the <code>Microsoft_Azure_SessionHandler</code> class, which uses Windows Azure Table
+      Storage as a session handler for PHP applications.
+    </para>
+    
+    <para>
+      To use the <code>Microsoft_Azure_SessionHandler</code> session handler,
+      it should be registered as the default session handler for your PHP application:
+    </para>
+
+    <example id="microsoft.azure.storage.table.api.sessionhandler-register">
+      <title>Registering table storage session handler</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+
+$sessionHandler = new Microsoft_Azure_SessionHandler($storageClient , 'sessionstable');
+$sessionHandler->register();
+]]>
+      </programlisting>
+    </example>
+    
+    <para>
+      The above code registers the <code>Microsoft_Azure_SessionHandler</code> session handler and will
+      store sessions in a table called "sessionstable".
+	</para>
+	
+	<para>
+	  After registration of the <code>Microsoft_Azure_SessionHandler</code> session handler,
+	  sessions can be started and used in the same way as a normal PHP session:
+    </para>
+    
+    <example id="microsoft.azure.storage.table.api.sessionhandler-usage">
+      <title>Using table storage session handler</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Table */
+require_once 'Microsoft/Azure/Storage/Table.php';
+
+$storageClient = new Microsoft_Azure_Storage_Table('table.core.windows.net', 'myaccount', 'myauthkey');
+
+$sessionHandler = new Microsoft_Azure_SessionHandler($storageClient , 'sessionstable');
+$sessionHandler->register();
+
+session_start();
+
+if (!isset($_SESSION['firstVisit']))
+{
+    $_SESSION['firstVisit'] = time();
+}
+
+// ...
+]]>
+      </programlisting>
+    </example>
+    
+    <para>
+      WARNING: The <code>Microsoft_Azure_SessionHandler</code> session handler should be registered before a call to session_start() is made!
+    </para>
+  </sect2>
 </sect1>
