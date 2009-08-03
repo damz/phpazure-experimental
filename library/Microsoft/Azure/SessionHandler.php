@@ -110,13 +110,10 @@ class Microsoft_Azure_SessionHandler
     public function open()
     {
     	// Make sure table exists
-		try
-		{
+    	$tableExists = $this->_tableStorage->tableExists($this->_sessionTable);
+    	if (!$tableExists)
+    	{
 		    $this->_tableStorage->createTable($this->_sessionTable);
-		}
-		catch (Microsoft_Azure_Exception $ex)
-		{
-		    // No problem: table already exists
 		}
 		
 		// Ok!

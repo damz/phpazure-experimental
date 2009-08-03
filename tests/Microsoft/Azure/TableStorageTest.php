@@ -154,6 +154,28 @@ class Microsoft_Azure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test table exists
+     */
+    public function testTableExists()
+    {
+        if (TESTS_TABLE_RUNTESTS && TESTS_TABLE_RUNONPROD)
+        {
+            $tableName1 = $this->generateName();
+            $tableName2 = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            
+            $storageClient->createTable($tableName1);
+            $storageClient->createTable($tableName2);
+
+            $result = $storageClient->tableExists($tableName2);
+            $this->assertTrue($result);
+            
+            $result = $storageClient->tableExists(md5(time()));
+            $this->assertFalse($result);
+        }
+    }
+    
+    /**
      * Test list tables
      */
     public function testListTables()

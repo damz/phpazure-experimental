@@ -125,6 +125,57 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	}
 	
 	/**
+	 * Check if a blob exists
+	 * 
+	 * @param string $containerName Container name
+	 * @param string $blobName      Blob name
+	 * @return boolean
+	 */
+	public function blobExists($containerName = '', $blobName = '')
+	{
+		if ($containerName === '')
+			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		if ($blobName === '')
+			throw new Microsoft_Azure_Exception('Blob name is not specified.');
+		
+		// List blobs
+        $blobs = $this->listBlobs($containerName, $blobName, '', 1);
+        foreach ($blobs as $blob)
+        {
+            if ($blob->Name == $blobName)
+                return true;
+        }
+        
+        return false;
+	}
+	
+	/**
+	 * Check if a container exists
+	 * 
+	 * @param string $containerName Container name
+	 * @return boolean
+	 */
+	public function containerExists($containerName = '')
+	{
+		if ($containerName === '')
+			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+			
+		// List containers
+        $containers = $this->listContainers($containerName, 1);
+        foreach ($containers as $container)
+        {
+            if ($container->Name == $containerName)
+                return true;
+        }
+        
+        return false;
+	}
+	
+	/**
 	 * Create container
 	 *
 	 * @param string $containerName Container name

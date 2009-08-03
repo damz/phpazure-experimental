@@ -242,6 +242,28 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 	}
 	
 	/**
+	 * Check if a table exists
+	 * 
+	 * @param string $tableName Table name
+	 * @return boolean
+	 */
+	public function tableExists($tableName = '')
+	{
+		if ($tableName === '')
+			throw new Microsoft_Azure_Exception('Table name is not specified.');
+			
+		// List tables
+        $tables = $this->listTables($tableName);
+        foreach ($tables as $table)
+        {
+            if ($table->Name == $tableName)
+                return true;
+        }
+        
+        return false;
+	}
+	
+	/**
 	 * List tables
 	 *
 	 * @param  string $nextTableName Next table name, used for listing tables when total amount of tables is > 1000.

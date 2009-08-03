@@ -121,6 +121,48 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test container exists
+     */
+    public function testContainerExists()
+    {
+        if (TESTS_BLOB_RUNTESTS)  
+        {
+            $containerName1 = $this->generateName();
+            $containerName2 = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName1);
+            $storageClient->createContainer($containerName2);
+            
+            $result = $storageClient->containerExists($containerName1);
+            $this->assertTrue($result);
+            
+            $result = $storageClient->containerExists(md5(time()));
+            $this->assertFalse($result);
+        }
+    }
+    
+    /**
+     * Test blob exists
+     */
+    public function testBlobExists()
+    {
+        if (TESTS_BLOB_RUNTESTS)  
+        {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            $storageClient->putBlob($containerName, 'WindowsAzure1.gif', self::$path . 'WindowsAzure.gif');
+            $storageClient->putBlob($containerName, 'WindowsAzure2.gif', self::$path . 'WindowsAzure.gif');
+            
+            $result = $storageClient->blobExists($containerName, 'WindowsAzure1.gif');
+            $this->assertTrue($result);
+            
+            $result = $storageClient->blobExists($containerName, md5(time()));
+            $this->assertFalse($result);
+        }
+    }
+
+    /**
      * Test create container
      */
     public function testCreateContainer()

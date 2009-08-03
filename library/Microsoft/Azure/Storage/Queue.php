@@ -108,6 +108,30 @@ class Microsoft_Azure_Storage_Queue extends Microsoft_Azure_Storage
 	}
 	
 	/**
+	 * Check if a queue exists
+	 * 
+	 * @param string $queueName Queue name
+	 * @return boolean
+	 */
+	public function queueExists($queueName = '')
+	{
+		if ($queueName === '')
+			throw new Microsoft_Azure_Exception('Queue name is not specified.');
+		if (!self::isValidQueueName($queueName))
+		    throw new Microsoft_Azure_Exception('Queue name does not adhere to queue naming conventions. See http://msdn.microsoft.com/en-us/library/dd179349.aspx for more information.');
+			
+		// List queues
+        $queues = $this->listQueues($queueName, 1);
+        foreach ($queues as $queue)
+        {
+            if ($queue->Name == $queueName)
+                return true;
+        }
+        
+        return false;
+	}
+	
+	/**
 	 * Create queue
 	 *
 	 * @param string $queueName Queue name

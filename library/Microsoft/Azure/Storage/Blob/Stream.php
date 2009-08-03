@@ -212,15 +212,14 @@ class Microsoft_Azure_Storage_Blob_Stream
         if ($this->_writeMode)
         {
             // Make sure the container exists
-            try
+            $containerExists = $this->getStorageClient($this->_fileName)->containerExists(
+                $this->getContainerName($this->_fileName)
+            );
+            if (!$containerExists)
             {
                 $this->getStorageClient($this->_fileName)->createContainer(
                     $this->getContainerName($this->_fileName)
                 );
-            }
-            catch (Microsoft_Azure_Exception $ex)
-            {
-                // Container exists, which is good.
             }
             
             // Upload the file
