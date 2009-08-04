@@ -394,8 +394,8 @@ class Microsoft_Azure_Storage_Queue extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Queue name does not adhere to queue naming conventions. See http://msdn.microsoft.com/en-us/library/dd179349.aspx for more information.');
 		if ($numOfMessages < 1 || $numOfMessages > 32 || intval($numOfMessages) != $numOfMessages)
 		    throw new Microsoft_Azure_Exception('Invalid number of messages to retrieve.');
-		if (!is_null($visibilityTimeout) && ($visibilityTimeout < 0 || $visibilityTimeout > 7200))
-		    throw new Microsoft_Azure_Exception('Visibility timeout is invalid. Maximum value is 2 hours (7200 seconds).');
+		if (!is_null($visibilityTimeout) && ($visibilityTimeout <= 0 || $visibilityTimeout > 7200))
+		    throw new Microsoft_Azure_Exception('Visibility timeout is invalid. Maximum value is 2 hours (7200 seconds) and should be greater than zero.');
 		    
 	    // Build query string
 	    $query = array();
