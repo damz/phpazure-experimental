@@ -1110,6 +1110,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
     
         if (strlen($containerName) < 3 || strlen($containerName) > 63)
             return false;
+            
+        if (substr($containerName, -1) == '-')
+            return false;
     
         return true;
     }

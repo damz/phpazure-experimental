@@ -353,8 +353,8 @@ class Microsoft_Azure_Storage_Queue extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Message is too big. Message content should be < 8KB.');
 		if ($message == '')
 		    throw new Microsoft_Azure_Exception('Message is not specified.');
-		if (!is_null($ttl) && ($ttl < 0 || $ttl > self::MAX_MESSAGE_SIZE))
-		    throw new Microsoft_Azure_Exception('Message TTL is invalid. Maximal TTL is 7 days (' . self::MAX_MESSAGE_SIZE . ' seconds)');
+		if (!is_null($ttl) && ($ttl <= 0 || $ttl > self::MAX_MESSAGE_SIZE))
+		    throw new Microsoft_Azure_Exception('Message TTL is invalid. Maximal TTL is 7 days (' . self::MAX_MESSAGE_SIZE . ' seconds) and should be greater than zero.');
 		    
 	    // Build query string
 	    $queryString = '';
@@ -392,7 +392,7 @@ class Microsoft_Azure_Storage_Queue extends Microsoft_Azure_Storage
 			throw new Microsoft_Azure_Exception('Queue name is not specified.');
 		if (!self::isValidQueueName($queueName))
 		    throw new Microsoft_Azure_Exception('Queue name does not adhere to queue naming conventions. See http://msdn.microsoft.com/en-us/library/dd179349.aspx for more information.');
-		if ($numOfMessages < 1 || $numOfMessages > 32)
+		if ($numOfMessages < 1 || $numOfMessages > 32 || intval($numOfMessages) != $numOfMessages)
 		    throw new Microsoft_Azure_Exception('Invalid number of messages to retrieve.');
 		if (!is_null($visibilityTimeout) && ($visibilityTimeout < 0 || $visibilityTimeout > 7200))
 		    throw new Microsoft_Azure_Exception('Visibility timeout is invalid. Maximum value is 2 hours (7200 seconds).');
@@ -523,6 +523,9 @@ class Microsoft_Azure_Storage_Queue extends Microsoft_Azure_Storage
             return false;
     
         if (strlen($queueName) < 3 || strlen($queueName) > 63)
+            return false;
+            
+        if (substr($queueName, -1) == '-')
             return false;
     
         return true;
