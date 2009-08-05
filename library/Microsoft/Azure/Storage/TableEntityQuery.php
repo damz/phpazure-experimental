@@ -301,7 +301,14 @@ class Microsoft_Azure_Storage_TableEntityQuery
 	        $i = 0;
 	        while(strpos($text, '?') !== false)
 	        {
-	            $text = substr_replace($text, '\'' . addslashes($value[$i++]) . '\'', strpos($text, '?'), 1);
+	            if (is_numeric($value[$i]))
+	            {
+	                $text = substr_replace($text, $value[$i++], strpos($text, '?'), 1);
+	            }
+	            else
+	            {
+	                $text = substr_replace($text, '\'' . addslashes($value[$i++]) . '\'', strpos($text, '?'), 1);
+	            }
 	        }
 	    }
 	    return $text;
