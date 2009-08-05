@@ -189,6 +189,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
 		if (!self::isValidContainerName($containerName))
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		if (!is_array($metadata))
+			throw new Microsoft_Azure_Exception('Meta data should be an array of key and value pairs.');
 			
 		// Create metadata headers
 		$headers = array();
@@ -336,6 +338,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
 		if (!self::isValidContainerName($containerName))
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		if (!is_array($metadata))
+			throw new Microsoft_Azure_Exception('Meta data should be an array of key and value pairs.');
 		if (count($metadata) == 0)
 		    return;
 		    
@@ -1099,7 +1103,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 */
     public static function isValidContainerName($containerName = '')
     {
-        if (!ereg("^[a-z0-9][a-z0-9-]*", $containerName))
+        if (!ereg("^[a-z0-9][a-z0-9-]*$", $containerName))
             return false;
     
         if (strpos($containerName, '--') !== false)
