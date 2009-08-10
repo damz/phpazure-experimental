@@ -15,6 +15,7 @@
 class Test_TableEntity extends Microsoft_Azure_Storage_TableEntity {
 	
 	/**
+	 * you can get a valid date format like $date_string = date("Y-m-d\\TH:i:s");
 	 * @azure dateField Edm.DateTime
 	 * 
 	 */

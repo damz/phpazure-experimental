@@ -126,14 +126,15 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$tableName = $this->generateTableName ();
 		$storageClient = $this->_createStorageClient ();
 		
+		$exception = null;
 		try {
 			$storageClient->createTable ( $tableName );
-			$storageClient->createTable ( $tableName );
-			$this->fail ( "table alread exists" );
+			$storageClient->createTable ( $tableName );		
 		} catch ( Exception $ex ) {
-			$this->assertEquals ( "The table specified already exists.", $ex->getMessage () );
+			$exception = $ex;			
 		}
-	
+	 	$this->assertNotNull($exception, "table alread exists");
+  		$this->assertEquals("The table specified already exists.", $exception->getMessage());
 	}
 	
 	/**
@@ -181,12 +182,15 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$tableName = "notexisttable";
 		$storageClient = $this->_createStorageClient ();
 		
+		$exception = null;
 		try {
-			$storageClient->deleteTable ( $tableName );
-			$this->fail ( "table does not exist" );
+			$storageClient->deleteTable ( $tableName );			
 		} catch ( Exception $ex ) {
-			$this->assertEquals ( "The specified resource does not exist.", $ex->getMessage () );
+			$exception = $ex;
 		}
+		$this->assertNotNull($exception, "table does not exist");
+  		$this->assertEquals("The specified resource does not exist.", $exception->getMessage());
+		
 	}
 	
 	public function testInsertEntity() {
@@ -197,6 +201,26 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$storageClient->insertEntity ( $tableName, $entity );
 		$result = $storageClient->retrieveEntities ( $tableName );
 		$this->assertEquals ( 1, sizeof ( $result ) );
+	}
+	
+	/**
+	 * Can't insert a boolean field with false value.
+	 *
+	 */
+	public function testInsertEntityWithFalse() {
+		$tableName = $this->generateTableName ();
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->createTable ( $tableName );
+		try {
+			$entity = new Boolean_TableEntity ( "part", "row" );
+			$entity->booleanField = false;
+			$storageClient->insertEntity ( $tableName, $entity );
+			$result = $storageClient->retrieveEntities ( $tableName );
+			$e = $result [0];
+			$this->assertEquals ( 'true', $e->booleanField );
+		} catch ( Exception $e ) {
+			$this->fail ( $e->getMessage () );
+		}
 	}
 	
 	public function testInsertEntity_Multiple() {
@@ -263,11 +287,14 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$entity = ($this->_generateEntities ( 1 ));
 		$invalue = 0.04;
 		$entity->int32Field = $invalue;
+		$exception = null;
 		try {
 			$storageClient->insertEntity ( $tableName, $entity );
 		} catch ( Exception $e ) {
-			$this->_assertMircosoftAzureException ( $e );
+			$exception = $e;
 		}
+		$this->assertNotNull($exception, "Field value does not match its type");
+		$this->_assertMircosoftAzureException ( $exception );
 	}
 	
 	protected function _assertMircosoftAzureException($e) {
@@ -281,12 +308,13 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$entity = ($this->_generateEntities ( 1 ));
 		$dateTime = $this->_gmtTimeFormat ();
 		$entity->dateField = $dateTime;
+		$exception = null;
 		try {
-			$storageClient->insertEntity ( $tableName, $entity );
-			$this->fail ( "Time format is not supported" );
+			$storageClient->insertEntity ( $tableName, $entity );		
 		} catch ( Exception $e ) {
-			$this->assertTrue ( $e != null );
+			$exception = $e;		
 		}
+		$this->assertNotNull($exception, "Time format is not supported" );
 	}
 	
 	/**
@@ -318,11 +346,13 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$entitiy = ($this->_generateEntities ( 1 ));
 		$dateTime = $this->_gmtTime ();
 		$entitiy->dateField = $dateTime;
+		$exception = null;
 		try {
 			$storageClient->insertEntity ( $tableName, $entitiy );
 		} catch ( Exception $e ) {
-			$this->assertTrue ( $e != null );
+			$exception = $e;	
 		}
+		$this->assertNotNull($exception);
 	}
 	
 	public function testUpdateEntity_ValidField() {
@@ -612,6 +642,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		
 		$entity = $this->_generateEntities ( $count, true );
 		
+		$exception = null;
 		try {
 			// Start batch
 			$batch = $storageClient->startBatch ();
@@ -620,11 +651,11 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 			$storageClient->deleteEntity ( $tableName, $entity );
 			// Commit
 			$batch->commit ();
-			$this->fail ( "An entity can appear only once in the transaction, and only one operation may be performed against it. " );
 		} catch ( Exception $ex ) {
-			$this->assertEquals ( "An error has occured while committing a batch: 0:One of the request inputs is not valid.", $ex->getMessage () );
+			$exception = $ex;			
 		}
-	
+	   $this->assertNotNull($exception, "An entity can appear only once in the transaction, and only one operation may be performed against it. " );
+	   $this->assertEquals("An error has occured while committing a batch: 0:One of the request inputs is not valid.", $exception->getMessage());
 	}
 	
 	public function testBatch_FailInsert() {
@@ -636,6 +667,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$entities = $this->_generateEntities ( $count );
 		$storageClient->insertEntity ( $tableName, $entities [0] );
 		
+		$exception = null;
 		try {
 			// Start batch
 			$batch = $storageClient->startBatch ();
@@ -644,13 +676,13 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 				$storageClient->insertEntity ( $tableName, $entity );
 			}
 			// Commit
-			$batch->commit ();
-			$this->fail ( "Batch insert should fail when entity already exists." );
-		} catch ( Exception $ex ) {
-			echo $ex;
-			$this->assertEquals ( "An error has occured while committing a batch: 0:The specified entity already exists.", $ex->getMessage () );
+			$batch->commit ();			
+		} catch ( Exception $ex ) {		
+			$exception = $ex;			
 		}
-	
+		
+	   $this->assertNotNull($exception, "Batch insert should fail when entity already exists.");
+  	   $this->assertEquals("An error has occured while committing a batch: 0:The specified entity already exists.", $exception->getMessage());
 	}
 	
 	/**
@@ -671,6 +703,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 	public function testBatch_FailMultiple() {
 		
 		$storageClient = $this->_createStorageClient ();
+		$exception = null;
 		try {
 			// Start batch
 			$batch1 = $storageClient->startBatch ();
@@ -680,9 +713,10 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 			$batch1->commit ();
 		
 		} catch ( Exception $ex ) {
-			$this->assertEquals ( "Only one batch can be active at a time.", $ex->getMessage () );
-		
+			$exception = $ex;	
 		}
+	    $this->assertNotNull($exception, "Cannot start two batch at a time." );
+  	    $this->assertEquals("Only one batch can be active at a time." , $exception->getMessage());
 	}
 	
 	/**
@@ -692,6 +726,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 	public function testBatch_FailNoContent() {
 		
 		$storageClient = $this->_createStorageClient ();
+		$exception = null;
 		try {
 			// Start batch
 			$batch = $storageClient->startBatch ();
@@ -699,9 +734,11 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 			$batch->commit ();
 		
 		} catch ( Exception $ex ) {
-			$this->assertEquals ( "An error has occured while committing a batch: Server encountered an internal error. Please try again after some time.", $ex->getMessage () );
+			$exception = $ex;	
 		
 		}
+		$this->assertNotNull($exception, "No operations in a batch." );
+  	    $this->assertEquals("An error has occured while committing a batch: Server encountered an internal error. Please try again after some time." , $exception->getMessage());
 	}
 	
 	//	/**
@@ -881,12 +918,15 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 			$storageClient->insertEntity ( $tableName, $entity );
 		}
 		$batch->commit ();
+		$exception = null;
 		try {
 			$result = $storageClient->retrieveEntities ( $storageClient->select ()->from ( $tableName )->orderBy ( 'int64Field', 'asc' ), 'Test_TableEntity' );
 			$this->assertEquals ( $count, count ( $result ) );
 		} catch ( Exception $ex ) {
-			$this->assertEquals ( "The requested operation is not implemented on the specified resource.", $ex->getMessage () );
+			$exception = $ex;			
 		}
+		$this->assertNotNull($exception, "Does not support order by.");
+  		$this->assertEquals("The requested operation is not implemented on the specified resource.", $exception->getMessage());
 	}
 	
 	public function testRetrieveEntityById() {
@@ -921,19 +961,24 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 			$storageClient->insertEntity ( $tableName, $entity );
 		}
 		$batch->commit ();
+		$exception = null;
 		try {
 			$storageClient->retrieveEntityById ( $tableName, $entities [0]->getPartitionKey () . "XXX", $entities [0]->getRowKey (), 'Test_TableEntity' );
 		} catch ( Exception $ex ) {
-			$this->assertEquals ( "The specified resource does not exist.", $ex->getMessage () );
+			$exception = $ex;		
+		}		  
+  		$this->assertNotNull($exception,"No entity with specified key");
+  	    $this->assertEquals("The specified resource does not exist.", $exception->getMessage());
 		
-		}
-		
+  	    $exception = null;
 		try {
 			$storageClient->retrieveEntityById ( "nosuchtableentity", $entities [0]->getPartitionKey () . "XXX", $entities [0]->getRowKey (), 'Test_TableEntity' );
 		} catch ( Exception $ex ) {
-			$this->assertEquals ( "The table specified does not exist.", $ex->getMessage () );
-		
+			$exception = $ex;
+			$this->assertEquals ( "The table specified does not exist.", $ex->getMessage () );		
 		}
+		$this->assertNotNull($exception,"Table does not exist");
+  	    $this->assertEquals( "The table specified does not exist.", $exception->getMessage());
 	}
 	
 	public function testRetrieveEntities_ComplexQuery() {
@@ -942,22 +987,161 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$tableName = $this->generateTableName ();
 		$storageClient->createTable ( $tableName );
 		$count = 3;
-		$batch = $storageClient->startBatch();		
-		for($i = 1 ; $i <= $count; $i ++ ){
-			$dynamicEntity = new Microsoft_Azure_Storage_DynamicTableEntity ( "part_key" , "row_key" .$i);
+		$batch = $storageClient->startBatch ();
+		for($i = 1; $i <= $count; $i ++) {
+			$dynamicEntity = new Microsoft_Azure_Storage_DynamicTableEntity ( "part_key", "row_key" . $i );
 			$dynamicEntity->setAzureProperty ( "fieldA", $i, "Edm.Int32" );
-			$dynamicEntity->setAzureProperty ( "fieldB", $this->_randomString(15), "Edm.String" );
+			$dynamicEntity->setAzureProperty ( "fieldB", $this->_randomString ( 15 ), "Edm.String" );
 			$storageClient->insertEntity ( $tableName, $dynamicEntity );
 		}
-		$batch->commit();
-						
-		$result = $storageClient->retrieveEntities ( $storageClient->select ()->from ( $tableName )->orWhere('fieldA eq 1')->orWhere('fieldA eq 2') );
+		$batch->commit ();
+		
+		$result = $storageClient->retrieveEntities ( $storageClient->select ()->from ( $tableName )->orWhere ( 'fieldA eq 1' )->orWhere ( 'fieldA eq 2' ) );
 		$this->assertEquals ( 2, count ( $result ) );
 		
 		// bug , does not support int
-		$result = $storageClient->retrieveEntities ( $storageClient->select ()->from ( $tableName )->where('fieldA eq ? or fieldA eq ?', array(1, 2)) );
+		$result = $storageClient->retrieveEntities ( $storageClient->select ()->from ( $tableName )->where ( 'fieldA eq ? or fieldA eq ?', array (1, 2 ) ) );
 		$this->assertEquals ( 2, count ( $result ) );
 	
+	}
+	
+	/**
+	 * Query entities by datetime field. The 
+	 *
+	 */
+	public function testQueryByDatetimeField() {
+		$ISO = "Y-m-d\\TH:i:s";
+		$entityClass = 'Test_TableEntity';
+		$tableName = $this->generateTableName ();
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->createTable ( $tableName );
+		try {
+			$batch = $storageClient->startBatch ();
+			
+			$count = 20;
+			
+			$entities = $this->_generateEntities ( $count );
+			for($i = 1; $i <= count ( $entities ); $i ++) {
+				$entity = $entities [$i - 1];
+				$entity->int32Field = $i;
+				$nextDay = mktime ( 0, 0, 0, 01, $i, date ( "Y" ) );
+				echo date ( $ISO, $nextDay );
+				$entity->dateField = date ( $ISO, $nextDay );
+				$storageClient->insertEntity ( $tableName, $entity );
+			}
+			$batch->commit ();
+			$result = $storageClient->retrieveEntities ( $tableName, "int32Field le 10", $entityClass );
+			$this->assertEquals ( 10, count ( $result ) );
+			
+			//use datatime as prefix
+			$result = $storageClient->retrieveEntities ( $tableName, "dateField le " . "datetime'" . date ( $ISO ) . "'", $entityClass );
+			$this->assertEquals ( $count, count ( $result ) );
+			
+			//use datatime as prefix
+			$result = $storageClient->retrieveEntities ( $tableName, "dateField ge " . "datetime'" . date ( $ISO ) . "'", $entityClass );
+			$this->assertEquals ( 0, count ( $result ) );
+			
+			//use datatime as prefix
+			$date_condition = mktime ( 0, 0, 0, 01, 10, date ( "Y" ) );
+			$result = $storageClient->retrieveEntities ( $tableName, "dateField le " . "datetime'" . date ( $ISO, $date_condition ) . "'", $entityClass );
+			$this->assertEquals ( 10, count ( $result ) );
+			
+		//			$result = $storageClient->retrieveEntities ( $tableName, "int32Field le 10", $entityClass );
+		//			$this->assertEquals ( 10, count ( $result ) );
+		} catch ( Exception $e ) {
+			$this->fail ( $e->getMessage () );
+		}
+	}
+	
+	/**
+	 * Query entities by int field(include Edm.int32/Edm.int64)
+	 *
+	 */
+	public function testQueryByIntField() {
+		$entityClass = 'Test_TableEntity';
+		$tableName = $this->generateTableName ();
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->createTable ( $tableName );
+		try {
+			$batch = $storageClient->startBatch ();
+			
+			$count = 20;
+			$entities = $this->_generateEntities ( $count );
+			for($i = 1; $i <= count ( $entities ); $i ++) {
+				$entity = $entities [$i - 1];
+				$entity->int32Field = $i;
+				$storageClient->insertEntity ( $tableName, $entity );
+			}
+			$batch->commit ();
+			$result = $storageClient->retrieveEntities ( $tableName, "int32Field le 10", $entityClass );
+			$this->assertEquals ( 10, count ( $result ) );
+		} catch ( Exception $e ) {
+			$this->fail ( $e->getMessage () );
+		}
+	}
+	
+	/**
+	 * Query entities by string field
+	 *
+	 */
+	public function testQueryByStringField() {
+		$entityClass = 'Test_TableEntity';
+		$tableName = $this->generateTableName ();
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->createTable ( $tableName );
+		try {
+			$batch = $storageClient->startBatch ();
+			
+			$count = 20;
+			$entities = $this->_generateEntities ( $count );
+			for($i = 1; $i <= count ( $entities ); $i ++) {
+				$entity = $entities [$i - 1];
+				$entity->stringField = "A" . $i;
+				
+				if ($i > 10) {
+					$entity->stringField = "B" . $i;
+				}
+				
+				$storageClient->insertEntity ( $tableName, $entity );
+			}
+			$batch->commit ();
+			$result = $storageClient->retrieveEntities ( $tableName, "stringField lt " . "'" . "B" . "'", $entityClass );
+			$this->assertEquals ( 10, count ( $result ) );
+		} catch ( Exception $e ) {
+			$this->fail ( $e->getMessage () );
+		}
+	}
+	
+	/**
+	 * Query entities by string field
+	 *
+	 */
+	public function testQueryByBooleanField() {
+		$entityClass = 'Test_TableEntity';
+		$tableName = $this->generateTableName ();
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->createTable ( $tableName );
+		try {
+			$batch = $storageClient->startBatch ();
+			
+			$count = 20;
+			$entities = $this->_generateEntities ( $count );
+			for($i = 1; $i <= count ( $entities ); $i ++) {
+				$entity = $entities [$i - 1];
+				
+				if ($i > 10) {
+					$entity->booleanField = true;
+				} else {
+					$entity->booleanField = true;
+				}
+				$storageClient->insertEntity ( $tableName, $entity );
+			}
+			$batch->commit ();
+			$result = $storageClient->retrieveEntities ( $tableName, "booleanField eq " . 'true', $entityClass );
+			$this->assertEquals ( 20, count ( $result ) );
+		} catch ( Exception $e ) {
+			$this->fail ( $e->getMessage () );
+		}
 	}
 	
 	/**
@@ -1006,11 +1190,13 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$entitiy = $this->_generateEntities ( 1 );
 		$binary = "I love youlllllllllllllllllllllll";
 		$entitiy->binaryField = $binary;
+		$exception = null;
 		try {
 			$storageClient->insertEntity ( $tableName, $entitiy );
 		} catch ( Exception $e ) {
-			$this->assertTrue ( $e != null );
+			$exception = $e;			
 		}
+		$this->assertNotNull($exception, "Invalid entity field");
 	}
 	
 	/**
@@ -1024,11 +1210,13 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$entitiy = new Simple_TableEntity ( 'aaa', 'bbb' );
 		$binary = "I love youlllllllllllllllllllllll";
 		$entitiy->binaryField = $binary;
+		$exception = null;
 		try {
 			$storageClient->insertEntity ( $tableName, $entitiy );
 		} catch ( Exception $e ) {
-			$this->assertTrue ( $e != null );
+			$exception = $e;				
 		}
+		$this->assertNotNull($exception, "Invalid entity field");
 	}
 	
 	public function testUpdateDynamicEntity() {
