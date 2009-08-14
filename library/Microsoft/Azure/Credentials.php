@@ -94,7 +94,15 @@ abstract class Microsoft_Azure_Credentials
 	}
 	
 	/**
-	 * Sign request with credentials
+	 * Sign request URL with credentials
+	 *
+	 * @param string $requestUrl Request URL
+	 * @return string Signed request URL
+	 */
+	public abstract function signRequestUrl($requestUrl = '');
+	
+	/**
+	 * Sign request headers with credentials
 	 *
 	 * @param string $httpVerb HTTP verb the request will use
 	 * @param string $path Path for the request
@@ -103,7 +111,7 @@ abstract class Microsoft_Azure_Credentials
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @return array Array of headers
 	 */
-	public abstract function signRequest($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false);
+	public abstract function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false);
 	
 	
 	/**

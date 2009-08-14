@@ -39,6 +39,11 @@
 require_once 'Microsoft/Azure/SharedKeyCredentials.php';
 
 /**
+ * @see Microsoft_Azure_SharedAccessSignatureCredentials
+ */
+require_once 'Microsoft/Azure/SharedAccessSignatureCredentials.php';
+
+/**
  * @see Microsoft_Azure_RetryPolicy
  */
 require_once 'Microsoft/Azure/RetryPolicy.php';
@@ -67,6 +72,11 @@ require_once 'Microsoft/Azure/Storage/BlobContainer.php';
  * @see Microsoft_Azure_Storage_BlobInstance
  */
 require_once 'Microsoft/Azure/Storage/BlobInstance.php';
+
+/**
+ * @see Microsoft_Azure_Storage_SignedIdentifier
+ */
+require_once 'Microsoft/Azure/Storage/SignedIdentifier.php';
 
 /**
  * @see Microsoft_Azure_Exception
@@ -109,6 +119,13 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
      * @var array
      */
     protected static $_wrapperClients = array();
+    
+    /**
+     * SharedAccessSignature credentials
+     * 
+     * @var Microsoft_Azure_SharedAccessSignatureCredentials
+     */
+    private $_sharedAccessSignatureCredentials = null;
 	
 	/**
 	 * Creates a new Microsoft_Azure_Storage_Blob instance
@@ -125,6 +142,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		
 		// API version
 		$this->_apiVersion = '2009-07-17';
+		
+		// SharedAccessSignature credentials
+		$this->_sharedAccessSignatureCredentials = new Microsoft_Azure_SharedAccessSignatureCredentials($accountName, $accountKey, $usePathStyleUri);
 	}
 	
 	/**
@@ -223,10 +243,11 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 * Get container ACL
 	 *
 	 * @param string $containerName Container name
+	 * @param bool   $signedIdentifiers Display only public/private or display signed identifiers?
 	 * @return bool Acl, to be compared with Microsoft_Azure_Storage_Blob::ACL_*
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function getContainerAcl($containerName = '')
+	public function getContainerAcl($containerName = '', $signedIdentifiers = false)
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
@@ -237,7 +258,46 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$response = $this->performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Transport::VERB_GET);
 		if ($response->isSuccessful())
 		{
-			return $response->getHeader('x-ms-prop-publicaccess') == 'True';
+		    if ($signedIdentifiers == false)
+		    {
+		        // Only public/private
+			    return $response->getHeader('x-ms-prop-publicaccess') == 'True';
+		    }
+		    else
+		    {
+       		    // Parse result
+    		    $result = $this->parseResponse($response);
+    		    if (!$result)
+    		        return array();
+    
+    		    $entries = null;
+    		    if ($result->SignedIdentifier)
+    		    {
+        		    if (count($result->SignedIdentifier) > 1)
+        		    {
+        		        $entries = $result->SignedIdentifier;
+        		    }
+        		    else
+        		    {
+        		        $entries = array($result->SignedIdentifier);
+        		    }
+    		    }
+    		    
+    		    // Return value
+    		    $returnValue = array();
+    		    foreach ($entries as $entry)
+    		    {
+    		        $returnValue[] = new Microsoft_Azure_Storage_SignedIdentifier(
+    		            $entry->Id,
+    		            $entry->AccessPolicy ? $entry->AccessPolicy->Start ? $entry->AccessPolicy->Start : '' : '',
+    		            $entry->AccessPolicy ? $entry->AccessPolicy->Expiry ? $entry->AccessPolicy->Expiry : '' : '',
+    		            $entry->AccessPolicy ? $entry->AccessPolicy->Permission ? $entry->AccessPolicy->Permission : '' : ''
+    		        );
+    		    }
+    		    
+    		    // Return
+    		    return $returnValue;
+		    }			   
 		}
 		else
 		{
@@ -250,17 +310,42 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 *
 	 * @param string $containerName Container name
 	 * @param bool $acl Microsoft_Azure_Storage_Blob::ACL_*
+	 * @param array $signedIdentifiers Signed identifiers
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function setContainerAcl($containerName = '', $acl = self::ACL_PRIVATE)
+	public function setContainerAcl($containerName = '', $acl = self::ACL_PRIVATE, $signedIdentifiers = array())
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
 		if (!self::isValidContainerName($containerName))
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 
+		// Policies
+		$policies = null;
+		if (is_array($signedIdentifiers) && count($signedIdentifiers) > 0)
+		{
+		    $policies  = '';
+		    $policies .= '<?xml version="1.0" encoding="utf-8"?>' . "\r\n";
+		    $policies .= '<SignedIdentifiers>' . "\r\n";
+		    foreach ($signedIdentifiers as $signedIdentifier)
+		    {
+		        $policies .= '  <SignedIdentifier>' . "\r\n";
+		        $policies .= '    <Id>' . $signedIdentifier->Id . '</Id>' . "\r\n";
+		        $policies .= '    <AccessPolicy>' . "\r\n";
+		        if ($signedIdentifier->Start != '')
+		            $policies .= '      <Start>' . $signedIdentifier->Start . '</Start>' . "\r\n";
+		        if ($signedIdentifier->Expiry != '')
+		            $policies .= '      <Expiry>' . $signedIdentifier->Expiry . '</Expiry>' . "\r\n";
+		        if ($signedIdentifier->Permissions != '')
+		            $policies .= '      <Permission>' . $signedIdentifier->Permissions . '</Permission>' . "\r\n";
+		        $policies .= '    </AccessPolicy>' . "\r\n";
+		        $policies .= '  </SignedIdentifier>' . "\r\n";
+		    }
+		    $policies .= '</SignedIdentifiers>' . "\r\n";
+		}
+		
 		// Perform request
-		$response = $this->performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Transport::VERB_PUT, array('x-ms-prop-publicaccess' => $acl));
+		$response = $this->performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Transport::VERB_PUT, array('x-ms-prop-publicaccess' => $acl), false, $policies);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -1142,6 +1227,40 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 	}
 	
+	/**
+	 * Generate shared access URL
+	 * 
+	 * @param string $containerName  Container name
+	 * @param string $blobName       Blob name
+     * @param string $resource       Signed resource - container (c) - blob (b)
+     * @param string $permissions    Signed permissions - read (r), write (w), delete (d) and list (l)
+     * @param string $start          The time at which the Shared Access Signature becomes valid.
+     * @param string $expiry         The time at which the Shared Access Signature becomes invalid.
+     * @param string $identifier     Signed identifier
+	 * @return string
+	 */
+	public function generateSharedAccessUrl($containerName = '', $blobName = '', $resource = 'b', $permissions = 'r', $start = '', $expiry = '', $identifier = '')
+	{
+		if ($containerName === '')
+			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+
+        // Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+
+		// Generate URL
+		return $this->getBaseUrl() . '/' . $resourceName . '?' .
+		    $this->_sharedAccessSignatureCredentials->createSignedQueryString(
+		        $resourceName,
+		        '',
+		        $resource,
+		        $permissions,
+		        $start,
+		        $expiry,
+		        $identifier);
+	}
+	
     /**
      * Register this object as stream wrapper client
      *
@@ -1214,13 +1333,6 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
      */
     public static function createResourceName($containerName = '', $blobName = '')
     {
-		if ($containerName === '')
-			throw new Microsoft_Azure_Exception('Container name is not specified.');
-		if (!self::isValidContainerName($containerName))
-		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
-		if ($blobName === '')
-			throw new Microsoft_Azure_Exception('Blob name is not specified.');
-	        
 		// Resource name
 		$resourceName = $containerName . '/' . $blobName;
 		if ($containerName === '' || $containerName === '$root')

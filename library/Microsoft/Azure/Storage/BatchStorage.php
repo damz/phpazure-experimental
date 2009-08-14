@@ -182,8 +182,8 @@ abstract class Microsoft_Azure_Storage_BatchStorage extends Microsoft_Azure_Stor
 		}
 
 		// Generate URL and sign request
-		$requestUrl     = $this->getBaseUrl() . $path . $queryString;
-		$requestHeaders = $this->_credentials->signRequest($httpVerb, $path, $queryString, $headers, $forTableStorage);
+		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString);
+		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage);
 
 		$requestClient  = Microsoft_Http_Transport::createChannel();
 		if ($this->_useProxy)

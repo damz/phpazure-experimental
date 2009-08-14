@@ -327,7 +327,7 @@ class Microsoft_Azure_Storage_Blob_Stream
      */
     public function stream_flush()
     {
-        return $this->_writeMode;
+        return fflush($this->_temporaryFileHandle);
     }
 
     /**

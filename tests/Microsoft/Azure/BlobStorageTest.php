@@ -211,6 +211,30 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test set container acl advanced
+     */
+    public function testSetContainerAclAdvanced()
+    {
+        if (TESTS_BLOB_RUNTESTS)  
+        {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            
+            $storageClient->setContainerAcl(
+                $containerName,
+                Microsoft_Azure_Storage_Blob::ACL_PRIVATE,
+                array(
+                    new Microsoft_Azure_Storage_SignedIdentifier('ABCDEF', '2009-10-10', '2009-10-11', 'r')
+                )
+            );
+            $acl = $storageClient->getContainerAcl($containerName, true);
+            
+            $this->assertEquals(1, count($acl));
+        }
+    }
+
+    /**
      * Test set container metadata
      */
     public function testSetContainerMetadata()

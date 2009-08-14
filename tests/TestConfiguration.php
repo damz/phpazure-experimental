@@ -66,6 +66,7 @@ define('TESTS_BLOB_RUNONPROD',                  true);
 define('TESTS_BLOB_RUNLARGEBLOB',               true);
 define('TESTS_BLOB_CONTAINER_PREFIX',           'phpazuretestblob');
 define('TESTS_BLOBSTREAM_CONTAINER_PREFIX',     'phpazureteststream');
+define('TESTS_BLOBSA_CONTAINER_PREFIX',         'phpazuretestshared');
 
 /**
  * Table storage tests
@@ -94,5 +95,5 @@ define('TESTS_SESSIONHANDLER_TABLENAME_PREFIX', 'phpazuretestsession');
 /**
  * PHPUnit Code Coverage / Test Report
  */
-define('TESTS_GENERATE_REPORT',                 false);
+define('TESTS_GENERATE_REPORT',                 true);
 define('TESTS_GENERATE_REPORT_TARGET',          '/path/to/target');

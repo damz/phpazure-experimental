@@ -46,10 +46,12 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 
 require_once 'Microsoft/Azure/SharedKeyCredentialsTest.php';
 require_once 'Microsoft/Azure/SharedKeyLiteCredentialsTest.php';
+require_once 'Microsoft/Azure/SharedAccessSignatureCredentialsTest.php';
 require_once 'Microsoft/Azure/RetryPolicyTest.php';
 require_once 'Microsoft/Azure/StorageTest.php';
 require_once 'Microsoft/Azure/BlobStorageTest.php';
 require_once 'Microsoft/Azure/BlobStreamTest.php';
+require_once 'Microsoft/Azure/BlobStorageSharedAccessTest.php';
 require_once 'Microsoft/Azure/TableEntityTest.php';
 require_once 'Microsoft/Azure/DynamicTableEntityTest.php';
 require_once 'Microsoft/Azure/TableEntityQueryTest.php';
@@ -78,11 +80,13 @@ class Microsoft_Azure_AllTests
 
         $suite->addTestSuite('Microsoft_Azure_SharedKeyCredentialsTest');
         $suite->addTestSuite('Microsoft_Azure_SharedKeyLiteCredentialsTest');
+        $suite->addTestSuite('Microsoft_Azure_SharedAccessSignatureCredentialsTest');
         $suite->addTestSuite('Microsoft_Azure_RetryPolicyTest');
         $suite->addTestSuite('Microsoft_Azure_StorageTest');
         if (TESTS_BLOB_RUNTESTS)
         {
             $suite->addTestSuite('Microsoft_Azure_BlobStorageTest');
+            $suite->addTestSuite('Microsoft_Azure_BlobStorageSharedAccessTest');
             $suite->addTestSuite('Microsoft_Azure_BlobStreamTest');
         }
         if (TESTS_TABLE_RUNTESTS)

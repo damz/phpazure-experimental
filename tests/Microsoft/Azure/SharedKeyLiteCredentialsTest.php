@@ -69,7 +69,7 @@ class Microsoft_Azure_SharedKeyLiteCredentialsTest extends PHPUnit_Framework_Tes
     public function testSignForDevstoreWithRootPath()
     {
         $credentials = new Microsoft_Azure_SharedKeyLiteCredentials(Microsoft_Azure_SharedKeyCredentials::DEVSTORE_ACCOUNT, Microsoft_Azure_SharedKeyCredentials::DEVSTORE_KEY, true);
-        $signedHeaders = $credentials->signRequest(
+        $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
                               '',
@@ -88,7 +88,7 @@ class Microsoft_Azure_SharedKeyLiteCredentialsTest extends PHPUnit_Framework_Tes
     public function testSignForDevstoreWithOtherPath()
     {
         $credentials = new Microsoft_Azure_SharedKeyLiteCredentials(Microsoft_Azure_SharedKeyCredentials::DEVSTORE_ACCOUNT, Microsoft_Azure_SharedKeyCredentials::DEVSTORE_KEY, true);
-        $signedHeaders = $credentials->signRequest(
+        $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/test',
                               '',
@@ -107,7 +107,7 @@ class Microsoft_Azure_SharedKeyLiteCredentialsTest extends PHPUnit_Framework_Tes
     public function testSignForDevstoreWithQueryString()
     {
         $credentials = new Microsoft_Azure_SharedKeyLiteCredentials(Microsoft_Azure_SharedKeyCredentials::DEVSTORE_ACCOUNT, Microsoft_Azure_SharedKeyCredentials::DEVSTORE_KEY, true);
-        $signedHeaders = $credentials->signRequest(
+        $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
                               '?test=true',
@@ -126,7 +126,7 @@ class Microsoft_Azure_SharedKeyLiteCredentialsTest extends PHPUnit_Framework_Tes
     public function testSignForProductionWithRootPath()
     {
         $credentials = new Microsoft_Azure_SharedKeyLiteCredentials('testing', 'abcdefg');
-        $signedHeaders = $credentials->signRequest(
+        $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
                               '',
@@ -145,7 +145,7 @@ class Microsoft_Azure_SharedKeyLiteCredentialsTest extends PHPUnit_Framework_Tes
     public function testSignForProductionWithOtherPath()
     {
         $credentials = new Microsoft_Azure_SharedKeyLiteCredentials('testing', 'abcdefg');
-        $signedHeaders = $credentials->signRequest(
+        $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/test',
                               '',
@@ -164,7 +164,7 @@ class Microsoft_Azure_SharedKeyLiteCredentialsTest extends PHPUnit_Framework_Tes
     public function testSignForProductionWithQueryString()
     {
         $credentials = new Microsoft_Azure_SharedKeyLiteCredentials('testing', 'abcdefg');
-        $signedHeaders = $credentials->signRequest(
+        $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
                               '?test=true',

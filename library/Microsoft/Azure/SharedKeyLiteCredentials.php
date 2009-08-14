@@ -50,8 +50,19 @@ require_once 'Microsoft/Azure/SharedKeyCredentials.php';
  */ 
 class Microsoft_Azure_SharedKeyLiteCredentials extends Microsoft_Azure_Credentials
 {
+    /**
+	 * Sign request URL with credentials
+	 *
+	 * @param string $requestUrl Request URL
+	 * @return string Signed request URL
+	 */
+	public function signRequestUrl($requestUrl = '')
+	{
+	    return $requestUrl;
+	}
+	
 	/**
-	 * Sign request with credentials
+	 * Sign request headers with credentials
 	 *
 	 * @param string $httpVerb HTTP verb the request will use
 	 * @param string $path Path for the request
@@ -60,7 +71,7 @@ class Microsoft_Azure_SharedKeyLiteCredentials extends Microsoft_Azure_Credentia
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @return array Array of headers
 	 */
-	public function signRequest($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false)
+	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false)
 	{
 		// Determine path
 		if ($this->_usePathStyleUri)

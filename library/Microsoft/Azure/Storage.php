@@ -243,6 +243,16 @@ class Microsoft_Azure_Storage
 	}
 	
 	/**
+	 * Get Microsoft_Azure_Credentials instance
+	 * 
+	 * @return Microsoft_Azure_Credentials
+	 */
+	public function getCredentials()
+	{
+	    return $this->_credentials;
+	}
+	
+	/**
 	 * Perform request using Microsoft_Http_Transport channel
 	 *
 	 * @param string $path Path
@@ -271,8 +281,8 @@ class Microsoft_Azure_Storage
 		$queryString    = self::urlencode($queryString);
 
 		// Generate URL and sign request
-		$requestUrl     = $this->getBaseUrl() . $path . $queryString;
-		$requestHeaders = $this->_credentials->signRequest($httpVerb, $path, $queryString, $headers, $forTableStorage);
+		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString);
+		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage);
 
 		$requestClient  = Microsoft_Http_Transport::createChannel();
 		if ($this->_useProxy)
@@ -317,6 +327,25 @@ class Microsoft_Azure_Storage
         }
         
         return $xml;
+	}
+	
+	/**
+	 * Generate ISO 8601 compliant date string in UTC time zone
+	 * 
+	 * @param int $timestamp
+	 * @return string
+	 */
+	public function isoDate($timestamp = null) 
+	{        
+	    $tz = @date_default_timezone_get();
+	    @date_default_timezone_set('UTC');
+	    
+	    if (is_null($timestamp))
+	        $timestamp = time();
+	        
+	    $returnValue = str_replace('+00:00', 'Z', @date('c', $timestamp));
+	    @date_default_timezone_set($tz);
+	    return $returnValue;
 	}
 	
 	/**
