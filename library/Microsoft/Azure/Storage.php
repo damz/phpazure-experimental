@@ -88,8 +88,10 @@ class Microsoft_Azure_Storage
 	
 	/**
 	 * Current API version
+	 * 
+	 * @var string
 	 */
-	const API_VERSION = '2009-04-14';
+	protected $_apiVersion = '2009-04-14';
 	
 	/**
 	 * Storage host name
@@ -262,7 +264,7 @@ class Microsoft_Azure_Storage
 		    $headers = array();
 		    
 		// Add version header
-		$headers['x-ms-version'] = self::API_VERSION;
+		$headers['x-ms-version'] = $this->_apiVersion;
 		    
 		// URL encoding
 		$path           = self::urlencode($path);

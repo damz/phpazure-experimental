@@ -138,7 +138,7 @@ abstract class Microsoft_Azure_Storage_BatchStorage extends Microsoft_Azure_Stor
 	    $headers = array();
 	    
 		// Add version header
-		$headers['x-ms-version'] = self::API_VERSION;
+		$headers['x-ms-version'] = $this->_apiVersion;
 		
 		// Add content-type header
 		$headers['Content-Type'] = 'multipart/mixed; boundary=' . $batchBoundary;

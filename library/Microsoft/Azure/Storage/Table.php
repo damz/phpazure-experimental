@@ -144,6 +144,9 @@ class Microsoft_Azure_Storage_Table extends Microsoft_Azure_Storage_BatchStorage
 
 	    // Always use SharedKeyLite authentication
 	    $this->_credentials = new Microsoft_Azure_SharedKeyLiteCredentials($accountName, $accountKey, $this->_usePathStyleUri);
+	    
+	    // API version
+		$this->_apiVersion = '2009-04-14';
 	}
 	
 	/**

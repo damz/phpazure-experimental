@@ -122,6 +122,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	public function __construct($host = Microsoft_Azure_Storage::URL_DEV_BLOB, $accountName = Microsoft_Azure_SharedKeyCredentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_Azure_SharedKeyCredentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_Azure_RetryPolicy $retryPolicy = null)
 	{
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
+		
+		// API version
+		$this->_apiVersion = '2009-04-14';
 	}
 	
 	/**
