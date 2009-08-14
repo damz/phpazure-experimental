@@ -122,14 +122,20 @@ abstract class Microsoft_Azure_Credentials
 	    }
 	    else
 	    {
-	        // If found, make sure it is the only parameter being used
-    		if (strlen($value) > 0 && strpos($value, '?') !== 0)
-    			$value = '?' . $value;	
-    
-    		if (strpos($value, '&') !== false)
-    			$value = substr($value, 0, strpos($value, '&'));
-    			
-			return $value;
+	        // If found, make sure it is the only parameter being used      
+    		if (strlen($value) > 0 && strpos($value, '?') === 0)
+    			$value = substr($value, 1);
+    		
+    		// Split parts
+    		$queryParts = explode('&', $value);
+    		foreach ($queryParts as $queryPart)
+    		{
+    		    if (strpos($queryPart, 'comp=') !== false)
+    		        return '?' . $queryPart;
+    		}
+
+    		// Should never happen...
+			return '';
 	    }
 	}
 }

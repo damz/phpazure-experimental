@@ -234,4 +234,21 @@ $storageClient->registerStreamWrapper('blob://'); // regiters blob:// on this st
       To unregister the stream wrapper, the unregisterStreamWrapper() function can be used.
     </para>
   </sect2>
+  
+ <sect2 id="microsoft.azure.storage.blob.root">
+    <title>Root container</title>
+
+    <para>
+      Windows Azure Blob Storage provides support to work with a "root container". 
+      This means that a blob can be stored in the root of your storage account, 
+      i.e. http://myaccount.blob.core.windows.net/somefile.txt.
+    </para>
+    
+    <para>
+      In order to work with the root container, it should first be created using 
+      the createContainer() method, naming the container $root. 
+      All other operations on the root container should be issued with the 
+      container name set to $root.
+    </para>
+  </sect2>
 </sect1>

@@ -90,6 +90,7 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
         {
             try { $storageClient->deleteContainer(TESTS_BLOB_CONTAINER_PREFIX . $i); } catch (Exception $e) { }
         }
+        try { $storageClient->deleteContainer('$root'); } catch (Exception $e) { }
     }
 
     protected function createStorageInstance()
@@ -414,6 +415,75 @@ class Microsoft_Azure_BlobStorageTest extends PHPUnit_Framework_TestCase
     
             $this->assertEquals($containerName, $destination->Container);
             $this->assertEquals('images/WindowsAzureCopy.gif', $destination->Name);
+        }
+    }
+    
+    /**
+     * Test root container
+     */
+    public function testRootContainer()
+    {
+        if (TESTS_BLOB_RUNTESTS)  
+        {
+            $containerName = '$root';
+            $storageClient = $this->createStorageInstance();
+            $result = $storageClient->createContainer($containerName);
+            $this->assertEquals($containerName, $result->Name);
+            
+            // ACL
+            $storageClient->setContainerAcl($containerName, Microsoft_Azure_Storage_Blob::ACL_PUBLIC);
+            $acl = $storageClient->getContainerAcl($containerName);
+            
+            $this->assertEquals(Microsoft_Azure_Storage_Blob::ACL_PUBLIC, $acl);
+            
+            // Metadata
+            $storageClient->setContainerMetadata($containerName, array(
+                'createdby' => 'PHPAzure',
+            ));
+            
+            $metadata = $storageClient->getContainerMetadata($containerName);
+            $this->assertEquals('PHPAzure', $metadata['createdby']);
+            
+            // List
+            $result = $storageClient->listContainers();
+            $this->assertEquals(1, count($result));
+            
+            // Put blob
+            $result = $storageClient->putBlob($containerName, 'WindowsAzure.gif', self::$path . 'WindowsAzure.gif');
+   
+            $this->assertEquals($containerName, $result->Container);
+            $this->assertEquals('WindowsAzure.gif', $result->Name);
+            
+            // Get blob
+            $fileName = tempnam('', 'tst');
+            $storageClient->getBlob($containerName, 'WindowsAzure.gif', $fileName);
+    
+            $this->assertTrue(file_exists($fileName));
+            $this->assertEquals(
+                file_get_contents(self::$path . 'WindowsAzure.gif'),
+                file_get_contents($fileName)
+            );
+            
+            // Remove file
+            unlink($fileName);
+            
+            // Blob metadata
+            $storageClient->setBlobMetadata($containerName, 'WindowsAzure.gif', array(
+                'createdby' => 'PHPAzure',
+            ));
+            
+            $metadata = $storageClient->getBlobMetadata($containerName, 'WindowsAzure.gif');
+            $this->assertEquals('PHPAzure', $metadata['createdby']);
+            
+            // List blobs
+            $result = $storageClient->listBlobs($containerName);
+            $this->assertEquals(1, count($result));
+            
+            // Delete blob
+            $storageClient->deleteBlob($containerName, 'WindowsAzure.gif');
+            
+            $result = $storageClient->listBlobs($containerName);
+            $this->assertEquals(0, count($result));
         }
     }
     

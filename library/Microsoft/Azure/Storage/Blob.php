@@ -124,7 +124,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
 		
 		// API version
-		$this->_apiVersion = '2009-04-14';
+		$this->_apiVersion = '2009-07-17';
 	}
 	
 	/**
@@ -203,7 +203,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		
 		// Perform request
-		$response = $this->performRequest($containerName, '', Microsoft_Http_Transport::VERB_PUT, $headers);			
+		$response = $this->performRequest($containerName, '?restype=container', Microsoft_Http_Transport::VERB_PUT, $headers);			
 		if ($response->isSuccessful())
 		{
 		    return new Microsoft_Azure_Storage_BlobContainer(
@@ -234,7 +234,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 
 		// Perform request
-		$response = $this->performRequest($containerName, '?comp=acl', Microsoft_Http_Transport::VERB_GET);
+		$response = $this->performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Transport::VERB_GET);
 		if ($response->isSuccessful())
 		{
 			return $response->getHeader('x-ms-prop-publicaccess') == 'True';
@@ -260,7 +260,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 
 		// Perform request
-		$response = $this->performRequest($containerName, '?comp=acl', Microsoft_Http_Transport::VERB_PUT, array('x-ms-prop-publicaccess' => $acl));
+		$response = $this->performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Transport::VERB_PUT, array('x-ms-prop-publicaccess' => $acl));
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -282,7 +282,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		    
 		// Perform request
-		$response = $this->performRequest($containerName, '', Microsoft_Http_Transport::VERB_GET);	
+		$response = $this->performRequest($containerName, '?restype=container', Microsoft_Http_Transport::VERB_GET);	
 		if ($response->isSuccessful())
 		{
 		    // Parse metadata
@@ -331,11 +331,12 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 * 
 	 * Calling the Set Container Metadata operation overwrites all existing metadata that is associated with the container. It's not possible to modify an individual name/value pair.
 	 *
-	 * @param string $containerName  Container name
-	 * @param array  $metadata       Key/value pairs of meta data
+	 * @param string $containerName      Container name
+	 * @param array  $metadata           Key/value pairs of meta data
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function setContainerMetadata($containerName = '', $metadata = array())
+	public function setContainerMetadata($containerName = '', $metadata = array(), $additionalHeaders = array())
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
@@ -353,9 +354,14 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    $headers["x-ms-meta-" . strtolower($key)] = $value;
 		}
 		
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value)
+		{
+		    $headers[$key] = $value;
+		}
+		
 		// Perform request
-		$response = $this->performRequest($containerName, '?comp=metadata', Microsoft_Http_Transport::VERB_PUT, $headers);
-
+		$response = $this->performRequest($containerName, '?restype=container&comp=metadata', Microsoft_Http_Transport::VERB_PUT, $headers);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -365,18 +371,26 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	/**
 	 * Delete container
 	 *
-	 * @param string $containerName Container name
+	 * @param string $containerName      Container name
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function deleteContainer($containerName = '')
+	public function deleteContainer($containerName = '', $additionalHeaders = array())
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
 		if (!self::isValidContainerName($containerName))
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 			
+		// Additional headers?
+		$headers = array();
+		foreach ($additionalHeaders as $key => $value)
+		{
+		    $headers[$key] = $value;
+		}
+		
 		// Perform request
-		$response = $this->performRequest($containerName, '', Microsoft_Http_Transport::VERB_DELETE);
+		$response = $this->performRequest($containerName, '?restype=container', Microsoft_Http_Transport::VERB_DELETE, $headers);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -445,14 +459,15 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	/**
 	 * Put blob
 	 *
-	 * @param string $containerName Container name
-	 * @param string $blobName Blob name
-	 * @param string $localFileName Local file name to be uploaded
-	 * @param array  $metadata      Key/value pairs of meta data
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param string $localFileName      Local file name to be uploaded
+	 * @param array  $metadata           Key/value pairs of meta data
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @return object Partial blob properties
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function putBlob($containerName = '', $blobName = '', $localFileName = '', $metadata = array())
+	public function putBlob($containerName = '', $blobName = '', $localFileName = '', $metadata = array(), $additionalHeaders = array())
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
@@ -464,6 +479,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			throw new Microsoft_Azure_Exception('Local file name is not specified.');
 		if (!file_exists($localFileName))
 			throw new Microsoft_Azure_Exception('Local file not found.');
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 			
 		// Check file size
 		if (filesize($localFileName) >= self::MAX_BLOB_SIZE)
@@ -476,11 +493,20 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    $headers["x-ms-meta-" . strtolower($key)] = $value;
 		}
 		
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value)
+		{
+		    $headers[$key] = $value;
+		}
+		
 		// File contents
 		$fileContents = file_get_contents($localFileName);
 		
+		// Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		
 		// Perform request
-		$response = $this->performRequest($containerName . '/' . $blobName, '', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents);
+		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents);	
 		if ($response->isSuccessful())
 		{
 			return new Microsoft_Azure_Storage_BlobInstance(
@@ -525,6 +551,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			throw new Microsoft_Azure_Exception('Local file name is not specified.');
 		if (!file_exists($localFileName))
 			throw new Microsoft_Azure_Exception('Local file not found.');
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 			
 		// Check file size
 		if (filesize($localFileName) < self::MAX_BLOB_SIZE)
@@ -556,6 +584,10 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			
 			// Put block
 			$this->putBlock($containerName, $blobName, $blockIdentifiers[$i], $fileContents);
+			
+			// Dispose file contents
+			$fileContents = null;
+			unset($fileContents);
 		}
 		
 		// Close file
@@ -587,9 +619,14 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			throw new Microsoft_Azure_Exception('Block identifier is not specified.');
 		if (strlen($contents) > self::MAX_BLOB_TRANSFER_SIZE)
 			throw new Microsoft_Azure_Exception('Block size is too big.');
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 			
+		// Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		
     	// Upload
-		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=block&blockid=' . base64_encode($identifier), Microsoft_Http_Transport::VERB_PUT, null, false, $contents);
+		$response = $this->performRequest($resourceName, '?comp=block&blockid=' . base64_encode($identifier), Microsoft_Http_Transport::VERB_PUT, null, false, $contents);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -599,13 +636,14 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	/**
 	 * Put block list
 	 *
-	 * @param string $containerName Container name
-	 * @param string $blobName      Blob name
-	 * @param array $blockList      Array of block identifiers
-	 * @param array  $metadata      Key/value pairs of meta data
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param array $blockList           Array of block identifiers
+	 * @param array  $metadata           Key/value pairs of meta data
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function putBlockList($containerName = '', $blobName = '', $blockList = array(), $metadata = array())
+	public function putBlockList($containerName = '', $blobName = '', $blockList = array(), $metadata = array(), $additionalHeaders = array())
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
@@ -615,12 +653,14 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
 		if (count($blockList) == 0)
 			throw new Microsoft_Azure_Exception('Block list does not contain any elements.');
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 		
 		// Generate block list
 		$blocks = '';
 		foreach ($blockList as $block)
 		{
-			$blocks .= '  <Block>' . base64_encode($block) . '</Block>' . "\n";
+			$blocks .= '  <Latest>' . base64_encode($block) . '</Latest>' . "\n";
 		}
 		
 		// Generate block list request
@@ -637,9 +677,18 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		{
 		    $headers["x-ms-meta-" . strtolower($key)] = $value;
 		}
+		
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value)
+		{
+		    $headers[$key] = $value;
+		}
 
+		// Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		
 		// Perform request
-		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=blocklist', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents);
+		$response = $this->performRequest($resourceName, '?comp=blocklist', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -672,9 +721,12 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    $blockListType = 'committed';
 		if ($type == 2)
 		    $blockListType = 'uncommitted';
+		    
+		// Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
 			
 		// Perform request
-		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=blocklist&blocklisttype=' . $blockListType, Microsoft_Http_Transport::VERB_GET);
+		$response = $this->performRequest($resourceName, '?comp=blocklist&blocklisttype=' . $blockListType, Microsoft_Http_Transport::VERB_GET);
 		if ($response->isSuccessful())
 		{
 		    // Parse response
@@ -731,6 +783,10 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Destination container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($destinationBlobName === '')
 			throw new Microsoft_Azure_Exception('Destination blob name is not specified.');
+		if ($sourceContainerName === '$root' && strpos($sourceBlobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		if ($destinationContainerName === '$root' && strpos($destinationBlobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 
 		// Create metadata headers
 		$headers = array();
@@ -745,11 +801,15 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    $headers[$key] = $value;
 		}
 		
+		// Resource names
+		$sourceResourceName = self::createResourceName($sourceContainerName, $sourceBlobName);
+		$destinationResourceName = self::createResourceName($destinationContainerName, $destinationBlobName);
+		
 		// Set source blob
-		$headers["x-ms-copy-source"] = '/' . $this->_accountName . '/' . $sourceContainerName . '/' . $sourceBlobName;
+		$headers["x-ms-copy-source"] = '/' . $this->_accountName . '/' . $sourceResourceName;
 
 		// Perform request
-		$response = $this->performRequest($destinationContainerName . '/' . $destinationBlobName, '', Microsoft_Http_Transport::VERB_PUT, $headers, false, null);
+		$response = $this->performRequest($destinationResourceName, '', Microsoft_Http_Transport::VERB_PUT, $headers, false, null);
 		if ($response->isSuccessful())
 		{
 			return new Microsoft_Azure_Storage_BlobInstance(
@@ -775,12 +835,13 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	/**
 	 * Get blob
 	 *
-	 * @param string $containerName Container name
-	 * @param string $blobName Blob name
-	 * @param string $localFileName Local file name to store downloaded blob
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param string $localFileName      Local file name to store downloaded blob
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function getBlob($containerName = '', $blobName = '', $localFileName = '')
+	public function getBlob($containerName = '', $blobName = '', $localFileName = '', $additionalHeaders = array())
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
@@ -791,8 +852,18 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		if ($localFileName === '')
 			throw new Microsoft_Azure_Exception('Local file name is not specified.');
 			
+		// Additional headers?
+		$headers = array();
+		foreach ($additionalHeaders as $key => $value)
+		{
+		    $headers[$key] = $value;
+		}
+		
+		// Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		
 		// Perform request
-		$response = $this->performRequest($containerName . '/' . $blobName, '', Microsoft_Http_Transport::VERB_GET);
+		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_GET, $headers);
 		if ($response->isSuccessful())
 			file_put_contents($localFileName, $response->getBody());
 		else
@@ -804,12 +875,13 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	/**
 	 * Get container
 	 * 
-	 * @param string $containerName  Container name
-	 * @param string $blobName Blob name
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @return Microsoft_Azure_Storage_BlobInstance
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function getBlobInstance($containerName = '', $blobName = '')
+	public function getBlobInstance($containerName = '', $blobName = '', $additionalHeaders = array())
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
@@ -817,9 +889,21 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 	        
+		// Additional headers?
+		$headers = array();
+		foreach ($additionalHeaders as $key => $value)
+		{
+		    $headers[$key] = $value;
+		}
+		
+        // Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		    
 		// Perform request
-		$response = $this->performRequest($containerName . '/' . $blobName, '', Microsoft_Http_Transport::VERB_HEAD);
+		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_HEAD, $headers);
 		if ($response->isSuccessful())
 		{
 		    // Parse metadata
@@ -869,6 +953,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 		
 	    return $this->getBlobInstance($containerName, $blobName)->Metadata;
 	}
@@ -878,12 +964,13 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 * 
 	 * Calling the Set Blob Metadata operation overwrites all existing metadata that is associated with the blob. It's not possible to modify an individual name/value pair.
 	 *
-	 * @param string $containerName  Container name
-	 * @param string $blobName Blob name
-	 * @param array  $metadata       Key/value pairs of meta data
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param array  $metadata           Key/value pairs of meta data
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function setBlobMetadata($containerName = '', $blobName = '', $metadata = array())
+	public function setBlobMetadata($containerName = '', $blobName = '', $metadata = array(), $additionalHeaders = array())
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
@@ -891,6 +978,8 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 		if (count($metadata) == 0)
 		    return;
 		    
@@ -901,9 +990,14 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    $headers["x-ms-meta-" . strtolower($key)] = $value;
 		}
 		
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value)
+		{
+		    $headers[$key] = $value;
+		}
+		
 		// Perform request
 		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=metadata', Microsoft_Http_Transport::VERB_PUT, $headers);
-
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -913,11 +1007,12 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	/**
 	 * Delete blob
 	 *
-	 * @param string $containerName Container name
-	 * @param string $blobName Blob name
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @throws Microsoft_Azure_Exception
 	 */
-	public function deleteBlob($containerName = '', $blobName = '')
+	public function deleteBlob($containerName = '', $blobName = '', $additionalHeaders = array())
 	{
 		if ($containerName === '')
 			throw new Microsoft_Azure_Exception('Container name is not specified.');
@@ -925,9 +1020,21 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		if ($blobName === '')
 			throw new Microsoft_Azure_Exception('Blob name is not specified.');
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		    throw new Microsoft_Azure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 			
+		// Additional headers?
+		$headers = array();
+		foreach ($additionalHeaders as $key => $value)
+		{
+		    $headers[$key] = $value;
+		}
+		
+		// Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		
 		// Perform request
-		$response = $this->performRequest($containerName . '/' . $blobName, '', Microsoft_Http_Transport::VERB_DELETE);
+		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_DELETE, $headers);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -954,7 +1061,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 			
 	    // Build query string
-	    $queryString = '?comp=list';
+	    $queryString = '?restype=container&comp=list';
         if (!is_null($prefix))
 	        $queryString .= '&prefix=' . $prefix;
 		if ($delimiter !== '')
@@ -1097,6 +1204,32 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
         stream_wrapper_unregister($name);
         $this->unregisterAsClient($name);
     }
+    
+    /**
+     * Create resource name
+     * 
+	 * @param string $containerName  Container name
+	 * @param string $blobName Blob name
+     * @return string
+     */
+    public static function createResourceName($containerName = '', $blobName = '')
+    {
+		if ($containerName === '')
+			throw new Microsoft_Azure_Exception('Container name is not specified.');
+		if (!self::isValidContainerName($containerName))
+		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		if ($blobName === '')
+			throw new Microsoft_Azure_Exception('Blob name is not specified.');
+	        
+		// Resource name
+		$resourceName = $containerName . '/' . $blobName;
+		if ($containerName === '' || $containerName === '$root')
+		    $resourceName = $blobName;
+		if ($blobName === '')
+		    $resourceName = $containerName;
+		    
+		return $resourceName;
+    }
 	
 	/**
 	 * Is valid container name?
@@ -1106,6 +1239,9 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	 */
     public static function isValidContainerName($containerName = '')
     {
+        if ($containerName == '$root')
+            return true;
+            
         if (!ereg("^[a-z0-9][a-z0-9-]*$", $containerName))
             return false;
     
