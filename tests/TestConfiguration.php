@@ -35,10 +35,10 @@
 /**
  * Proxy settings
  */
-define('TESTS_STORAGE_USEPROXY',                true);
-define('TESTS_STORAGE_PROXY',                   'proxy.realsoftwaregroup.com');
+define('TESTS_STORAGE_USEPROXY',                false);
+define('TESTS_STORAGE_PROXY',                   '');
 define('TESTS_STORAGE_PROXY_PORT',              '8080');
-define('TESTS_STORAGE_PROXY_CREDENTIALS',       'MBLRQ67@ATOMIUM:Wbdizt08');
+define('TESTS_STORAGE_PROXY_CREDENTIALS',       '');
 
 /**
  * Azure hosts
