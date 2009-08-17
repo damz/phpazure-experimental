@@ -38,6 +38,11 @@
 require_once 'Microsoft/Azure/Credentials.php';
 
 /**
+ * @see Microsoft_Azure_Storage
+ */
+require_once 'Microsoft/Azure/Storage.php';
+
+/**
  * @see Microsoft_Azure_SharedKeyCredentials
  */
 require_once 'Microsoft/Azure/SharedKeyCredentials.php';
@@ -54,9 +59,11 @@ class Microsoft_Azure_SharedKeyLiteCredentials extends Microsoft_Azure_Credentia
 	 * Sign request URL with credentials
 	 *
 	 * @param string $requestUrl Request URL
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return string Signed request URL
 	 */
-	public function signRequestUrl($requestUrl = '')
+	public function signRequestUrl($requestUrl = '', $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ)
 	{
 	    return $requestUrl;
 	}
@@ -69,9 +76,11 @@ class Microsoft_Azure_SharedKeyLiteCredentials extends Microsoft_Azure_Credentia
 	 * @param string $queryString Query string for the request
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false)
+	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ)
 	{
 		// Determine path
 		if ($this->_usePathStyleUri)

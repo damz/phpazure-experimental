@@ -57,6 +57,14 @@ abstract class Microsoft_Azure_Credentials
 	const PREFIX_PROPERTIES      = "x-ms-prop-";
 	const PREFIX_METADATA        = "x-ms-meta-";
 	const PREFIX_STORAGE_HEADER  = "x-ms-";
+	
+	/**
+	 * Permissions
+	 */
+	const PERMISSION_READ        = "r";
+	const PERMISSION_WRITE       = "w";
+	const PERMISSION_DELETE      = "d";
+	const PERMISSION_LIST        = "l";
 
 	/**
 	 * Account name for Windows Azure
@@ -97,6 +105,8 @@ abstract class Microsoft_Azure_Credentials
 	 * Sign request URL with credentials
 	 *
 	 * @param string $requestUrl Request URL
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return string Signed request URL
 	 */
 	public abstract function signRequestUrl($requestUrl = '');
@@ -109,9 +119,11 @@ abstract class Microsoft_Azure_Credentials
 	 * @param string $queryString Query string for the request
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public abstract function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false);
+	public abstract function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ);
 	
 	
 	/**

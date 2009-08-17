@@ -168,10 +168,9 @@ class Microsoft_Azure_BlobStorageSharedAccessTest extends PHPUnit_Framework_Test
                 '',
             	'c', 
             	'w',
-            	$administrativeStorageClient->isoDate(time()),
+            	$administrativeStorageClient->isoDate(time() - 500),
             	$administrativeStorageClient->isoDate(time() + 3000)
             );
-            
 
             
             // Reduced permissions user performs this part

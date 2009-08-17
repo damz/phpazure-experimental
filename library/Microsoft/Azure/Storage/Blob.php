@@ -223,7 +223,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		
 		// Perform request
-		$response = $this->performRequest($containerName, '?restype=container', Microsoft_Http_Transport::VERB_PUT, $headers);			
+		$response = $this->performRequest($containerName, '?restype=container', Microsoft_Http_Transport::VERB_PUT, $headers, false, null, Microsoft_Azure_Storage::RESOURCE_CONTAINER, Microsoft_Azure_Credentials::PERMISSION_WRITE);			
 		if ($response->isSuccessful())
 		{
 		    return new Microsoft_Azure_Storage_BlobContainer(
@@ -255,7 +255,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 
 		// Perform request
-		$response = $this->performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Transport::VERB_GET);
+		$response = $this->performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Transport::VERB_GET, array(), false, null, Microsoft_Azure_Storage::RESOURCE_CONTAINER, Microsoft_Azure_Credentials::PERMISSION_READ);
 		if ($response->isSuccessful())
 		{
 		    if ($signedIdentifiers == false)
@@ -345,7 +345,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		
 		// Perform request
-		$response = $this->performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Transport::VERB_PUT, array('x-ms-prop-publicaccess' => $acl), false, $policies);
+		$response = $this->performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Transport::VERB_PUT, array('x-ms-prop-publicaccess' => $acl), false, $policies, Microsoft_Azure_Storage::RESOURCE_CONTAINER, Microsoft_Azure_Credentials::PERMISSION_WRITE);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -367,7 +367,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    throw new Microsoft_Azure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		    
 		// Perform request
-		$response = $this->performRequest($containerName, '?restype=container', Microsoft_Http_Transport::VERB_GET);	
+		$response = $this->performRequest($containerName, '?restype=container', Microsoft_Http_Transport::VERB_GET, array(), false, null, Microsoft_Azure_Storage::RESOURCE_CONTAINER, Microsoft_Azure_Credentials::PERMISSION_READ);	
 		if ($response->isSuccessful())
 		{
 		    // Parse metadata
@@ -446,7 +446,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		
 		// Perform request
-		$response = $this->performRequest($containerName, '?restype=container&comp=metadata', Microsoft_Http_Transport::VERB_PUT, $headers);
+		$response = $this->performRequest($containerName, '?restype=container&comp=metadata', Microsoft_Http_Transport::VERB_PUT, $headers, false, null, Microsoft_Azure_Storage::RESOURCE_CONTAINER, Microsoft_Azure_Credentials::PERMISSION_WRITE);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -475,7 +475,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		
 		// Perform request
-		$response = $this->performRequest($containerName, '?restype=container', Microsoft_Http_Transport::VERB_DELETE, $headers);
+		$response = $this->performRequest($containerName, '?restype=container', Microsoft_Http_Transport::VERB_DELETE, $headers, false, null, Microsoft_Azure_Storage::RESOURCE_CONTAINER, Microsoft_Azure_Credentials::PERMISSION_WRITE);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -504,7 +504,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	        $queryString .= '&marker=' . $marker;
 	        
 		// Perform request
-		$response = $this->performRequest('', $queryString, Microsoft_Http_Transport::VERB_GET);	
+		$response = $this->performRequest('', $queryString, Microsoft_Http_Transport::VERB_GET, array(), false, null, Microsoft_Azure_Storage::RESOURCE_CONTAINER, Microsoft_Azure_Credentials::PERMISSION_LIST);	
 		if ($response->isSuccessful())
 		{
 			$xmlContainers = $this->parseResponse($response)->Containers->Container;
@@ -591,7 +591,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 		
 		// Perform request
-		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents);	
+		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_WRITE);	
 		if ($response->isSuccessful())
 		{
 			return new Microsoft_Azure_Storage_BlobInstance(
@@ -711,7 +711,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 		
     	// Upload
-		$response = $this->performRequest($resourceName, '?comp=block&blockid=' . base64_encode($identifier), Microsoft_Http_Transport::VERB_PUT, null, false, $contents);
+		$response = $this->performRequest($resourceName, '?comp=block&blockid=' . base64_encode($identifier), Microsoft_Http_Transport::VERB_PUT, null, false, $contents, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_WRITE);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -773,7 +773,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 		
 		// Perform request
-		$response = $this->performRequest($resourceName, '?comp=blocklist', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents);
+		$response = $this->performRequest($resourceName, '?comp=blocklist', Microsoft_Http_Transport::VERB_PUT, $headers, false, $fileContents, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_WRITE);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -811,7 +811,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 			
 		// Perform request
-		$response = $this->performRequest($resourceName, '?comp=blocklist&blocklisttype=' . $blockListType, Microsoft_Http_Transport::VERB_GET);
+		$response = $this->performRequest($resourceName, '?comp=blocklist&blocklisttype=' . $blockListType, Microsoft_Http_Transport::VERB_GET, array(), false, null, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_READ);
 		if ($response->isSuccessful())
 		{
 		    // Parse response
@@ -894,7 +894,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$headers["x-ms-copy-source"] = '/' . $this->_accountName . '/' . $sourceResourceName;
 
 		// Perform request
-		$response = $this->performRequest($destinationResourceName, '', Microsoft_Http_Transport::VERB_PUT, $headers, false, null);
+		$response = $this->performRequest($destinationResourceName, '', Microsoft_Http_Transport::VERB_PUT, $headers, false, null, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_WRITE);
 		if ($response->isSuccessful())
 		{
 			return new Microsoft_Azure_Storage_BlobInstance(
@@ -948,7 +948,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 		
 		// Perform request
-		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_GET, $headers);
+		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_GET, $headers, false, null, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_READ);
 		if ($response->isSuccessful())
 			file_put_contents($localFileName, $response->getBody());
 		else
@@ -988,7 +988,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 		    
 		// Perform request
-		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_HEAD, $headers);
+		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_HEAD, $headers, false, null, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_READ);
 		if ($response->isSuccessful())
 		{
 		    // Parse metadata
@@ -1082,7 +1082,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		}
 		
 		// Perform request
-		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=metadata', Microsoft_Http_Transport::VERB_PUT, $headers);
+		$response = $this->performRequest($containerName . '/' . $blobName, '?comp=metadata', Microsoft_Http_Transport::VERB_PUT, $headers, false, null, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_WRITE);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -1119,7 +1119,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 		
 		// Perform request
-		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_DELETE, $headers);
+		$response = $this->performRequest($resourceName, '', Microsoft_Http_Transport::VERB_DELETE, $headers, false, null, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_WRITE);
 		if (!$response->isSuccessful())
 		{
 		    throw new Microsoft_Azure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -1157,7 +1157,7 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 	        $queryString .= '&marker=' . $marker;
 
 	    // Perform request
-		$response = $this->performRequest($containerName, $queryString, Microsoft_Http_Transport::VERB_GET);
+		$response = $this->performRequest($containerName, $queryString, Microsoft_Http_Transport::VERB_GET, array(), false, null, Microsoft_Azure_Storage::RESOURCE_BLOB, Microsoft_Azure_Credentials::PERMISSION_LIST);
 		if ($response->isSuccessful())
 		{
 		    // Return value

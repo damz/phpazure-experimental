@@ -38,6 +38,11 @@
 require_once 'Microsoft/Azure/Credentials.php';
 
 /**
+ * @see Microsoft_Azure_Storage
+ */
+require_once 'Microsoft/Azure/Storage.php';
+
+/**
  * @see Microsoft_Http_Transport
  */
 require_once 'Microsoft/Http/Transport.php';
@@ -159,7 +164,7 @@ class Microsoft_Azure_SharedAccessSignatureCredentials extends Microsoft_Azure_C
         if ($identifier !== '')
             $parts[] = 'si=' . urlencode($identifier);
         $parts[] = 'sig=' . urlencode($this->createSignature($path, $resource, $permissions, $start, $expiry, $identifier));
-        
+
         // Assemble parts and query string
         if ($queryString != '')
             $queryString .= '&';
@@ -169,22 +174,77 @@ class Microsoft_Azure_SharedAccessSignatureCredentials extends Microsoft_Azure_C
     }
     
     /**
+	 * Permission matches request?
+	 *
+	 * @param string $permissionUrl Permission URL
+	 * @param string $requestUrl Request URL
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
+	 * @return string Signed request URL
+	 */
+    public function permissionMatchesRequest($permissionUrl = '', $requestUrl = '', $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ)
+    {
+        // Build requirements
+        $requiredResourceType = $resourceType;
+        if ($requiredResourceType == Microsoft_Azure_Storage::RESOURCE_BLOB)
+            $requiredResourceType .= Microsoft_Azure_Storage::RESOURCE_CONTAINER;
+
+        // Parse permission url
+	    $parsedPermissionUrl = parse_url($permissionUrl);
+	    
+	    // Parse permission properties
+	    $permissionParts = explode('&', $parsedPermissionUrl['query']);
+	    
+	    // Parse request url
+	    $parsedRequestUrl = parse_url($requestUrl);
+	    
+	    // Check if permission matches request
+	    $matches = true;
+	    foreach ($permissionParts as $part)
+	    {
+	        list($property, $value) = explode('=', $part, 2);
+	        if ($property == 'sr')
+	        {
+	            $matches = $matches && (strpbrk($value, $requiredResourceType) !== false);
+	        }
+	    	if ($property == 'sp')
+	        {
+	            $matches = $matches && (strpbrk($value, $requiredPermission) !== false);
+	        }
+	    }
+	    
+	    // Ok, but... does the resource match?
+	    $matches = $matches && (strpos($parsedRequestUrl['path'], $parsedPermissionUrl['path']) !== false);
+	    
+        // Return
+	    return $matches;
+    }    
+    
+    /**
 	 * Sign request URL with credentials
 	 *
 	 * @param string $requestUrl Request URL
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return string Signed request URL
 	 */
-	public function signRequestUrl($requestUrl = '')
+	public function signRequestUrl($requestUrl = '', $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ)
 	{
 	    // Parse request url
 	    $parsedRequestUrl = parse_url($requestUrl);
 
-	    // See if we have this entry in the current permission set
+	    
+	    // Parse request url
+	    $parsedRequestUrl = parse_url($requestUrl);
+	    
+	    // Look for a matching permission
 	    foreach ($this->getPermissionSet() as $permittedUrl)
 	    {
-	        $parsedPermittedUrl = parse_url($permittedUrl);
-	        if (strpos($parsedRequestUrl['path'], $parsedPermittedUrl['path']) !== false)
+	        if ($this->permissionMatchesRequest($permittedUrl, $requestUrl, $resourceType, $requiredPermission))
 	        {
+	            // This matches, append signature data
+	            $parsedPermittedUrl = parse_url($permittedUrl);
+
 	            if (strpos($requestUrl, '?') === false)
 	                $requestUrl .= '?';
 	            else
@@ -209,9 +269,11 @@ class Microsoft_Azure_SharedAccessSignatureCredentials extends Microsoft_Azure_C
 	 * @param string $queryString Query string for the request
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false)
+	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ)
 	{
 	    return $headers;
 	}

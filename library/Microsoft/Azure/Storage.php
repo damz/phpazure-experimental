@@ -87,6 +87,16 @@ class Microsoft_Azure_Storage
 	const URL_CLOUD_TABLE   = "table.core.windows.net";
 	
 	/**
+	 * Resource types
+	 */
+	const RESOURCE_UNKNOWN     = "unknown";
+	const RESOURCE_CONTAINER   = "c";
+	const RESOURCE_BLOB        = "b";
+	const RESOURCE_TABLE       = "t";
+	const RESOURCE_ENTITY      = "e";
+	const RESOURCE_QUEUE       = "q";
+	
+	/**
 	 * Current API version
 	 * 
 	 * @var string
@@ -261,9 +271,11 @@ class Microsoft_Azure_Storage
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @param mixed $rawData Optional RAW HTTP data to be sent over the wire
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return Microsoft_Http_Response
 	 */
-	protected function performRequest($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null)
+	protected function performRequest($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null, $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ)
 	{
 	    // Clean path
 		if (strpos($path, '/') !== 0) 
@@ -281,8 +293,8 @@ class Microsoft_Azure_Storage
 		$queryString    = self::urlencode($queryString);
 
 		// Generate URL and sign request
-		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString);
-		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage);
+		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
+		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission);
 
 		$requestClient  = Microsoft_Http_Transport::createChannel();
 		if ($this->_useProxy)

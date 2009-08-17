@@ -39,6 +39,11 @@
 require_once 'Microsoft/Azure/Storage.php';
 
 /**
+ * @see Microsoft_Azure_Credentials
+ */
+require_once 'Microsoft/Azure/Credentials.php';
+
+/**
  * @see Microsoft_Azure_Exception
  */
 require_once 'Microsoft/Azure/Exception.php';
@@ -126,9 +131,11 @@ abstract class Microsoft_Azure_Storage_BatchStorage extends Microsoft_Azure_Stor
 	 * @param array $operations Operations in batch
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @param boolean $isSingleSelect Is the request a single select statement?
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return Microsoft_Http_Response
 	 */
-	public function performBatch($operations = array(), $forTableStorage = false, $isSingleSelect = false)
+	public function performBatch($operations = array(), $forTableStorage = false, $isSingleSelect = false, $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ)
 	{
 	    // Generate boundaries
 	    $batchBoundary = 'batch_' . md5(time() . microtime());
@@ -182,8 +189,8 @@ abstract class Microsoft_Azure_Storage_BatchStorage extends Microsoft_Azure_Stor
 		}
 
 		// Generate URL and sign request
-		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString);
-		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage);
+		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
+		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission);
 
 		$requestClient  = Microsoft_Http_Transport::createChannel();
 		if ($this->_useProxy)

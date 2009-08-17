@@ -38,6 +38,11 @@
 require_once 'Microsoft/Azure/Credentials.php';
 
 /**
+ * @see Microsoft_Azure_Storage
+ */
+require_once 'Microsoft/Azure/Storage.php';
+
+/**
  * @see Microsoft_Http_Transport
  */
 require_once 'Microsoft/Http/Transport.php';
@@ -54,9 +59,11 @@ class Microsoft_Azure_SharedKeyCredentials extends Microsoft_Azure_Credentials
 	 * Sign request URL with credentials
 	 *
 	 * @param string $requestUrl Request URL
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return string Signed request URL
 	 */
-	public function signRequestUrl($requestUrl = '')
+	public function signRequestUrl($requestUrl = '', $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ)
 	{
 	    return $requestUrl;
 	}
@@ -69,9 +76,11 @@ class Microsoft_Azure_SharedKeyCredentials extends Microsoft_Azure_Credentials
 	 * @param string $queryString Query string for the request
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
+	 * @param string $resourceType Resource type
+	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false)
+	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_Azure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_Azure_Credentials::PERMISSION_READ)
 	{
 		// http://github.com/sriramk/winazurestorage/blob/214010a2f8931bac9c96dfeb337d56fe084ca63b/winazurestorage.py
 
