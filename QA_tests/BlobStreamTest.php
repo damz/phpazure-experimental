@@ -65,7 +65,7 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 	
 	private function _expectException($e, $message) {
 		$this->assertNotNull ( $e, $message );
-		$this->assertEquals ( $message, $e->getMessage () );
+		$this->_assertExceptionMessageContain ( $e, $message );
 	}
 	
 	/**
@@ -74,13 +74,13 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 	public function testReadFile() {
 		
 		$containerName = $this->getContainerName ();
-		$fileName = 'azure://' . $containerName . '/stream/test.txt';
+		$fileName = 'azure://' . $containerName . '/test.txt';
 		
 		$storageClient = $this->_createStorageClient ();
 		$storageClient->registerStreamWrapper ();
 		
 		$storageClient->createContainer ( $containerName );
-		$storageClient->putBlob ( $containerName, '/stream/test.txt', self::$path . "simple_blob.txt" );
+		$storageClient->putBlob ( $containerName, 'test.txt', self::$path . "simple_blob.txt" );
 		$fileContent = file_get_contents ( self::$path . "simple_blob.txt" );
 		//		$fh = fopen ( $fileName, 'w' );
 		//		fwrite ( $fh, $fileContent );
@@ -124,7 +124,7 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 			$fileName = 'azure://' . $containerName . '/test.txt';
 			file_get_contents ( $fileName );
 		} catch ( Exception $e ) {
-			$this->assertEquals ( "The specified container does not exist.", $e->getMessage () );
+			$this->_assertExceptionMessageContain ( $e, "The specified container does not exist." );
 		}
 		
 		$storageClient->createContainer ( $containerName );
@@ -134,17 +134,159 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 			$fileName = 'azure://' . $containerName;
 			file_get_contents ( $fileName );
 		} catch ( Exception $e ) {
-			$this->assertEquals ( "The specified blob does not exist.", $e->getMessage () );
+			$this->_assertExceptionMessageContain ( $e, "The specified blob does not exist." );
 		}
 		
 		try {
 			$fileName = 'azure://' . $containerName . '/test.txt';
 			file_get_contents ( $fileName );
 		} catch ( Exception $e ) {
-			$this->assertEquals ( "The specified blob does not exist.", $e->getMessage () );
+			$this->_assertExceptionMessageContain ( $e, "The specified blob does not exist." );
 		}
 		
 		$storageClient->unregisterStreamWrapper ();
+	}
+	
+	protected function _assertExceptionMessageContain($ex, $message) {
+		$this->assertTrue ( strpos ( $ex->getMessage (), $message ) !== false );
+	}
+	//Test eof()
+	public function testEndOfFile() {
+		$containerName = $this->getContainerName ();
+		$fileName = 'azure://' . $containerName . '/test.txt';
+		
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		
+		$storageClient->createContainer ( $containerName );
+		$storageClient->putBlob ( $containerName, 'test.txt', self::$path . "simple_blob.txt" );
+		
+		$fh = fopen ( $fileName, 'r' );
+		fread ( $fh, 10 );
+		
+		$VerifyEnd = feof ( $fh );
+		$this->assertFalse ( $VerifyEnd );
+		
+		//the length of blob content is 44.
+		fread ( $fh, 34 );
+		$VerifyEnd = feof ( $fh );
+		$this->assertTrue ( $VerifyEnd );
+		
+		fclose ( $fh );
+	}
+	
+	//Test tell
+	public function testTell() {
+		$containerName = $this->getContainerName ();
+		$fileName = 'azure://' . $containerName . '/test.txt';
+		
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		
+		$storageClient->createContainer ( $containerName );
+		$storageClient->putBlob ( $containerName, 'test.txt', self::$path . "simple_blob.txt" );
+		
+		$fh = fopen ( $fileName, 'r' );
+		
+		$position = ftell ( $fh );
+		$this->assertEquals ( 0, $position );
+		
+		fread ( $fh, 10 );
+		$position = ftell ( $fh );
+		$this->assertEquals ( 10, $position );
+		
+		fread ( $fh, 34 );
+		$position = ftell ( $fh );
+		$this->assertEquals ( 44, $position );
+		
+		fread ( $fh, 1 );
+		$position = ftell ( $fh );
+		$this->assertEquals ( 44, $position );
+		
+		fclose ( $fh );
+	}
+	
+	//Test seek. when invoke fseek(), here all rerurn -1. operation failed.
+	public function testSeek() {
+		$fileContent = "test seek file";
+		$containerName = $this->getContainerName ();
+		$fileName = 'azure://' . $containerName . '/testseek.txt';
+		
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		//file_put_contents ( $fileName, $fileContent );
+		$localFile = $this->_createTempFile ( $fileContent );
+		$storageClient->createContainer ( $containerName );
+		$storageClient->putBlob ( $containerName, "testseek.txt", $localFile );
+		
+		$fh = fopen ( $fileName, 'r' );
+		
+		$curpos = ftell ( $fh );
+		$this->assertEquals ( 0, $curpos );
+		
+		//whence: 0 = SEEK_SET, the head of file 
+		fseek ( $fh, 5, SEEK_SET );
+		$curpos = ftell ( $fh );
+		$this->assertEquals ( 5, $curpos );
+		
+		//whence: 1 = SEEK_CUR, the current position of file
+		fread ( $fh, 2 );
+		fseek ( $fh, 1, SEEK_CUR );
+		$curpos = ftell ( $fh );
+		$this->assertEquals ( 8, $curpos );
+		
+		//whence: 2 = SEEK_END, the end of file
+		fseek ( $fh, - 5, SEEK_END );
+		$curpos = ftell ( $fh );
+		$this->assertEquals ( strlen ( $fileContent ) - 5, $curpos );
+		
+		fclose ( $fh );
+	}
+	
+	//Test stat. return an array. 
+	public function testStat() {
+		$fileContent = "test stat file";
+		$containerName = $this->getContainerName ();
+		$fileName = 'azure://' . $containerName . '/teststat.txt';
+		
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		file_put_contents ( $fileName, $fileContent );
+		
+		$fh = fopen ( $fileName, 'r' );
+		$array = fstat ( $fh );
+		
+		$this->assertNotNull ( $array );
+		$this->assertTrue ( $array ["atime"] > 0 );
+		$this->assertTrue ( $array ["atime"] <= time () );
+		$this->assertEquals ( strlen ( $fileContent ), $array ["size"] );
+		
+		fclose ( $fh );
+	
+	}
+	
+	/**
+	 * Flush seems not work here.
+	 *
+	 */
+	public function testFlush() {
+		$fileContent = "test flush file";
+		$containerName = $this->getContainerName ();
+		$fileName = 'azure://' . $containerName . '/testflush.txt';
+		
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		file_put_contents ( $fileName, $fileContent );
+		
+		$newContent = "this is just a test";
+		$fh = fopen ( $fileName, 'r+' );
+		fwrite ( $fh, $newContent );
+		$result = fflush ( $fh );
+		
+		$this->assertTrue ( $result );
+		$this->assertEquals ( file_get_contents ( $fileName ), $fileContent . $newContent );
+		
+		fclose ( $fh );
 	}
 	
 	/**
@@ -184,31 +326,12 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 		fclose ( $fh );
 		
 		$localFile = tempnam ( '', 'tst' );
-		$storageClient->getBlob ( $containerName, '/testread.txt', $localFile );
+		$storageClient->getBlob ( $containerName, 'testread.txt', $localFile );
 		$this->assertEquals ( implode ( "", $content ), file_get_contents ( $localFile ) );
 		
 		unlink ( $localFile );
 		$storageClient->unregisterStreamWrapper ();
 	
-	}
-	
-	public function testWriteFile_Invalid() {
-		$storageClient = $this->_createStorageClient ();
-		$storageClient->registerStreamWrapper ();
-		$invalidNames = array ("a", "aa", "test-1-con tainer", "test-1--container", "CONTAINER", "test#-1-container" );
-		foreach ( $invalidNames as $containerName ) {
-			$exceptionThrown = false;
-			try {
-				$fileName = 'azure://' . $containerName;
-				file_put_contents ( $fileName, "testing" );
-			} catch ( Exception $e ) {
-				$exceptionThrown = true;
-			}
-			$this->assertTrue ( $exceptionThrown );
-		
-		}
-		
-		$storageClient->unregisterStreamWrapper ();
 	}
 	
 	/**
@@ -219,6 +342,7 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 		$storageClient->registerStreamWrapper ();
 		$containerName = $this->getContainerName ();
 		$fileName = 'azure://' . $containerName . '/test.txt';
+		
 		$exception = null;
 		try {
 			unlink ( $fileName );
@@ -276,7 +400,7 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 			$thrownException = true;
 		}
 		
-		$this->assertTrue ( $thrownException ); // Maybe prompt user "Not allow path like a/b/c ..."
+		$this->assertTrue ( $thrownException, "Maybe prompt user 'Not allow path like a/b/c ...'" ); // Maybe prompt user "Not allow path like a/b/c ..."
 	}
 	
 	/**
@@ -299,7 +423,7 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 			$resultContainer = $storageClient->getContainer ( $containerName );
 		} catch ( Exception $e ) {
 			$this->assertNotNull ( $e );
-			$this->assertEquals ( "The specified container does not exist.", $e->getMessage () );
+			$this->_assertExceptionMessageContain ( $e, "The specified container does not exist." );
 		}
 	}
 	
@@ -334,7 +458,135 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 		}
 		closedir ( $dh );
 	}
-
+	
+	//Test read directory
+	public function testReadDirectory() {
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		
+		$containerName = $this->getContainerName ();
+		
+		$content = "I love hello kitty.";
+		$blobName = "blobfile";
+		
+		//prepare resources
+		mkdir ( 'azure://' . $containerName );
+		for($i = 0; $i < 10; $i ++) {
+			file_put_contents ( 'azure://' . $containerName . "/" . $blobName . $i, $content );
+		}
+		
+		$dh = opendir ( 'azure://' . $containerName );
+		
+		//return the filename items opened by opendir()
+		$i = 0;
+		while ( ($file_dir = readdir ( $dh )) !== false ) {
+			//the filenames are returned in the order in which they are stored by the filesystem.
+			$this->assertEquals ( $blobName . $i ++, $file_dir );
+		}
+		closedir ( $dh );
+	}
+	
+	//Test rewind directory
+	public function testRewindDirectory() {
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		
+		$containerName = $this->getContainerName ();
+		
+		$content = "I love hello kitty.";
+		$blobName = "blobfile";
+		
+		//prepare resources
+		mkdir ( 'azure://' . $containerName );
+		for($i = 0; $i < 10; $i ++) {
+			file_put_contents ( 'azure://' . $containerName . "/" . $blobName . $i, $content );
+		}
+		
+		$dh = opendir ( 'azure://' . $containerName );
+		
+		while ( ($file_dir = readdir ( $dh )) !== false ) {
+		}
+		$this->assertFalse ( readdir ( $dh ) );
+		
+		//reset the directory
+		rewind ( $dh );
+		$this->assertEquals ( readdir ( $dh ), $blobName . 0 );
+		
+		closedir ( $dh );
+	}
+	
+	//Test close directory
+	//Close directory not effect file read operation.(You can also get blob from container.)
+	public function testCloseDirectory() {
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		
+		$containerName = $this->getContainerName ();
+		
+		$content = "I love hello kitty.";
+		$blobName = "blobfile";
+		
+		//prepare resources
+		mkdir ( 'azure://' . $containerName );
+		file_put_contents ( 'azure://' . $containerName . "/" . $blobName, $content );
+		
+		$dh = opendir ( 'azure://' . $containerName );
+		
+		$result = file_get_contents ( 'azure://' . $containerName . "/" . $blobName );
+		$this->assertEquals ( $result, $content );
+		closedir ( $dh );
+		$exception = null;
+		try {
+			$result = file_get_contents ( 'azure://' . $containerName . "/" . $blobName );
+		} catch ( Exception $e ) {
+			$exception = $e;
+		}
+		$this->assertNull ( $exception );
+	}
+	
+	public function testRenameBlob() {
+		$containerName = $this->getContainerName ();
+		$sourceFileName = 'azure://' . $containerName . '/test.txt';
+		$destinationFileName = 'azure://' . $containerName . '/test2.txt';
+		
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		
+		$fh = fopen ( $sourceFileName, 'w' );
+		fwrite ( $fh, "Hello world!" );
+		fclose ( $fh );
+		
+		rename ( $sourceFileName, $destinationFileName );
+		
+		$storageClient->unregisterStreamWrapper ();
+		
+		$instance = $storageClient->getBlobInstance ( $containerName, 'test2.txt' );
+		$this->assertEquals ( 'test2.txt', $instance->Name );
+	}
+	
+	//Not support rename container.
+	public function testRenameContainer() {
+		$containerName1 = $this->getContainerName ();
+		$containerName2 = $this->getContainerName ();
+		
+		$sourceFileName = 'azure://' . $containerName1;
+		$destinationFileName = 'azure://' . $containerName2;
+		
+		$storageClient = $this->_createStorageClient ();
+		$storageClient->registerStreamWrapper ();
+		
+		mkdir ( 'azure://' . $containerName1 );
+		try {
+			rename ( $sourceFileName, $destinationFileName );
+			$storageClient->unregisterStreamWrapper ();
+			
+			$instance = $storageClient->getContainer ( $containerName2 );
+			$this->assertEquals ( $containerName2, $instance->Name );
+		} catch ( Exception $ex ) {
+			$this->fail ( "Rename on container is not supportted." );
+		}
+	
+	}
 }
 
 // Call Microsoft_Azure_BlobStreamTest::main() if this source file is executed directly.

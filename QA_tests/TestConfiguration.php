@@ -19,6 +19,9 @@ define('QUEUE_HOST', 'queue.core.windows.net');
 define('STORAGE_ACCOUNT', "soyatecdemo");
 define('STORAGE_KEY', "r/oqmy5Sa3JpX9jiZEjNMs30AC1aZISxFbMytuyl5ncajQSTa+BB2bMK44pkkiPAX/rniG4wYxEWqQnRpcHcSw==");
 
+define('CLIENT_STORAGE_ACCOUNT', 'phpstorage');
+define('CLIENT_STORAGE_KEY', 'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqYQ/uxbMpEx+7S/jo9sT3ZIkEucZGbEafDuxD1kwFOXf3xyw==');
+
 /**
  * Blob storage tests
  */

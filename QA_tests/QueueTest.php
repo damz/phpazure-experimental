@@ -74,6 +74,28 @@ class Microsoft_Azure_QueueTest extends PHPUnit_Framework_TestCase {
 		return false;
 	}
 	
+   /**
+     * Test queue exists
+     */
+    public function testQueueExists()
+    {
+    	$storageClient = $this->_createStorageClient ();
+    	$queueName = $this->generateQueueName ();
+    	$storageClient->createQueue ( $queueName );
+    	
+    	$result = $storageClient->queueExists($queueName);
+        $this->assertTrue($result);
+        
+        // test after delete queue
+        $storageClient->deleteQueue($queueName );
+        $result = $storageClient->queueExists($queueName);
+        $this->assertFalse($result);
+        
+        $result = $storageClient->queueExists("nosuchexistqueue");
+        $this->assertFalse($result);
+        
+    }
+	
 	/**
      * Test list queues
      */
@@ -112,7 +134,8 @@ class Microsoft_Azure_QueueTest extends PHPUnit_Framework_TestCase {
     	$this->assertEquals($count, count($result));  
     	
     	$result = $storageClient->listQueues("");
-    	$this->assertEquals($count, count($result));    	
+//    	$this->assertEquals($count, count($result));   
+        $this -> assertTrue(count($result) >= $count); 	
     	
     }
     
@@ -172,7 +195,7 @@ class Microsoft_Azure_QueueTest extends PHPUnit_Framework_TestCase {
 		// Queue name must be lowercase
 		// The first letter in the queue name must be alphanumeric
 		// The last letter in the queue name must be alphanumeric
-		$invalid_names = array ("Queue", "-queue", "queue-", "qu--eue", "a", "ab", "--c", "--", "", str_repeat ( "a", 64 ) );
+		$invalid_names = array ("Queue", "-queue", "queue-", "qu--eue", "a", "ab", "--c", "--", str_repeat ( "a", 64 ) );
 		$storageClient = $this->_createStorageClient ();
 		foreach ( $invalid_names as $name ) {
 			try {
@@ -224,12 +247,15 @@ public function testPutMessageWithTTLIs0() {
 		$storageClient->createQueue ( $name );
 		
 		$content = "Simple message";
+		$exception = null;
+		try {
 		$storageClient->putMessage ( $name, $content, 0 ); // TTL is 0 second
+		}catch (Exception $e){
+			$exception = $e;
+		}
 		
-		$this->waitForMessageAppear ();
+		$this -> assertEquals("Message TTL is invalid. Maximal TTL is 7 days (8388608 seconds) and should be greater than zero.", $exception -> getMessage());
 		
-		$message = $storageClient->peekMessages ( $name );
-		$this->assertEquals ( 0, sizeof ( $message ) );
 	}
 	
 	/**
@@ -534,7 +560,7 @@ public function testPutMessageWithTTLIs0() {
 			$this->fail ( "A exception should be thowrn when Visibility timeout is 0" );
 		} catch ( Exception $e ) {
 			$this->assertEquals ( "Microsoft_Azure_Exception", get_class ( $e ) );
-			$this->assertEquals ( "Visibility timeout is invalid. Maximum value is 2 hours (7200 seconds).", $e->getMessage () );
+			$this->assertEquals ( "Visibility timeout is invalid. Maximum value is 2 hours (7200 seconds) and should be greater than zero.", $e->getMessage () );
 		}
 	}
 	
@@ -754,7 +780,7 @@ public function testGetMessageWithValidNumOfMessages(){
 			$storageClient->putMessage ( $name, $content . "_" . $i );
 		}
 		
-		sleep ( 10 ); //wait for the messages to appear in the queue.
+		sleep ( 30 ); //wait for the messages to appear in the queue.
 		
 		//delete two exist messages.
 		$message1 = $storageClient->getMessages ( $name, 2 );
@@ -762,7 +788,7 @@ public function testGetMessageWithValidNumOfMessages(){
 			$storageClient->deleteMessage ( $name, $message );
 		}
 		
-		sleep ( 10 );
+		sleep ( 30 );
 		$message2 = $storageClient->getMessages ( $name, 30 );
 		
 		$this->assertEquals(2, count($message1));

@@ -98,6 +98,27 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
+     * Test table exists
+     */
+    public function testTableExists()
+    {
+    	$storageClient = $this->_createStorageClient ();
+    	$tableName = $this->generateTableName ();
+    	$storageClient->createTable ( $tableName );
+    	
+    	$result = $storageClient->tableExists($tableName);
+        $this->assertTrue($result);
+        
+        // test after delete table
+        $storageClient->deleteTable ( $tableName );
+        $result = $storageClient->tableExists($tableName);
+        $this->assertFalse($result);
+        
+        $result = $storageClient->tableExists("notexiststable");
+        $this->assertFalse($result);
+    }
+    
+	/**
 	 * Test create table
 	 */
 	public function testCreateTable() {
