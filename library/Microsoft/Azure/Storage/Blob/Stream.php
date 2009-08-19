@@ -177,13 +177,13 @@ class Microsoft_Azure_Storage_Blob_Stream
         fclose($fh);
         
         // Write mode?
-        if (strpbrk($mode, 'wax'))
+        if (strpbrk($mode, 'wax+'))
             $this->_writeMode = true;
         else
             $this->_writeMode = false;
         
         // If read/append, fetch the file
-        if (!$this->_writeMode || strpbrk($mode, 'a'))
+        if (!$this->_writeMode || strpbrk($mode, 'ra+'))
         {
             $this->getStorageClient($this->_fileName)->getBlob(
                 $this->getContainerName($this->_fileName),
@@ -316,8 +316,8 @@ class Microsoft_Azure_Storage_Blob_Stream
         {
             return false;
         }
-
-        return fseek($this->_temporaryFileHandle, $offset, $whence);
+        
+        return (fseek($this->_temporaryFileHandle, $offset, $whence) === 0);
     }
 
     /**
@@ -327,7 +327,41 @@ class Microsoft_Azure_Storage_Blob_Stream
      */
     public function stream_flush()
     {
-        return fflush($this->_temporaryFileHandle);
+        $result = fflush($this->_temporaryFileHandle);
+        
+         // Upload the file?
+        if ($this->_writeMode)
+        {
+            // Make sure the container exists
+            $containerExists = $this->getStorageClient($this->_fileName)->containerExists(
+                $this->getContainerName($this->_fileName)
+            );
+            if (!$containerExists)
+            {
+                $this->getStorageClient($this->_fileName)->createContainer(
+                    $this->getContainerName($this->_fileName)
+                );
+            }
+            
+            // Upload the file
+            try
+            {
+                $this->getStorageClient($this->_fileName)->putBlob(
+                    $this->getContainerName($this->_fileName),
+                    $this->getFileName($this->_fileName),
+                    $this->_temporaryFileName
+                );
+            }
+            catch (Microsoft_Azure_Exception $ex)
+            {
+                @unlink($this->_temporaryFileName);
+                unset($this->_storageClient);
+                
+                throw $ex;
+            }
+        }
+        
+        return $result;
     }
 
     /**
@@ -401,7 +435,7 @@ class Microsoft_Azure_Storage_Blob_Stream
     public function rename($path_from, $path_to)
     {
         if ($this->getContainerName($path_from) != $this->getContainerName($path_to))
-            return false;
+            throw new Microsoft_Azure_Exception('Container name can not be changed.');
         
         if ($this->getFileName($path_from) == $this->getContainerName($path_to))
             return true;
@@ -489,7 +523,7 @@ class Microsoft_Azure_Storage_Blob_Stream
         }
         else
         {
-            return false;
+            throw new Microsoft_Azure_Exception('mkdir() with multiple levels is not supported on Windows Azure Blob Storage.');
         }
     }
 
@@ -518,7 +552,7 @@ class Microsoft_Azure_Storage_Blob_Stream
         }
         else
         {
-            return false;
+            throw new Microsoft_Azure_Exception('rmdir() with multiple levels is not supported on Windows Azure Blob Storage.');
         }
     }
 

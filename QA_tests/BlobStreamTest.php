@@ -279,7 +279,7 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 		file_put_contents ( $fileName, $fileContent );
 		
 		$newContent = "this is just a test";
-		$fh = fopen ( $fileName, 'r+' );
+		$fh = fopen ( $fileName, 'a+' );
 		fwrite ( $fh, $newContent );
 		$result = fflush ( $fh );
 		
