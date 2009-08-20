@@ -819,19 +819,25 @@ class Microsoft_Azure_Storage_Blob extends Microsoft_Azure_Storage
 		    
 		    // Create return value
 		    $returnValue = array();
-		    foreach ($blockList->CommittedBlocks->Block as $block)
+		    if ($blockList->CommittedBlocks)
 		    {
-		        $returnValue['CommittedBlocks'][] = (object)array(
-		            'Name' => (string)$block->Name,
-		            'Size' => (string)$block->Size
-		        );
+			    foreach ($blockList->CommittedBlocks->Block as $block)
+			    {
+			        $returnValue['CommittedBlocks'][] = (object)array(
+			            'Name' => (string)$block->Name,
+			            'Size' => (string)$block->Size
+			        );
+			    }
 		    }
-		    foreach ($blockList->UncommittedBlocks->Block as $block)
+		    if ($blockList->UncommittedBlocks)
 		    {
-		        $returnValue['UncommittedBlocks'][] = (object)array(
-		            'Name' => (string)$block->Name,
-		            'Size' => (string)$block->Size
-		        );
+			    foreach ($blockList->UncommittedBlocks->Block as $block)
+			    {
+			        $returnValue['UncommittedBlocks'][] = (object)array(
+			            'Name' => (string)$block->Name,
+			            'Size' => (string)$block->Size
+			        );
+			    }
 		    }
 		    
 		    return $returnValue;
