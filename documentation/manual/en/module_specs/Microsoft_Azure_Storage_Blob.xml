@@ -183,6 +183,23 @@ $storageClient->setContainerAcl('testcontainer', Microsoft_Azure_Storage_Blob::A
     </example>
   </sect2>
   
+ <sect2 id="microsoft.azure.storage.blob.root">
+    <title>Root container</title>
+
+    <para>
+      Windows Azure Blob Storage provides support to work with a "root container". 
+      This means that a blob can be stored in the root of your storage account, 
+      i.e. http://myaccount.blob.core.windows.net/somefile.txt.
+    </para>
+    
+    <para>
+      In order to work with the root container, it should first be created using 
+      the createContainer() method, naming the container $root. 
+      All other operations on the root container should be issued with the 
+      container name set to $root.
+    </para>
+  </sect2>
+  
   <sect2 id="microsoft.azure.storage.blob.api.wrapper">
     <title>Blob storage stream wrapper</title>
 
@@ -234,21 +251,148 @@ $storageClient->registerStreamWrapper('blob://'); // regiters blob:// on this st
       To unregister the stream wrapper, the unregisterStreamWrapper() function can be used.
     </para>
   </sect2>
-  
- <sect2 id="microsoft.azure.storage.blob.root">
-    <title>Root container</title>
+
+ <sect2 id="microsoft.azure.storage.blob.api.sharedaccesssig">
+    <title>Shared Access Signature</title>
 
     <para>
-      Windows Azure Blob Storage provides support to work with a "root container". 
-      This means that a blob can be stored in the root of your storage account, 
-      i.e. http://myaccount.blob.core.windows.net/somefile.txt.
+      Windows Azure Bob Storage provides a feature called
+      "Shared Access Signatures". By default, there is only one level
+      of authorization possible in Windows Azure Blob Storage: either
+      a container is private or it is public. Shared Access Signatures
+      provide a more granular method of authorization: read, write,
+      delete and list permissions can be assigned on a container or a
+      blob and given to a specific client using an URL-based model.
+    </para>
+    
+    <para>An example would be the following signature:</para>
+    
+    <para>
+    	<code>
+    		http://phpstorage.blob.core.windows.net/phpazuretestshared1?st=2009-08-17T09%3A06%3A17Z
+			&amp;se=2009-08-17T09%3A56%3A17Z&amp;sr=c&amp;sp=w&amp;sig=hscQ7Su1nqd91OfMTwTkxabhJSaspx%2BD%2Fz8UqZAgn9s%3D
+    	</code>
     </para>
     
     <para>
-      In order to work with the root container, it should first be created using 
-      the createContainer() method, naming the container $root. 
-      All other operations on the root container should be issued with the 
-      container name set to $root.
+    	The above signature gives write access to the "phpazuretestshared1"
+    	container of the "phpstorage" account.
+    </para>
+ </sect2>
+    
+ <sect2 id="microsoft.azure.storage.blob.api.sharedaccesssig-generate">
+    <title>Generating a Shared Access Signature</title>
+
+    <para>
+      When you are the owner of a Windows Azure Bob Storage account, you can
+      create and distribute a shared access key for any type of resource in
+      your account. To do this, the generateSharedAccessUrl() method of the
+      <code>Microsoft_Azure_Storage_Blob</code> storage client can be used.
+    </para>
+    
+	<para>
+	  The following example code will generate a Shared Access Signature
+	  for write access in a container named "container1", 
+	  within a timeframe of 3000 seconds.
+    </para>
+
+    <example id="microsoft.azure.storage.blob.api.sharedaccesssig-generate-1">
+      <title>Generating a Shared Access Signature for a container</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Blob */
+require_once 'Microsoft/Azure/Storage/Blob.php';
+
+$storageClient = new Microsoft_Azure_Storage_Blob();
+$sharedAccessUrl = storageClient->generateSharedAccessUrl(
+                'container1',
+                '',
+            	'c', 
+            	'w',
+            	$storageClient ->isoDate(time() - 500),
+            	$storageClient ->isoDate(time() + 3000)
+            );
+]]>
+      </programlisting>
+    </example>
+    
+	<para>
+	  The following example code will generate a Shared Access Signature
+	  for read access in a blob named "test.txt" in a container named
+	  "container1" within a time frame of 3000 seconds.
+    </para>
+
+    <example id="microsoft.azure.storage.blob.api.sharedaccesssig-generate-2">
+      <title>Generating a Shared Access Signature for a blob</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Blob */
+require_once 'Microsoft/Azure/Storage/Blob.php';
+
+$storageClient = new Microsoft_Azure_Storage_Blob();
+$sharedAccessUrl = storageClient->generateSharedAccessUrl(
+                'container1',
+                'test.txt',
+            	'b', 
+            	'r',
+            	$storageClient ->isoDate(time() - 500),
+            	$storageClient ->isoDate(time() + 3000)
+            );
+]]>
+      </programlisting>
+    </example>
+  </sect2>
+  
+ <sect2 id="microsoft.azure.storage.blob.api.sharedaccesssig-consume">
+    <title>Working with Shared Access Signatures from others</title>
+
+    <para>
+      When you receive a Shared Access Signature from someone else, you can
+      use the PHP SDK for Windows Azure to work with the addressed resource.
+      For example, the following signature can be retrieved from the owner
+      of a storage account:
+    </para>
+    
+    <para>
+    	<code>
+    		http://phpstorage.blob.core.windows.net/phpazuretestshared1?st=2009-08-17T09%3A06%3A17Z
+			&amp;se=2009-08-17T09%3A56%3A17Z&amp;sr=c&amp;sp=w&amp;sig=hscQ7Su1nqd91OfMTwTkxabhJSaspx%2BD%2Fz8UqZAgn9s%3D
+    	</code>
+    </para>
+    
+    <para>
+      The above signature gives write access to the "phpazuretestshared1"
+      "container" of the phpstorage account. Since the shared key for the 
+      account is not known, the Shared Access Signature can be used to work 
+      with the authorized resource.
+    </para>
+
+    <example id="microsoft.azure.storage.blob.api.sharedaccesssig-consuming">
+      <title>Consuming a Shared Access Signature for a container</title>
+      <programlisting role="php">
+        <![CDATA[<?php
+/** Microsoft_Azure_Storage_Blob */
+require_once 'Microsoft/Azure/Storage/Blob.php';
+
+$storageClient = new Microsoft_Azure_Storage_Blob('blob.core.windows.net', 'phpstorage', ''); 
+$storageClient->setCredentials( 
+    new Microsoft_Azure_SharedAccessSignatureCredentials('phpstorage', '') 
+);
+$storageClient->getCredentials()->setPermissionSet(array( 
+    'http://phpstorage.blob.core.windows.net/phpazuretestshared1?st=2009-08-17T09%3A06%3A17Z
+     &se=2009-08-17T09%3A56%3A17Z&sr=c&sp=w&sig=hscQ7Su1nqd91OfMTwTkxabhJSaspx%2BD%2Fz8UqZAgn9s%3D' 
+));
+$storageClient->putBlob('phpazuretestshared1', 'NewBlob.txt', 'C:\Files\dataforazure.txt');
+]]>
+      </programlisting>
+    </example>
+    
+	<para>
+	  Note that there was no explicit permission to write to a specific blob. Instead,
+	  the PHP SDK for Windows Azure determined that a permission was required to either
+	  write to that specific blob, or to write to its container. Since only a signature
+	  was available for the latter, the PHP SDK for Windows Azure chose those credentials
+	  to perform the request on Windows Azure blob storage.
     </para>
   </sect2>
 </sect1>
