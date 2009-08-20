@@ -1028,7 +1028,7 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * Test put block and get blocks
 	 */
-	public function testPutBlockAndGetBlocks() {
+	public function testPutBlockAndGetBlocksByType() {
 		$containerName = $this->getContainerName ();
 		$storageClient = $this->_createStorageClient ();
 		
@@ -1059,7 +1059,7 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * Test put blocks to commit blocks. after commit blocks, get blocks by block type seems not work ok.
 	 */
-	public function testPutBlocks() {
+	public function testPutAndGetBlocks() {
 		$containerName = $this->getContainerName ();
 		$storageClient = $this->_createStorageClient ();
 		
