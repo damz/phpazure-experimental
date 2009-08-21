@@ -197,6 +197,48 @@ class Microsoft_Azure_BlobStorageSharedAccessTest extends PHPUnit_Framework_Test
             $this->assertTrue($exceptionThrown);
         }
     }
+    
+    /**
+     * Test different accounts
+     */
+    public function testDifferentAccounts()
+    {
+        if (TESTS_BLOB_RUNTESTS)  
+        {
+            $containerName = $this->generateName();
+            
+            // Account owner performs this part
+            $administrativeStorageClient = $this->createAdministrativeStorageInstance();
+            $administrativeStorageClient->createContainer($containerName);
+            
+            $sharedAccessUrl1 = $administrativeStorageClient->generateSharedAccessUrl(
+                $containerName,
+                '',
+            	'c', 
+            	'w',
+            	$administrativeStorageClient->isoDate(time() - 500),
+            	$administrativeStorageClient->isoDate(time() + 3000)
+            );
+            $sharedAccessUrl2 = str_replace($administrativeStorageClient->getAccountName(), 'bogusaccount', $sharedAccessUrl1);
+
+            
+            // Reduced permissions user performs this part and should fail,
+            // because different accounts have been used
+            $storageClient = $this->createStorageInstance();
+            $credentials = $storageClient->getCredentials();
+
+            $exceptionThrown = false;
+            try {
+	            $credentials->setPermissionSet(array(
+	                $sharedAccessUrl1,
+	                $sharedAccessUrl2
+	            ));
+            } catch (Exception $ex) {
+                $exceptionThrown = true;
+            }
+            $this->assertTrue($exceptionThrown);
+        }
+    }
 }
 
 // Call Microsoft_Azure_BlobStorageSharedAccessTest::main() if this source file is executed directly.

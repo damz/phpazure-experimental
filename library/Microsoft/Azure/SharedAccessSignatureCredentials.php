@@ -90,12 +90,20 @@ class Microsoft_Azure_SharedAccessSignatureCredentials extends Microsoft_Azure_C
 	 * Set permisison set
 	 * 
 	 * Warning: fine-grained permissions should be added prior to coarse-grained permissions.
-	 * For example: frst add blob permissions, end with container-wide permissions.
+	 * For example: first add blob permissions, end with container-wide permissions.
+	 * 
+	 * Warning: the signed access signature URL must match the account name of the
+	 * Microsoft_Azure_SharedAccessSignatureCredentials instance
 	 * 
 	 * @param array $value Permission set
 	 */
     public function setPermissionSet($value = array())
 	{
+		foreach ($value as $url)
+		{
+			if (strpos($url, $this->_accountName) === false)
+				throw new Microsoft_Azure_Exception('The permission set can only contain URLs for the account name specified in the Microsoft_Azure_SharedAccessSignatureCredentials instance.');
+		}
 	    $this->_permissionSet = $value;
 	}
     

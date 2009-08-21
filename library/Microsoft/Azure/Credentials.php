@@ -102,6 +102,36 @@ abstract class Microsoft_Azure_Credentials
 	}
 	
 	/**
+	 * Set account name for Windows Azure
+	 *
+	 * @param string $value
+	 */
+	public function setAccountName($value = Microsoft_Azure_Credentials::DEVSTORE_ACCOUNT)
+	{
+		$this->_accountName = $value;
+	}
+	
+	/**
+	 * Set account key for Windows Azure
+	 *
+	 * @param string $value
+	 */
+	public function setAccountkey($value = Microsoft_Azure_Credentials::DEVSTORE_KEY)
+	{
+		$this->_accountKey = base64_decode($value);
+	}
+	
+	/**
+	 * Set use path-style URI's
+	 *
+	 * @param boolean $value
+	 */
+	public function setUsePathStyleUri($value = false)
+	{
+		$this->_usePathStyleUri = $value;
+	}
+	
+	/**
 	 * Sign request URL with credentials
 	 *
 	 * @param string $requestUrl Request URL

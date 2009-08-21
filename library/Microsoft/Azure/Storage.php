@@ -230,6 +230,16 @@ class Microsoft_Azure_Storage
 	}
 	
 	/**
+	 * Returns the Windows Azure account name
+	 * 
+	 * @return string
+	 */
+	public function getAccountName()
+	{
+		return $this->_accountName;
+	}
+	
+	/**
 	 * Get base URL for creating requests
 	 *
 	 * @return string
@@ -250,6 +260,9 @@ class Microsoft_Azure_Storage
 	public function setCredentials(Microsoft_Azure_Credentials $credentials)
 	{
 	    $this->_credentials = $credentials;
+	    $this->_credentials->setAccountName($this->_accountName);
+	    $this->_credentials->setAccountkey($this->_accountKey);
+	    $this->_credentials->setUsePathStyleUri($this->_usePathStyleUri);
 	}
 	
 	/**
