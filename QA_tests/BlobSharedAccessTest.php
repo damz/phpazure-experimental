@@ -1,15 +1,15 @@
 <?php
 if (! defined ( 'PHPUnit_MAIN_METHOD' )) {
-	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_Azure_BlobSharedAccessTest::main' );
+	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_BlobSharedAccessTest::main' );
 }
 
 require_once 'PHPUnit/Framework.php';
 
-require_once 'Microsoft/Azure/Storage/Blob.php';
+require_once 'Microsoft/WindowsAzure/Storage/Blob.php';
 
-require_once 'Microsoft/Azure/SharedAccessSignatureCredentials.php';
+require_once 'Microsoft/WindowsAzure/SharedAccessSignatureCredentials.php';
 
-class Microsoft_Azure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
+class Microsoft_WindowsAzure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
 	static $path;
 	
 	protected static $uniqId = 0;
@@ -61,17 +61,17 @@ class Microsoft_Azure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public static function main() {
-		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_Azure_BlobSharedAccessTest" );
+		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_WindowsAzure_BlobSharedAccessTest" );
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
 	private function _createAdminStorageClient() {
-		return new Microsoft_Azure_Storage_Blob ( BLOB_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_Azure_RetryPolicy::retryN ( 10, 250 ) );
+		return new Microsoft_WindowsAzure_Storage_Blob ( BLOB_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
 	private function _createGuestStorageClient() {
-		$storageClient = new Microsoft_Azure_Storage_Blob ( BLOB_HOST, CLIENT_STORAGE_ACCOUNT, CLIENT_STORAGE_KEY, false, Microsoft_Azure_RetryPolicy::retryN ( 10, 250 ) );
-		$storageClient->setCredentials ( new Microsoft_Azure_SharedAccessSignatureCredentials ( CLIENT_STORAGE_ACCOUNT, CLIENT_STORAGE_KEY, false ) );
+		$storageClient = new Microsoft_WindowsAzure_Storage_Blob ( BLOB_HOST, CLIENT_STORAGE_ACCOUNT, CLIENT_STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
+		$storageClient->setCredentials ( new Microsoft_WindowsAzure_SharedAccessSignatureCredentials ( CLIENT_STORAGE_ACCOUNT, CLIENT_STORAGE_KEY, false ) );
 		return $storageClient;
 	}
 	
@@ -305,8 +305,8 @@ class Microsoft_Azure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
 		
 		$id = 'ABCD';
 		$permission = 'rwdl';
-		$storageClient->setContainerAcl ( $containerName, Microsoft_Azure_Storage_Blob::ACL_PRIVATE, 
-				array ( new Microsoft_Azure_Storage_SignedIdentifier($id, '2009-10-18', '2009-10-21', $permission) ) );
+		$storageClient->setContainerAcl ( $containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, 
+				array ( new Microsoft_WindowsAzure_Storage_SignedIdentifier($id, '2009-10-18', '2009-10-21', $permission) ) );
 		$acl = $storageClient->getContainerAcl ( $containerName, true );
 
 		$this->assertTrue(count($acl) == 1);
@@ -317,20 +317,20 @@ class Microsoft_Azure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
 		
 		
 		// test update acl
-		$storageClient->setContainerAcl ( $containerName, Microsoft_Azure_Storage_Blob::ACL_PRIVATE, 
-				array ( new Microsoft_Azure_Storage_SignedIdentifier($id, '2009-10-18', '2009-10-21', 'r') ) );
+		$storageClient->setContainerAcl ( $containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, 
+				array ( new Microsoft_WindowsAzure_Storage_SignedIdentifier($id, '2009-10-18', '2009-10-21', 'r') ) );
 		$acl = $storageClient->getContainerAcl ( $containerName, true );
 		$this->assertEquals("r",  "". $acl[0]->permissions );
 		
 		// test add acl
-		$storageClient->setContainerAcl ( $containerName, Microsoft_Azure_Storage_Blob::ACL_PRIVATE, 
-				array ( new Microsoft_Azure_Storage_SignedIdentifier($id, '2009-10-18', '2009-10-21', 'rd'),
-						new Microsoft_Azure_Storage_SignedIdentifier('ABCDE', '2009-10-18', '2009-10-21', $permission)	) );
+		$storageClient->setContainerAcl ( $containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, 
+				array ( new Microsoft_WindowsAzure_Storage_SignedIdentifier($id, '2009-10-18', '2009-10-21', 'rd'),
+						new Microsoft_WindowsAzure_Storage_SignedIdentifier('ABCDE', '2009-10-18', '2009-10-21', $permission)	) );
 		$acl = $storageClient->getContainerAcl ( $containerName, true );
 		$this->assertTrue(count($acl) == 2);
 		
 		// test delete 		
-		$storageClient->setContainerAcl ( $containerName, Microsoft_Azure_Storage_Blob::ACL_PRIVATE, array () );
+		$storageClient->setContainerAcl ( $containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, array () );
 		$acl = $storageClient->getContainerAcl ( $containerName, true );
 		$this->assertTrue(count($acl) == 0);
 		
@@ -511,12 +511,12 @@ class Microsoft_Azure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
 	 *
 	 */
 	public function testSetContainerAcl_InvalidPolicy(){
-		$policies = array(new Microsoft_Azure_Storage_SignedIdentifier( 'ABCD', '2009-10-18', '2009-10-21',  'rwdl'),
-			new Microsoft_Azure_Storage_SignedIdentifier( 'ABCDE', '2009-10-18', '2009-10-21',  'rwdl'),
-			new Microsoft_Azure_Storage_SignedIdentifier( 'ABCDF', '2009-10-18', '2009-10-21',  'rwdl'),
-			new Microsoft_Azure_Storage_SignedIdentifier( 'ABCDG', '2009-10-18', '2009-10-21',  'rwdl'),
-			new Microsoft_Azure_Storage_SignedIdentifier( 'ABCDH', '2009-10-18', '2009-10-21',  'rwdl'),
-			new Microsoft_Azure_Storage_SignedIdentifier( 'ABCDI', '2009-10-18', '2009-10-21',  'rwdl'),
+		$policies = array(new Microsoft_WindowsAzure_Storage_SignedIdentifier( 'ABCD', '2009-10-18', '2009-10-21',  'rwdl'),
+			new Microsoft_WindowsAzure_Storage_SignedIdentifier( 'ABCDE', '2009-10-18', '2009-10-21',  'rwdl'),
+			new Microsoft_WindowsAzure_Storage_SignedIdentifier( 'ABCDF', '2009-10-18', '2009-10-21',  'rwdl'),
+			new Microsoft_WindowsAzure_Storage_SignedIdentifier( 'ABCDG', '2009-10-18', '2009-10-21',  'rwdl'),
+			new Microsoft_WindowsAzure_Storage_SignedIdentifier( 'ABCDH', '2009-10-18', '2009-10-21',  'rwdl'),
+			new Microsoft_WindowsAzure_Storage_SignedIdentifier( 'ABCDI', '2009-10-18', '2009-10-21',  'rwdl'),
 		);
 		
 		$containerName = $this->getContainerName ();
@@ -526,7 +526,7 @@ class Microsoft_Azure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
 		// test 6 policies
 		$exception = null;
         try {			
-			$storageClient->setContainerAcl ( $containerName, Microsoft_Azure_Storage_Blob::ACL_PRIVATE, $policies	 );
+			$storageClient->setContainerAcl ( $containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, $policies	 );
 		} catch ( Exception $ex ) {
 			$exception = $ex;			
 		}
@@ -536,7 +536,7 @@ class Microsoft_Azure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
 		array_pop($policies);
 		$exception = null;
         try {			
-			$storageClient->setContainerAcl ( $containerName, Microsoft_Azure_Storage_Blob::ACL_PRIVATE, $policies	 );
+			$storageClient->setContainerAcl ( $containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, $policies	 );
 		} catch ( Exception $ex ) {
 			$exception = $ex;			
 		}
@@ -552,7 +552,7 @@ class Microsoft_Azure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
 		$start = $adminClient->isoDate ( time () - 50 );
 		$expiry = $adminClient->isoDate ( time () + 3000 );
 		
-		$adminClient->setContainerAcl ( $containerName, Microsoft_Azure_Storage_Blob::ACL_PRIVATE, array ( new Microsoft_Azure_Storage_SignedIdentifier('ABCD', $start, $expiry, 'rwdl') ) );		
+		$adminClient->setContainerAcl ( $containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, array ( new Microsoft_WindowsAzure_Storage_SignedIdentifier('ABCD', $start, $expiry, 'rwdl') ) );		
 		$sharedAccessUrl = $adminClient->generateSharedAccessUrl ( $containerName, '', 'c', 'r', $start, $expiry, 'ABCD' );
 		
 		$guestClient = $this->_createGuestStorageClient ();
@@ -566,9 +566,9 @@ class Microsoft_Azure_BlobSharedAccessTest extends PHPUnit_Framework_TestCase {
 
 }
 
-// Call Microsoft_Azure_BlobSharedAccessTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_Azure_BlobSharedAccessTest::main") {
-	Microsoft_Azure_BlobTest::main ();
+// Call Microsoft_WindowsAzure_BlobSharedAccessTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_BlobSharedAccessTest::main") {
+	Microsoft_WindowsAzure_BlobTest::main ();
 }
 
 ?>

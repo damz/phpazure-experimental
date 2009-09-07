@@ -1,13 +1,13 @@
 <?php
 if (! defined ( 'PHPUnit_MAIN_METHOD' )) {
-	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_Azure_BlobTest::main' );
+	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_BlobTest::main' );
 }
 
 require_once 'PHPUnit/Framework.php';
 
-require_once 'Microsoft/Azure/Storage/Blob.php';
+require_once 'Microsoft/WindowsAzure/Storage/Blob.php';
 
-class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
+class Microsoft_WindowsAzure_BlobTest extends PHPUnit_Framework_TestCase {
 	static $path;
 	
 	protected static $uniqId = 0;
@@ -66,12 +66,12 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public static function main() {
-		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_Azure_BlobTest" );
+		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_WindowsAzure_BlobTest" );
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
 	private function _createStorageClient() {
-		return new Microsoft_Azure_Storage_Blob ( BLOB_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_Azure_RetryPolicy::retryN ( 10, 250 ) );
+		return new Microsoft_WindowsAzure_Storage_Blob ( BLOB_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
 	private function _createTempFile($content) {
@@ -103,7 +103,7 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 		I love this catHello Ketty. I love this catHello Ketty. I love this catHello Ketty. \n
 		I love this cat\n";
 		$ls = strlen ( $stringData );
-		$large_size = Microsoft_Azure_Storage_Blob::MAX_BLOB_SIZE / $ls + 20; //File size should be large than this.
+		$large_size = Microsoft_WindowsAzure_Storage_Blob::MAX_BLOB_SIZE / $ls + 20; //File size should be large than this.
 		for($i = 0; $i < $large_size; $i ++) {
 			fwrite ( $fh, $stringData );
 		}
@@ -659,7 +659,7 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 		try {
 			$storageClient->createContainer ( $containerName );
 			array_push ( $this->_tempContainers, $containerName );
-			if (file_exists ( $file ) && filesize ( $file ) < Microsoft_Azure_Storage_Blob::MAX_BLOB_SIZE) {
+			if (file_exists ( $file ) && filesize ( $file ) < Microsoft_WindowsAzure_Storage_Blob::MAX_BLOB_SIZE) {
 				unlink ( $file );
 			}
 			
@@ -901,13 +901,13 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 
             
             // ACL
-            $storageClient->setContainerAcl($containerName, Microsoft_Azure_Storage_Blob::ACL_PUBLIC);
+            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC);
             $acl = $storageClient->getContainerAcl($containerName);            
-            $this->assertEquals(Microsoft_Azure_Storage_Blob::ACL_PUBLIC, $acl);
+            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC, $acl);
             
-            $storageClient->setContainerAcl($containerName, Microsoft_Azure_Storage_Blob::ACL_PRIVATE);
+            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE);
             $acl = $storageClient->getContainerAcl($containerName);            
-            $this->assertEquals(Microsoft_Azure_Storage_Blob::ACL_PRIVATE, $acl);
+            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, $acl);
 
             $metadata = array ("count" => 1, "comment" => "php" );
             
@@ -1011,14 +1011,14 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 		$storageClient->createContainer ( $containerName );
 		
 		$blob_name = "bepartblob";
-		$MAX_BLOCK = Microsoft_Azure_Storage_Blob::MAX_BLOB_TRANSFER_SIZE;
+		$MAX_BLOCK = Microsoft_WindowsAzure_Storage_Blob::MAX_BLOB_TRANSFER_SIZE;
 		$blob_content = str_repeat ( '.', $MAX_BLOCK + 1 );
 		$identifier = "AAA";
 		$exceptionThrown = false;
 		try {
 			$storageClient->putBlock ( $containerName, $blob_name, $identifier, $blob_content );
 		} catch ( Exception $e ) {
-			//throw new Microsoft_Azure_Exception('Block size is too big.');
+			//throw new Microsoft_WindowsAzure_Exception('Block size is too big.');
 			$exceptionThrown = true;
 			$this->assertEquals ( "Block size is too big.", $e->getMessage () );
 		}
@@ -1520,8 +1520,8 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 	}
 }
 
-// Call Microsoft_Azure_BlobStorageTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_Azure_BlobTest::main") {
-	Microsoft_Azure_BlobTest::main ();
+// Call Microsoft_WindowsAzure_BlobStorageTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_BlobTest::main") {
+	Microsoft_WindowsAzure_BlobTest::main ();
 }
 	

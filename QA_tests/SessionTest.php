@@ -1,17 +1,17 @@
 <?php
 if (! defined ( 'PHPUnit_MAIN_METHOD' )) {
-	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_Azure_SessionTest::main' );
+	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_SessionTest::main' );
 }
 
 require_once 'PHPUnit/Framework.php';
 
-/** Microsoft_Azure_SessionHandler */
-require_once 'Microsoft/Azure/SessionHandler.php';
+/** Microsoft_WindowsAzure_SessionHandler */
+require_once 'Microsoft/WindowsAzure/SessionHandler.php';
 
-/** Microsoft_Azure_Storage_Table */
-require_once 'Microsoft/Azure/Storage/Table.php';
+/** Microsoft_WindowsAzure_Storage_Table */
+require_once 'Microsoft/WindowsAzure/Storage/Table.php';
 
-class Microsoft_Azure_SessionTest extends PHPUnit_Framework_TestCase {
+class Microsoft_WindowsAzure_SessionTest extends PHPUnit_Framework_TestCase {
 	
 	protected static $uniqId = 0;
 	
@@ -55,16 +55,16 @@ class Microsoft_Azure_SessionTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public static function main() {
-		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_Azure_SessionTest" );
+		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_WindowsAzure_SessionTest" );
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
 	protected function _createStorageClient() {
-		return new Microsoft_Azure_Storage_Table ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_Azure_RetryPolicy::retryN ( 10, 250 ) );
+		return new Microsoft_WindowsAzure_Storage_Table ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
 	protected function _createSessionHandler($storageInstance, $tableName) {
-		$sessionHandler = new Microsoft_Azure_SessionHandler ( $storageInstance, $tableName );
+		$sessionHandler = new Microsoft_WindowsAzure_SessionHandler ( $storageInstance, $tableName );
 		return $sessionHandler;
 	}
 	
@@ -125,9 +125,9 @@ class Microsoft_Azure_SessionTest extends PHPUnit_Framework_TestCase {
 
 }
 
-// Call Microsoft_Azure_SessionTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_Azure_SessionTest::main") {
-	Microsoft_Azure_SessionTest::main ();
+// Call Microsoft_WindowsAzure_SessionTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_SessionTest::main") {
+	Microsoft_WindowsAzure_SessionTest::main ();
 }
 
 ?>

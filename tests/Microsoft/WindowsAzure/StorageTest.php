@@ -26,49 +26,63 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @category   Microsoft
- * @package    Microsoft
+ * @package    Microsoft_WindowsAzure
  * @subpackage UnitTests
  * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 
-/**
- * Test helper
- */
-require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
 if (!defined('PHPUnit_MAIN_METHOD')) {
-    define('PHPUnit_MAIN_METHOD', 'Microsoft_AllTests::main');
+    define('PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_StorageTest::main');
 }
 
-require_once 'Microsoft/WindowsAzure/AllTests.php';
+/**
+ * Test helpers
+ */
+require_once dirname(__FILE__) . '/../../TestHelper.php';
+require_once dirname(__FILE__) . '/../../TestConfiguration.php';
+require_once 'PHPUnit/Framework/TestCase.php';
+
+/** Microsoft_WindowsAzure_Storage */
+require_once 'Microsoft/WindowsAzure/Storage.php';
 
 /**
  * @category   Microsoft
- * @package    Microsoft
+ * @package    Microsoft_WindowsAzure
  * @subpackage UnitTests
  * @version    $Id$
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_AllTests
+class Microsoft_WindowsAzure_StorageTest extends PHPUnit_Framework_TestCase
 {
     public static function main()
     {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
+        $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_BlobStorageTest");
+        $result = PHPUnit_TextUI_TestRunner::run($suite);
     }
 
-    public static function suite()
+    /**
+     * Test constructor for devstore
+     */
+    public function testConstructorForDevstore()
     {
-        $suite = new PHPUnit_Framework_TestSuite('Microsoft');
-
-        $suite->addTest(Microsoft_WindowsAzure_AllTests::suite());
-
-        return $suite;
+        $storage = new Microsoft_WindowsAzure_Storage();
+        $this->assertEquals('http://127.0.0.1:10000/devstoreaccount1', $storage->getBaseUrl());
+    }
+    
+    /**
+     * Test constructor for production
+     */
+    public function testConstructorForProduction()
+    {
+        $storage = new Microsoft_WindowsAzure_Storage(Microsoft_WindowsAzure_Storage::URL_CLOUD_BLOB, 'testing', '');
+        $this->assertEquals('http://testing.blob.core.windows.net', $storage->getBaseUrl());
     }
 }
 
-if (PHPUnit_MAIN_METHOD == 'Microsoft_AllTests::main') {
-    Microsoft_AllTests::main();
+// Call Microsoft_WindowsAzure_StorageTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_StorageTest::main") {
+    Microsoft_WindowsAzure_StorageTest::main();
 }

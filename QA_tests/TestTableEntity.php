@@ -12,7 +12,7 @@
  * Edm.Int64 - A 64-bit integer.
  * Edm.String - A UTF-16-encoded value. String values may be up to 64 KB in size.
  */
-class Test_TableEntity extends Microsoft_Azure_Storage_TableEntity {
+class Test_TableEntity extends Microsoft_WindowsAzure_Storage_TableEntity {
 	
 	/**
 	 * you can get a valid date format like $date_string = date("Y-m-d\\TH:i:s");

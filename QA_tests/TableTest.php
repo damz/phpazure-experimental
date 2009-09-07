@@ -1,15 +1,15 @@
 <?php
 
 if (! defined ( 'PHPUnit_MAIN_METHOD' )) {
-	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_Azure_TableTest::main' );
+	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_TableTest::main' );
 }
 
 require_once 'PHPUnit/Framework.php';
 
-require_once 'Microsoft/Azure/Storage/Table.php';
+require_once 'Microsoft/WindowsAzure/Storage/Table.php';
 require_once 'TestTableEntity.php';
 
-class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
+class Microsoft_WindowsAzure_TableTest extends PHPUnit_Framework_TestCase {
 	
 	protected static $tablePrefix = "phptabletest";
 	
@@ -56,12 +56,12 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public static function main() {
-		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_Azure_TableTest" );
+		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_WindowsAzure_TableTest" );
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
 	private function _createStorageClient() {
-		return new Microsoft_Azure_Storage_Table ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_Azure_RetryPolicy::retryN ( 10, 250 ) );
+		return new Microsoft_WindowsAzure_Storage_Table ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
 	protected function _generateEntities($count, $partition_increment = false, $row_increment = true) {
@@ -319,7 +319,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	protected function _assertMircosoftAzureException($e) {
-		$this->assertEquals ( 'Microsoft_Azure_Exception', get_class ( $e ) );
+		$this->assertEquals ( 'Microsoft_WindowsAzure_Exception', get_class ( $e ) );
 	}
 	
 	public function testInsertEntity_DateTimeFieldInGMTFormat() {
@@ -811,7 +811,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * Insert entity to table with some 'null' field is ok, but get a error when try to retrieve them.
 	 * 
-	 * Function  public function setAzureValues($values = array(), $throwOnError = false) in 'Microsoft_Azure_Storage_TableEntity'. the last parameter
+	 * Function  public function setAzureValues($values = array(), $throwOnError = false) in 'Microsoft_WindowsAzure_Storage_TableEntity'. the last parameter
 	 * shoule explored to final user.
 	 *
 	 */
@@ -1010,7 +1010,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		$count = 3;
 		$batch = $storageClient->startBatch ();
 		for($i = 1; $i <= $count; $i ++) {
-			$dynamicEntity = new Microsoft_Azure_Storage_DynamicTableEntity ( "part_key", "row_key" . $i );
+			$dynamicEntity = new Microsoft_WindowsAzure_Storage_DynamicTableEntity ( "part_key", "row_key" . $i );
 			$dynamicEntity->setAzureProperty ( "fieldA", $i, "Edm.Int32" );
 			$dynamicEntity->setAzureProperty ( "fieldB", $this->_randomString ( 15 ), "Edm.String" );
 			$storageClient->insertEntity ( $tableName, $dynamicEntity );
@@ -1241,7 +1241,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testUpdateDynamicEntity() {
-		$dynamicEntity = new Microsoft_Azure_Storage_DynamicTableEntity ( "part", "row" );
+		$dynamicEntity = new Microsoft_WindowsAzure_Storage_DynamicTableEntity ( "part", "row" );
 		$dynamicEntity->setAzureProperty ( "fieldA", "fieldA_value", "Edm.String" );
 		$dynamicEntity->setAzureProperty ( "fieldB", "fieldB_value", "Edm.String" );
 		
@@ -1252,7 +1252,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		try {
 			$storageClient->insertEntity ( $tableName, $dynamicEntity );
 			
-			$dynamicEntity = new Microsoft_Azure_Storage_DynamicTableEntity ( "part", "row" );
+			$dynamicEntity = new Microsoft_WindowsAzure_Storage_DynamicTableEntity ( "part", "row" );
 			$dynamicEntity->setAzureProperty ( "fieldB", "fieldB_valueUpdate", "Edm.String" );
 			$dynamicEntity->setAzureProperty ( "fieldC", "fieldB_value", "Edm.String" );
 			
@@ -1269,7 +1269,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testMergeDynamicEntity() {
-		$dynamicEntity = new Microsoft_Azure_Storage_DynamicTableEntity ( "part", "row" );
+		$dynamicEntity = new Microsoft_WindowsAzure_Storage_DynamicTableEntity ( "part", "row" );
 		$dynamicEntity->setAzureProperty ( "fieldA", "fieldA_value", "Edm.String" );
 		$dynamicEntity->setAzureProperty ( "fieldB", "fieldB_value", "Edm.String" );
 		
@@ -1280,7 +1280,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 		try {
 			$storageClient->insertEntity ( $tableName, $dynamicEntity );
 			
-			$dynamicEntity = new Microsoft_Azure_Storage_DynamicTableEntity ( "part", "row" );
+			$dynamicEntity = new Microsoft_WindowsAzure_Storage_DynamicTableEntity ( "part", "row" );
 			$dynamicEntity->setAzureProperty ( "fieldB", "fieldB_valueUpdate", "Edm.String" );
 			$dynamicEntity->setAzureProperty ( "fieldC", "fieldB_value", "Edm.String" );
 			
@@ -1326,7 +1326,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	protected function _generageDynamicEntities($dynamicvalue) {
-		$dynamicEntiy = new Microsoft_Azure_Storage_DynamicTableEntity ( self::$partitionKeyPrefix, self::$rowKeyPrefix );
+		$dynamicEntiy = new Microsoft_WindowsAzure_Storage_DynamicTableEntity ( self::$partitionKeyPrefix, self::$rowKeyPrefix );
 		if ($dynamicvalue != null) {
 			$dynamicEntiy->setAzureProperty ( $dynamicvalue ['name'], $dynamicvalue ['value'], $dynamicvalue ['type'] );
 		}
@@ -1357,7 +1357,7 @@ class Microsoft_Azure_TableTest extends PHPUnit_Framework_TestCase {
 
 }
 
-class Simple_TableEntity extends Microsoft_Azure_Storage_TableEntity {
+class Simple_TableEntity extends Microsoft_WindowsAzure_Storage_TableEntity {
 	/**
 	 * 
 	 * @azure $binaryField Edm.Binary
@@ -1365,9 +1365,9 @@ class Simple_TableEntity extends Microsoft_Azure_Storage_TableEntity {
 	public $binaryField = null;
 }
 
-// Call Microsoft_Azure_TableTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_Azure_TableTest::main") {
-	Microsoft_Azure_TableTest::main ();
+// Call Microsoft_WindowsAzure_TableTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_TableTest::main") {
+	Microsoft_WindowsAzure_TableTest::main ();
 }
 
 ?>

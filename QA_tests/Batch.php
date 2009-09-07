@@ -1,14 +1,14 @@
 <?php
 if (! defined ( 'PHPUnit_MAIN_METHOD' )) {
-	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_Azure_BlobTest::main' );
+	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_BlobTest::main' );
 }
 
 require_once 'PHPUnit/Framework.php';
 
-/** Microsoft_Azure_Storage_Table */
-require_once 'Microsoft/Azure/Storage/Table.php';
+/** Microsoft_WindowsAzure_Storage_Table */
+require_once 'Microsoft/WindowsAzure/Storage/Table.php';
 
-class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
+class Microsoft_WindowsAzure_BlobTest extends PHPUnit_Framework_TestCase {
 	static $path;
 	
 	protected $_tempFiles = array ();
@@ -34,7 +34,7 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	private function _createStorageClient() {
-		return new Microsoft_Azure_Storage_Blob ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_Azure_RetryPolicy::retryN ( 10, 250 ) );
+		return new Microsoft_WindowsAzure_Storage_Blob ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
 	public function testDeleteEntityInBatch() {
@@ -50,7 +50,7 @@ class Microsoft_Azure_BlobTest extends PHPUnit_Framework_TestCase {
 		
 		// Start batch
 		$batch = $storageClient->startBatch ();
-		$this->assertType ( 'Microsoft_Azure_Storage_Batch', $batch );
+		$this->assertType ( 'Microsoft_WindowsAzure_Storage_Batch', $batch );
 		
 		// Insert entities in batch
 		foreach ( $entities as $entity ) {
@@ -92,11 +92,11 @@ protected function createStorageInstance()
         $storageClient = null;
         if (TESTS_TABLE_RUNONPROD)
         {
-            $storageClient = new Microsoft_Azure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_Azure_RetryPolicy::retryN(10, 250));
+            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy::retryN(10, 250));
         }
         else
         {
-            $storageClient = new Microsoft_Azure_Storage_Table(TESTS_TABLE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_Azure_RetryPolicy::retryN(10, 250));
+            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy::retryN(10, 250));
             $storageClient->setOdbcSettings(TESTS_TABLE_DEVCNSTRING, TESTS_TABLE_DEVCNUSER, TESTS_TABLE_DEVCNPASS);
         }
         
@@ -111,9 +111,9 @@ protected function createStorageInstance()
 }
 
 /**
- * Test Microsoft_Azure_Storage_TableEntity class
+ * Test Microsoft_WindowsAzure_Storage_TableEntity class
  */
-class TSTest_TestEntity extends Microsoft_Azure_Storage_TableEntity {
+class TSTest_TestEntity extends Microsoft_WindowsAzure_Storage_TableEntity {
 	/**
 	 * @azure Name
 	 */

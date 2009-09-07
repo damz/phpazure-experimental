@@ -46,8 +46,8 @@
             destdir="./build/documentation/api"
             sourcecode="true"
             output="HTML:Smarty:PHP"
-            defaultcategoryname="Microsoft_Azure"
-            defaultpackagename="Microsoft_Azure"
+            defaultcategoryname="Microsoft_WindowsAzure"
+            defaultpackagename="Microsoft_WindowsAzure"
             pear="true">
       <fileset dir="./build/library">
         <include name="**/*.php" />

@@ -34,17 +34,17 @@ class AllTests extends PHPUnit_Framework_TestCase {
 		/**
 		 * Blob remote service test.
 		 */
-		$suite->addTestSuite ( 'Microsoft_Azure_BlobTest' );
+		$suite->addTestSuite ( 'Microsoft_WindowsAzure_BlobTest' );
 		
 		/**
 		 * Blob local test.
 		 */
-		$suite->addTestSuite ( 'Microsoft_Azure_BlobLocalTest' );
+		$suite->addTestSuite ( 'Microsoft_WindowsAzure_BlobLocalTest' );
 		
 		/**
 		 * Table remove server test
 		 */
-		$suite->addTestSuite ( 'Microsoft_Azure_TableTest' );
+		$suite->addTestSuite ( 'Microsoft_WindowsAzure_TableTest' );
 		
 		
 		return $suite;

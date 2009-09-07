@@ -1,7 +1,7 @@
 <?php
 
 if (! defined ( 'PHPUnit_MAIN_METHOD' )) {
-	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_Azure_LocalTableTest::main' );
+	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_LocalTableTest::main' );
 }
 
 require_once 'PHPUnit/Framework.php';
@@ -9,10 +9,10 @@ require_once 'PHPUnit/Framework.php';
 //require_once 'TableTest.php';
 
 
-require_once 'Microsoft/Azure/Storage/Table.php';
+require_once 'Microsoft/WindowsAzure/Storage/Table.php';
 require_once 'TestTableEntity.php';
 
-class Microsoft_Azure_LocalTableTest extends PHPUnit_Framework_TestCase {
+class Microsoft_WindowsAzure_LocalTableTest extends PHPUnit_Framework_TestCase {
 	protected static $tablePrefix = "phptabletest";
 	
 	protected static $partitionKeyPrefix = "partition";
@@ -62,12 +62,12 @@ class Microsoft_Azure_LocalTableTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public static function main() {
-		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_Azure_LocalTableTest" );
+		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_WindowsAzure_LocalTableTest" );
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
 	function _createStorageClient() {
-		return new Microsoft_Azure_Storage_Table ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_Azure_RetryPolicy::retryN ( 10, 250 ) );
+		return new Microsoft_WindowsAzure_Storage_Table ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
 	protected function _generateEntities($count, $partition_increment = false, $row_increment = true) {
@@ -339,7 +339,7 @@ public function testInsertEntity_DateTimeFieldInGMTFormat() {
 	}
 	
 	protected function _assertMircosoftAzureException($e) {
-		$this->assertEquals ( 'Microsoft_Azure_Exception', get_class ( $e ) );
+		$this->assertEquals ( 'Microsoft_WindowsAzure_Exception', get_class ( $e ) );
 	}
 	
 	
@@ -925,7 +925,7 @@ public function testInsertEntity_DateTimeFieldInGMTFormat() {
 
 }
 
-class Simple_TableEntity extends Microsoft_Azure_Storage_TableEntity {
+class Simple_TableEntity extends Microsoft_WindowsAzure_Storage_TableEntity {
 	/**
 	 * @azure Name Edm.String
 	 */
@@ -937,9 +937,9 @@ class Simple_TableEntity extends Microsoft_Azure_Storage_TableEntity {
 	public $stringField1 = "address";
 }
 
-// Call Microsoft_Azure_LocalTableTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_Azure_LocalTableTest::main") {
-	Microsoft_Azure_LocalBlobTest::main ();
+// Call Microsoft_WindowsAzure_LocalTableTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_LocalTableTest::main") {
+	Microsoft_WindowsAzure_LocalBlobTest::main ();
 }
 
 ?>

@@ -1,13 +1,13 @@
 <?php
 if (! defined ( 'PHPUnit_MAIN_METHOD' )) {
-	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_Azure_BlobStreamTest::main' );
+	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_BlobStreamTest::main' );
 }
 
 require_once 'PHPUnit/Framework.php';
 
-require_once 'Microsoft/Azure/Storage/Blob.php';
+require_once 'Microsoft/WindowsAzure/Storage/Blob.php';
 
-class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
+class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 	static $path;
 	
 	protected static $uniqId = 0;
@@ -46,12 +46,12 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public static function main() {
-		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_Azure_BlobStreamTest" );
+		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_WindowsAzure_BlobStreamTest" );
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
 	private function _createStorageClient() {
-		return new Microsoft_Azure_Storage_Blob ( BLOB_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_Azure_RetryPolicy::retryN ( 10, 250 ) );
+		return new Microsoft_WindowsAzure_Storage_Blob ( BLOB_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
 	private function _createTempFile($content) {
@@ -589,9 +589,9 @@ class Microsoft_Azure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 	}
 }
 
-// Call Microsoft_Azure_BlobStreamTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_Azure_BlobStreamTest::main") {
-	Microsoft_Azure_BlobStreamTest::main ();
+// Call Microsoft_WindowsAzure_BlobStreamTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_BlobStreamTest::main") {
+	Microsoft_WindowsAzure_BlobStreamTest::main ();
 }
 
 ?>

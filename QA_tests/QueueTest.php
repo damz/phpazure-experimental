@@ -1,13 +1,13 @@
 <?php
 if (! defined ( 'PHPUnit_MAIN_METHOD' )) {
-	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_Azure_QueueTest::main' );
+	define ( 'PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_QueueTest::main' );
 }
 
 require_once 'PHPUnit/Framework.php';
 
-require_once 'Microsoft/Azure/Storage/Queue.php';
+require_once 'Microsoft/WindowsAzure/Storage/Queue.php';
 
-class Microsoft_Azure_QueueTest extends PHPUnit_Framework_TestCase {
+class Microsoft_WindowsAzure_QueueTest extends PHPUnit_Framework_TestCase {
 	
 	protected static $queuePrefix = "phpqueuetest";
 	
@@ -259,7 +259,7 @@ public function testPutMessageWithTTLIs0() {
 	}
 	
 	/**
-	 * MAX_SIZE shoud be : Microsoft_Azure_Storage_Queue::MAX_MESSAGE_SIZE
+	 * MAX_SIZE shoud be : Microsoft_WindowsAzure_Storage_Queue::MAX_MESSAGE_SIZE
 	 *
 	 * This test take a long time.
 	 */
@@ -270,7 +270,7 @@ public function testPutMessageWithTTLIs0() {
 	//		
 	//		// small then MAX_SZIE
 	//		try {
-	//			$content = str_repeat ( "a", Microsoft_Azure_Storage_Queue::MAX_MESSAGE_SIZE - 1 );
+	//			$content = str_repeat ( "a", Microsoft_WindowsAzure_Storage_Queue::MAX_MESSAGE_SIZE - 1 );
 	//			$storageClient->putMessage ( $name, $content );
 	//		} catch ( Exception $e ) {
 	//			$this->fail ( $e->getMessage () );
@@ -278,7 +278,7 @@ public function testPutMessageWithTTLIs0() {
 	//		
 	//		//equal MAX_SZIE
 	//		try {
-	//			$content = str_repeat ( "a", Microsoft_Azure_Storage_Queue::MAX_MESSAGE_SIZE );
+	//			$content = str_repeat ( "a", Microsoft_WindowsAzure_Storage_Queue::MAX_MESSAGE_SIZE );
 	//			$storageClient->putMessage ( $name, $content );
 	//		} catch ( Exception $e ) {
 	//			$this->fail ( $e->getMessage () );
@@ -286,7 +286,7 @@ public function testPutMessageWithTTLIs0() {
 	//		
 	//		//large than MAX_SIZE
 	//		try {
-	//			$content = str_repeat ( "a", Microsoft_Azure_Storage_Queue::MAX_MESSAGE_SIZE + 1 );
+	//			$content = str_repeat ( "a", Microsoft_WindowsAzure_Storage_Queue::MAX_MESSAGE_SIZE + 1 );
 	//			$storageClient->putMessage ( $name, $content );
 	//		} catch ( Exception $e ) {
 	//			//Large extend, should throw exception
@@ -559,7 +559,7 @@ public function testPutMessageWithTTLIs0() {
 			$storageClient->getMessages ( $name, 1, $timeout );
 			$this->fail ( "A exception should be thowrn when Visibility timeout is 0" );
 		} catch ( Exception $e ) {
-			$this->assertEquals ( "Microsoft_Azure_Exception", get_class ( $e ) );
+			$this->assertEquals ( "Microsoft_WindowsAzure_Exception", get_class ( $e ) );
 			$this->assertEquals ( "Visibility timeout is invalid. Maximum value is 2 hours (7200 seconds) and should be greater than zero.", $e->getMessage () );
 		}
 	}
@@ -759,12 +759,12 @@ public function testGetMessageWithValidNumOfMessages(){
 		 */
 		$invalid_names = array ("-abcd", "a", "ab", "c--c", "--c", "--", "", str_repeat ( "a", 64 ) );
 		foreach ( $invalid_names as $name ) {
-			$this->assertFalse ( Microsoft_Azure_Storage_Queue::isValidQueueName ( $name ) );
+			$this->assertFalse ( Microsoft_WindowsAzure_Storage_Queue::isValidQueueName ( $name ) );
 		}
 		
 		$valid_names = array ("abc", "queue-test", "0123", "a01234", str_repeat ( 'a', 63 ) );
 		foreach ( $valid_names as $name ) {
-			$this->assertTrue ( Microsoft_Azure_Storage_Queue::isValidQueueName ( $name ) );
+			$this->assertTrue ( Microsoft_WindowsAzure_Storage_Queue::isValidQueueName ( $name ) );
 		}
 	}
 	
@@ -871,12 +871,12 @@ public function testDeleteMessagesNotExist() {
 	}
 	
 	public static function main() {
-		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_Azure_QueueTest" );
+		$suite = new PHPUnit_Framework_TestSuite ( "Microsoft_WindowsAzure_QueueTest" );
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
 	private function _createStorageClient() {
-		return new Microsoft_Azure_Storage_Queue ( QUEUE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_Azure_RetryPolicy::retryN ( 10, 250 ) );
+		return new Microsoft_WindowsAzure_Storage_Queue ( QUEUE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 }
 
