@@ -63,7 +63,7 @@ define('TESTS_STORAGE_KEY_PROD',                'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSb
  */
 define('TESTS_BLOB_RUNTESTS',                   true);
 define('TESTS_BLOB_RUNONPROD',                  true);
-define('TESTS_BLOB_RUNLARGEBLOB',               false);
+define('TESTS_BLOB_RUNLARGEBLOB',               true);
 define('TESTS_BLOB_CONTAINER_PREFIX',           'phpazuretestblob');
 define('TESTS_BLOBSTREAM_CONTAINER_PREFIX',     'phpazureteststream');
 define('TESTS_BLOBSA_CONTAINER_PREFIX',         'phpazuretestshared');
