@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project name="PHPAzure" default="release" basedir=".">
-  <propertyprompt propertyName="outputPath" defaultValue="D:\Sources\ZF_Laboratory\Zend_Service_Azure"
+  <propertyprompt propertyName="outputPath" defaultValue="D:\Sources\ZF_Laboratory\Zend_Service_WindowsAzure"
 		promptText="Enter output path" />
 
   <adhoc-task name="replaceHeader">
@@ -60,8 +60,8 @@
   <target name="prepare">
     <echo msg="Creating build directory: ./build" />
     <mkdir dir="./build" />
-    <mkdir dir="./build/library/Zend/Service/Azure" />
-    <mkdir dir="./build/tests/Zend/Service/Azure" />
+    <mkdir dir="./build/library/Zend/Service/WindowsAzure" />
+    <mkdir dir="./build/tests/Zend/Service/WindowsAzure" />
     <mkdir dir="./build/documentation/manual/en/module_specs" />
 
     <echo msg="Creating output directory: ${outputPath}" />
@@ -70,27 +70,27 @@
 
   <target name="buildLibrary" depends="prepare">
     <echo msg="Creating library source files in build directory..." />
-    <copy todir="./build/library/Zend/Service/Azure" overwrite="true">
-      <fileset dir="./library/Microsoft/Azure">
+    <copy todir="./build/library/Zend/Service/WindowsAzure" overwrite="true">
+      <fileset dir="./library/Microsoft/WindowsAzure">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
     </copy>
-    <copy todir="./build/library/Zend/Service/Azure/Http" overwrite="true">
+    <copy todir="./build/library/Zend/Service/WindowsAzure/Http" overwrite="true">
       <fileset dir="./library/Microsoft/Http">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
     </copy>
     <copy todir="./build/documentation/manual/en/module_specs" overwrite="true">
-      <mapper type="regexp" from="^(.*)_(.*)_(.*)\.xml" to="Zend_Service_Azure_\3.xml"/>
+      <mapper type="regexp" from="^(.*)_(.*)_(.*)\.xml" to="Zend_Service_WindowsAzure_\3.xml"/>
       <fileset dir="./documentation/manual/en/module_specs">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
     </copy>
     <copy todir="./build/documentation/manual/en/module_specs" overwrite="true">
-      <mapper type="regexp" from="^(.*)_Azure\.xml" to="Zend_Service_Azure.xml"/>
+      <mapper type="regexp" from="^(.*)_WindowsAzure\.xml" to="Zend_Service_WindowsAzure.xml"/>
       <fileset dir="./documentation/manual/en/module_specs">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
@@ -100,8 +100,8 @@
 
   <target name="buildTests" depends="buildLibrary">
     <echo msg="Creating tests source files in build directory..." />
-    <copy todir="./build/tests/Zend/Service/Azure" overwrite="true">
-      <fileset dir="./tests/Microsoft/Azure">
+    <copy todir="./build/tests/Zend/Service/WindowsAzure" overwrite="true">
+      <fileset dir="./tests/Microsoft/WindowsAzure">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
@@ -110,7 +110,8 @@
   
   <target name="configureTests" depends="buildTests">
     <echo msg="Configuring tests (TestConfiguration.php.dist)..." />
-    <copy file="./tests/TestConfiguration.php" tofile="./build/tests/TestConfiguration.php.dist" overwrite="true" />
+  	<copy file="./tests/TestConfiguration.php" tofile="./build/tests/TestConfiguration.php.dist" overwrite="true" />
+  	<copy file="./tests/TestHelper.php" tofile="./build/tests/TestHelper.php" overwrite="true" />
   </target>
 
   <target name="rebranding" depends="configureTests">
@@ -120,21 +121,21 @@
       </fileset>
       <filterchain>
         <replaceregexp>
-          <regexp pattern="Microsoft Azure" replace="Zend Framework - Zend_Service_Azure" ignoreCase="true" />
+          <regexp pattern="Microsoft Azure" replace="Zend Framework - Zend_Service_WindowsAzure" ignoreCase="true" />
 
-          <regexp pattern="TESTS_" replace="TESTS_ZEND_SERVICE_AZURE_" ignoreCase="true" />
+          <regexp pattern="TESTS_" replace="TESTS_ZEND_SERVICE_WINDOWSAZURE_" ignoreCase="true" />
           <regexp pattern="\/\.\.\/\.\.\/TestHelper\.php" replace="/../../../TestHelper.php" ignoreCase="true" />
           <regexp pattern="\/\.\.\/\.\.\/TestConfiguration\.php" replace="/../../../TestConfiguration.php.dist" ignoreCase="true" />
 
-          <regexp pattern="Microsoft_Http" replace="Zend_Service_Azure_Http" ignoreCase="true" />
-          <regexp pattern="Microsoft\/Http" replace="Zend/Service/Azure/Http" ignoreCase="true" />
-          <regexp pattern="Microsoft_Azure" replace="Zend_Service_Azure" ignoreCase="true" />
-          <regexp pattern="Microsoft\/Azure" replace="Zend/Service/Azure" ignoreCase="true" />
-          <regexp pattern="Microsoft Azure" replace="Zend Framework - Zend_Service_Azure" ignoreCase="true" />
+          <regexp pattern="Microsoft_Http" replace="Zend_Service_WindowsAzure_Http" ignoreCase="true" />
+          <regexp pattern="Microsoft\/Http" replace="Zend/Service/WindowsAzure/Http" ignoreCase="true" />
+          <regexp pattern="Microsoft_WindowsAzure" replace="Zend_Service_WindowsAzure" ignoreCase="true" />
+          <regexp pattern="Microsoft\/WindowsAzure" replace="Zend/Service/WindowsAzure" ignoreCase="true" />
+          <regexp pattern="Microsoft Azure" replace="Zend Framework - Zend_Service_WindowsAzure" ignoreCase="true" />
           <regexp pattern="Microsoft_" replace="Zend_Service_" ignoreCase="true" />
           <regexp pattern="Microsoft\/" replace="Zend/Service/" ignoreCase="true" />
 
-          <regexp pattern="microsoft.azure" replace="zend.service.azure" ignoreCase="true" />
+          <regexp pattern="microsoft.windowsazure" replace="zend.service.windowsazure" ignoreCase="true" />
 
           <regexp pattern="\@category   Microsoft" replace="@category   Zend" ignoreCase="true" />
           <regexp pattern="\@copyright  Copyright \(c\) 2009, RealDolmen \(http\:\/\/www.realdolmen.com\)" replace="@copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)" ignoreCase="true" />

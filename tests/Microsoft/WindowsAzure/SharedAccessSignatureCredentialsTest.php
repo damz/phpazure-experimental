@@ -137,14 +137,14 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest extends PHPUni
     public function testSignRequestUrl()
     {
         $credentials = new Microsoft_WindowsAzure_SharedAccessSignatureCredentials('myaccount', '', false);
-        $queryString = $credentials->createSignedQueryString('pictures/blob.txt', '', 'b', 'w', '2009-02-09', '2009-02-10');
+        $queryString = $credentials->createSignedQueryString('pictures/blob.txt', '', 'b', 'r', '2009-02-09', '2009-02-10');
         
         $credentials->setPermissionSet(array(
             'http://blob.core.windows.net/myaccount/pictures/blob.txt?' . $queryString
         ));
-        
+
         $requestUrl = 'http://blob.core.windows.net/myaccount/pictures/blob.txt?comp=metadata';
-        $result = $credentials->signRequestUrl($requestUrl);
+        $result = $credentials->signRequestUrl($requestUrl, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB);
         
         $this->assertEquals('http://blob.core.windows.net/myaccount/pictures/blob.txt?comp=metadata&' . $queryString, $result);
     }
