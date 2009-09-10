@@ -660,7 +660,7 @@ $batch->commit();
     <para>
       When running a PHP application on the Windows Azure platform in a load-balanced mode
       (running 2 Web Role instances or more), it is important that PHP session data can be
-      shared between multiple Web Role instances. The PHP SDK for Windows Azure provides
+      shared between multiple Web Role instances. The Windows Azure SDK for PHP provides
       the <code>Microsoft_WindowsAzure_SessionHandler</code> class, which uses Windows Azure Table
       Storage as a session handler for PHP applications.
     </para>

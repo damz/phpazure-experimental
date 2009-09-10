@@ -42,7 +42,7 @@
   <target name="apidocs" depends="runTests">
     <echo msg="Generating API documentation..." />
 
-    <phpdoc title="PHP SDK for Windows Azure"
+    <phpdoc title="Windows Azure SDK for PHP"
             destdir="./build/documentation/api"
             sourcecode="true"
             output="HTML:Smarty:PHP"

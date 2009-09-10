@@ -204,7 +204,7 @@ $storageClient->setContainerAcl('testcontainer', Microsoft_WindowsAzure_Storage_
     <title>Blob storage stream wrapper</title>
 
     <para>
-      The PHP SDK for Windows Azure provides support for registering a blob storage
+      The Windows Azure SDK for PHP provides support for registering a blob storage
       client as a PHP file stream wrapper. The blob storage stream wrapper provides
       support for using regular file operations on Windows Azure Blob Storage.
       For example, one can open a file from Windows Azure Blob Storage with
@@ -225,7 +225,7 @@ fclose($fileHandle);
     </example>
     
     <para>
-      In order to do this, the PHP SDK for Windows Azure blob storage client
+      In order to do this, the Windows Azure SDK for PHP blob storage client
       must be registered as a stream wrapper. This can be done by calling the
       registerStreamWrapper() function:
     </para>
@@ -348,7 +348,7 @@ $sharedAccessUrl = storageClient->generateSharedAccessUrl(
 
     <para>
       When you receive a Shared Access Signature from someone else, you can
-      use the PHP SDK for Windows Azure to work with the addressed resource.
+      use the Windows Azure SDK for PHP to work with the addressed resource.
       For example, the following signature can be retrieved from the owner
       of a storage account:
     </para>
@@ -389,9 +389,9 @@ $storageClient->putBlob('phpazuretestshared1', 'NewBlob.txt', 'C:\Files\datafora
     
 	<para>
 	  Note that there was no explicit permission to write to a specific blob. Instead,
-	  the PHP SDK for Windows Azure determined that a permission was required to either
+	  the Windows Azure SDK for PHP determined that a permission was required to either
 	  write to that specific blob, or to write to its container. Since only a signature
-	  was available for the latter, the PHP SDK for Windows Azure chose those credentials
+	  was available for the latter, the Windows Azure SDK for PHP chose those credentials
 	  to perform the request on Windows Azure blob storage.
     </para>
   </sect2>
