@@ -102,7 +102,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	 * @param boolean $usePathStyleUri Use path-style URI's
 	 * @param Microsoft_WindowsAzure_RetryPolicy $retryPolicy Retry policy to use when making requests
 	 */
-	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_BLOB, $accountName = Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy $retryPolicy = null)
+	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_QUEUE, $accountName = Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy $retryPolicy = null)
 	{
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
 		
