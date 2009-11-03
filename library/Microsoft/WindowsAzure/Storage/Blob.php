@@ -1385,7 +1385,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * @param string $alternativeError Alternative error message
 	 * @return string
 	 */
-	protected function getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknwon error.')
+	protected function getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknown error.')
 	{
 		$response = $this->parseResponse($response);
 		if ($response && $response->Message)

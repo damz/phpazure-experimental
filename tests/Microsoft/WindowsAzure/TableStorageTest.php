@@ -432,13 +432,13 @@ class Microsoft_WindowsAzure_TableStorageTest extends PHPUnit_Framework_TestCase
             $dynamicEntity->Otherproperty = "Test";
             $dynamicEntity->Age = 0;
             
-            $storageClient->mergeEntity($tableName, $dynamicEntity);
+            $storageClient->mergeEntity($tableName, $dynamicEntity, false, array('Myproperty', 'Otherproperty')); // only update 'Myproperty' and 'Otherproperty'
             
             $result = $storageClient->retrieveEntityById($tableName, $entity->getPartitionKey(), $entity->getRowKey());
 
             $this->assertNotEquals('0001-01-01T00:00:00', $result->getTimestamp());
             $this->assertNotEquals('', $result->getEtag());
-            $this->assertEquals(0, $result->Age);
+            $this->assertNotEquals(0, $result->Age);
             $this->assertEquals($entity->FullName, $result->Name);
             $this->assertEquals($dynamicEntity->Myproperty, $result->Myproperty);
             $this->assertEquals($dynamicEntity->Otherproperty, $result->Otherproperty);

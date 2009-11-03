@@ -790,16 +790,38 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	}
 	
 	/**
-	 * Update entity by adding properties
+	 * Update entity by adding or updating properties
 	 * 
 	 * @param string                              $tableName   Table name
 	 * @param Microsoft_WindowsAzure_Storage_TableEntity $entity      Entity to update
 	 * @param boolean                             $verifyEtag  Verify etag of the entity (used for concurrency)
+	 * @param array                               $properties  Properties to merge. All properties will be used when omitted.
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function mergeEntity($tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
+	public function mergeEntity($tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false, $properties = array())
 	{
-	    return $this->changeEntity(Microsoft_Http_Transport::VERB_MERGE, $tableName, $entity, $verifyEtag);
+		$mergeEntity = null;
+		if (is_array($properties) && count($properties) > 0)
+		{
+			// Build a new object
+			$mergeEntity = new Microsoft_WindowsAzure_Storage_DynamicTableEntity($entity->getPartitionKey(), $entity->getRowKey());
+			
+			// Keep only values mentioned in $properties
+			$azureValues = $entity->getAzureValues();
+			foreach ($azureValues as $key => $value)
+			{
+				if (in_array($value->Name, $properties))
+				{
+					$mergeEntity->setAzureProperty($value->Name, $value->Value, $value->Type);
+				}
+			}
+		}
+		else
+		{
+			$mergeEntity = $entity;
+		}
+		
+	    return $this->changeEntity(Microsoft_Http_Transport::VERB_MERGE, $tableName, $mergeEntity, $verifyEtag);
 	}
 	
 	/**
@@ -809,7 +831,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * @param string $alternativeError Alternative error message
 	 * @return string
 	 */
-	protected function getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknwon error.')
+	protected function getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknown error.')
 	{
 		$response = $this->parseResponse($response);
 		if ($response && $response->message)
