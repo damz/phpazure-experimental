@@ -56,13 +56,13 @@ define('TESTS_TABLE_HOST_PROD',                 'table.core.windows.net');
 define('TESTS_STORAGE_ACCOUNT_DEV',             'devstoreaccount1');
 define('TESTS_STORAGE_KEY_DEV',                 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==');
 define('TESTS_STORAGE_ACCOUNT_PROD',            'phpstorage');
-define('TESTS_STORAGE_KEY_PROD',                'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqYQ/uxbMpEx+7S/jo9sT3ZIkEucZGbEafDuxD1kwFOXf3xyw==');
+define('TESTS_STORAGE_KEY_PROD',                'jr8gNCVdStzPjnibh1wFLFfb6WxrRWEpl3KYuCBLi2DwlPtYZRa3p7QUf7kR//bqopdjCqHxnRQHkblh+ChksQ==');
 
 /**
  * Blob storage tests
  */
 define('TESTS_BLOB_RUNTESTS',                   true);
-define('TESTS_BLOB_RUNONPROD',                  true);
+define('TESTS_BLOB_RUNONPROD',                  false);
 define('TESTS_BLOB_RUNLARGEBLOB',               true);
 define('TESTS_BLOB_CONTAINER_PREFIX',           'phpazuretestblob');
 define('TESTS_BLOBSTREAM_CONTAINER_PREFIX',     'phpazureteststream');
@@ -72,17 +72,14 @@ define('TESTS_BLOBSA_CONTAINER_PREFIX',         'phpazuretestshared');
  * Table storage tests
  */
 define('TESTS_TABLE_RUNTESTS',                  true);
-define('TESTS_TABLE_RUNONPROD',                 true);
+define('TESTS_TABLE_RUNONPROD',                 false);
 define('TESTS_TABLE_TABLENAME_PREFIX',          'phpazuretesttable');
-define('TESTS_TABLE_DEVCNSTRING',               'Driver={SQL Native Client};Server=.\SQLEXPRESS;Database=AzureTableStorage; Uid=php;Pwd=php;');
-define('TESTS_TABLE_DEVCNUSER',                 'php');
-define('TESTS_TABLE_DEVCNPASS',                 'php');
 
 /**
  * Queue storage tests
  */
 define('TESTS_QUEUE_RUNTESTS',                  true);
-define('TESTS_QUEUE_RUNONPROD',                 true);
+define('TESTS_QUEUE_RUNONPROD',                 false);
 define('TESTS_QUEUE_PREFIX',                    'phpazuretestqueue');
 
 /**

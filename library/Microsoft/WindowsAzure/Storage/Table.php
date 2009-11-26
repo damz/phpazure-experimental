@@ -108,27 +108,6 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
  */
 class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storage_BatchStorage
 {
-    /**
-     * ODBC connection string
-     * 
-     * @var string
-     */
-    protected $_odbcConnectionString;
-    
-    /**
-     * ODBC user name
-     * 
-     * @var string
-     */
-    protected $_odbcUsername;
-    
-    /**
-     * ODBC password
-     * 
-     * @var string
-     */
-    protected $_odbcPassword;
-    
 	/**
 	 * Creates a new Microsoft_WindowsAzure_Storage_Table instance
 	 *
@@ -147,101 +126,6 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	    
 	    // API version
 		$this->_apiVersion = '2009-04-14';
-	}
-	
-	/**
-	 * Set ODBC connection settings - used for creating tables on development storage
-	 * 
-	 * @param string $connectionString  ODBC connection string
-	 * @param string $username          ODBC user name
-	 * @param string $password          ODBC password
-	 */
-	public function setOdbcSettings($connectionString, $username, $password)
-	{
-	    $this->_odbcConnectionString = $connectionString;
-	    $this->_odbcUserame = $username;
-	    $this->_odbcPassword = $password;
-	}
-
-	/**
-	 * Generate table on development storage
-	 * 
-	 * Note 1: ODBC settings must be specified first using setOdbcSettings()
-	 * Note 2: Development table storage MST BE RESTARTED after generating tables. Otherwise newly create tables will NOT be accessible!
-	 * 
-	 * @param string $entityClass Entity class name
-	 * @param string $tableName   Table name
-	 */
-	public function generateDevelopmentTable($entityClass, $tableName)
-	{
-	    // Check if we can do this...
-	    if (!function_exists('odbc_connect'))
-	        throw new Microsoft_WindowsAzure_Exception('Function odbc_connect does not exist. Please enable the php_odbc.dll module in your php.ini.');
-	    if ($this->_odbcConnectionString == '')
-	        throw new Microsoft_WindowsAzure_Exception('Please specify ODBC settings first using setOdbcSettings().');
-	    if ($entityClass === '')
-			throw new Microsoft_WindowsAzure_Exception('Entity class is not specified.');
-			
-	    // Get accessors
-	    $accessors = Microsoft_WindowsAzure_Storage_TableEntity::getAzureAccessors($entityClass);
-	    
-	    // Generate properties
-	    $properties = array();
-	    foreach ($accessors as $accessor)
-	    {
-	        if ($accessor->AzurePropertyName == 'Timestamp'
-	            || $accessor->AzurePropertyName == 'PartitionKey'
-	            || $accessor->AzurePropertyName == 'RowKey')
-	            {
-	                continue;
-	            }
-
-	        switch (strtolower($accessor->AzurePropertyType))
-	        {
-	            case 'edm.int32':
-	            case 'edm.int64':
-	                $sqlType = '[int] NULL'; break;
-	            case 'edm.guid':
-	                $sqlType = '[uniqueidentifier] NULL'; break;
-	            case 'edm.datetime':
-	                $sqlType = '[datetime] NULL'; break;
-	            case 'edm.boolean':
-	                $sqlType = '[bit] NULL'; break;
-	            case 'edm.double':
-	                $sqlType = '[decimal] NULL'; break;
-	            default:
-	                $sqlType = '[nvarchar](1000) NULL'; break;
-	        }
-	        $properties[] = '[' . $accessor->AzurePropertyName . '] ' . $sqlType;
-	    }
-	    
-	    // Generate SQL
-	    $sql = 'CREATE TABLE [dbo].[{tpl:TableName}](
-                	{tpl:Properties} {tpl:PropertiesComma}
-                	[Timestamp] [datetime] NULL,
-                	[PartitionKey] [nvarchar](1000) NOT NULL,
-                	[RowKey] [nvarchar](1000) NOT NULL
-                );
-                ALTER TABLE [dbo].[{tpl:TableName}] ADD PRIMARY KEY (PartitionKey, RowKey);';
-
-        $sql = $this->fillTemplate($sql, array(
-            'TableName'       => $tableName,
-        	'Properties'      => implode(',', $properties),
-        	'PropertiesComma' => count($properties) > 0 ? ',' : ''
-        ));
-        
-        // Connect to database
-        $db = @odbc_connect($this->_odbcConnectionString, $this->_odbcUserame, $this->_odbcPassword);
-        if (!$db)
-        {
-            throw new Microsoft_WindowsAzure_Exception('Could not connect to database via ODBC.');
-        }
-        
-        // Create table
-        odbc_exec($db, $sql);
-        
-        // Close connection
-        odbc_close($db);
 	}
 	
 	/**
@@ -345,15 +229,16 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 			
 		// Generate request body
 		$requestBody = '<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-                        <entry xml:base="{tpl:BaseUrl}" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom">
-                          <id>{tpl:BaseUrl}/Tables(\'{tpl:TableName}\')</id>
-                          <title type="text"></title>
+                        <entry
+                        	xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+                        	xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+                        	xmlns="http://www.w3.org/2005/Atom">
+                          <title />
                           <updated>{tpl:Updated}</updated>
                           <author>
                             <name />
                           </author>
-                          <link rel="edit" title="Tables" href="Tables(\'{tpl:TableName}\')" />
-                          <category term="{tpl:AccountName}.Tables" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+                          <id />
                           <content type="application/xml">
                             <m:properties>
                               <d:TableName>{tpl:TableName}</d:TableName>
@@ -367,10 +252,12 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
         	'Updated' => $this->isoDate(),
             'AccountName' => $this->_accountName
         ));
-
+        
         // Add header information
         $headers = array();
         $headers['Content-Type'] = 'application/atom+xml';
+        $headers['DataServiceVersion'] = '1.0;NetFx';
+        $headers['MaxDataServiceVersion'] = '1.0;NetFx';        
 
 		// Perform request
 		$response = $this->performRequest('Tables', '', Microsoft_Http_Transport::VERB_POST, $headers, true, $requestBody);

@@ -368,7 +368,7 @@ class Microsoft_WindowsAzure_Storage
 	    if (is_null($timestamp))
 	        $timestamp = time();
 	        
-	    $returnValue = str_replace('+00:00', 'Z', @date('c', $timestamp));
+	    $returnValue = str_replace('+00:00', '.0000000Z', @date('c', $timestamp));
 	    @date_default_timezone_set($tz);
 	    return $returnValue;
 	}
