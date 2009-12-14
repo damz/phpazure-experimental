@@ -43,9 +43,9 @@ require_once 'Microsoft/WindowsAzure/Credentials.php';
 require_once 'Microsoft/WindowsAzure/Storage.php';
 
 /**
- * @see Microsoft_Http_Transport
+ * @see Microsoft_Http_Transport_TransportAbstract
  */
-require_once 'Microsoft/Http/Transport.php';
+require_once 'Microsoft/Http/Transport/TransportAbstract.php';
 
 /**
  * @category   Microsoft
@@ -80,13 +80,15 @@ class Microsoft_WindowsAzure_SharedKeyCredentials extends Microsoft_WindowsAzure
 	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
+	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
 	{
 		// http://github.com/sriramk/winazurestorage/blob/214010a2f8931bac9c96dfeb337d56fe084ca63b/winazurestorage.py
 
 		// Determine path
 		if ($this->_usePathStyleUri)
+		{
 			$path = substr($path, strpos($path, '/'));
+		}
 
 		// Determine query
 		$queryString = $this->prepareQueryStringForSigning($queryString);
@@ -96,37 +98,37 @@ class Microsoft_WindowsAzure_SharedKeyCredentials extends Microsoft_WindowsAzure
 		
 		// Request date
 		$requestDate = '';
-		if (isset($headers[self::PREFIX_STORAGE_HEADER . 'date']))
-		{
+		if (isset($headers[self::PREFIX_STORAGE_HEADER . 'date'])) {
 		    $requestDate = $headers[self::PREFIX_STORAGE_HEADER . 'date'];
-		}
-		else 
-		{
+		} else {
 		    $requestDate = gmdate('D, d M Y H:i:s', time()) . ' GMT'; // RFC 1123
 		    $canonicalizedHeaders[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate;
 		}
 		
 		// Build canonicalized headers
-		if (!is_null($headers))
-		{
+		if (!is_null($headers)) {
 			foreach ($headers as $header => $value) {
-				if (is_bool($value))
+				if (is_bool($value)) {
 					$value = $value === true ? 'True' : 'False';
+				}
 
 				$headers[$header] = $value;
-				if (substr($header, 0, strlen(self::PREFIX_STORAGE_HEADER)) == self::PREFIX_STORAGE_HEADER)
+				if (substr($header, 0, strlen(self::PREFIX_STORAGE_HEADER)) == self::PREFIX_STORAGE_HEADER) {
 				    $canonicalizedHeaders[] = strtolower($header) . ':' . $value;
+				}
 			}
 		}
 		sort($canonicalizedHeaders);
 
 		// Build canonicalized resource string
 		$canonicalizedResource  = '/' . $this->_accountName;
-		if ($this->_usePathStyleUri)
+		if ($this->_usePathStyleUri) {
 			$canonicalizedResource .= '/' . $this->_accountName;
+		}
 		$canonicalizedResource .= $path;
-		if ($queryString !== '')
+		if ($queryString !== '') {
 		    $canonicalizedResource .= $queryString;
+		}
 
 		// Create string to sign   
 		$stringToSign = array();
@@ -137,8 +139,9 @@ class Microsoft_WindowsAzure_SharedKeyCredentials extends Microsoft_WindowsAzure
         // Date already in $canonicalizedHeaders
     	// $stringToSign[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate; // Date
     	
-    	if (!$forTableStorage && count($canonicalizedHeaders) > 0)
+    	if (!$forTableStorage && count($canonicalizedHeaders) > 0) {
     		$stringToSign[] = implode("\n", $canonicalizedHeaders); // Canonicalized headers
+    	}
     		
     	$stringToSign[] = $canonicalizedResource;		 			// Canonicalized resource
     	$stringToSign = implode("\n", $stringToSign);

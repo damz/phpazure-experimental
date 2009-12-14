@@ -28,7 +28,7 @@
  * @category   Microsoft
  * @package    Microsoft_Http
  * @subpackage Transport
- * @version    $Id$
+ * @version    $Id: Transport.php 21617 2009-06-12 10:46:31Z unknown $
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
@@ -55,7 +55,7 @@ require_once 'Microsoft/Http/Transport/Curl.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-abstract class Microsoft_Http_Transport
+abstract class Microsoft_Http_Transport_TransportAbstract
 {
     /** HTTP VERBS */
     const VERB_GET      = 'GET';
@@ -114,7 +114,7 @@ abstract class Microsoft_Http_Transport
      * 
      * @var string
      */
-    protected $_userAgent = 'Microsoft_Http_Transport';
+    protected $_userAgent = 'Microsoft_Http_Transport_TransportAbstract';
     
     /**
      * Perform GET request
@@ -188,7 +188,7 @@ abstract class Microsoft_Http_Transport
      * Create channel
      * 
      * @param $type string   Transport channel type
-     * @return Microsoft_Http_Transport
+     * @return Microsoft_Http_Transport_TransportAbstract
      */
     public static function createChannel($type = 'Microsoft_Http_Transport_Curl')
     {

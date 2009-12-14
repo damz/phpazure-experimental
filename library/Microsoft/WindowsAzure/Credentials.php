@@ -33,9 +33,9 @@
  */
 
 /**
- * @see Microsoft_Http_Transport
+ * @see Microsoft_Http_Transport_TransportAbstract
  */
-require_once 'Microsoft/Http/Transport.php';
+require_once 'Microsoft/Http/Transport/TransportAbstract.php';
 
 /**
  * @category   Microsoft
@@ -153,7 +153,7 @@ abstract class Microsoft_WindowsAzure_Credentials
 	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public abstract function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ);
+	public abstract function signRequestHeaders($httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ);
 	
 	
 	/**
@@ -165,23 +165,21 @@ abstract class Microsoft_WindowsAzure_Credentials
 	protected function prepareQueryStringForSigning($value)
 	{
 	    // Check for 'comp='
-	    if (strpos($value, 'comp=') === false)
-	    {
+	    if (strpos($value, 'comp=') === false) {
 	        // If not found, no query string needed
 	        return '';
-	    }
-	    else
-	    {
+	    } else {
 	        // If found, make sure it is the only parameter being used      
-    		if (strlen($value) > 0 && strpos($value, '?') === 0)
+    		if (strlen($value) > 0 && strpos($value, '?') === 0) {
     			$value = substr($value, 1);
+    		}
     		
     		// Split parts
     		$queryParts = explode('&', $value);
-    		foreach ($queryParts as $queryPart)
-    		{
-    		    if (strpos($queryPart, 'comp=') !== false)
+    		foreach ($queryParts as $queryPart) {
+    		    if (strpos($queryPart, 'comp=') !== false) {
     		        return '?' . $queryPart;
+    		    }
     		}
 
     		// Should never happen...

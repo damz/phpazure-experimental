@@ -34,9 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_RetryPolicy
+ * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
  */
-require_once 'Microsoft/WindowsAzure/RetryPolicy.php';
+require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
 
 /**
  * @see Microsoft_WindowsAzure_RetryPolicy_Exception
@@ -50,7 +50,7 @@ require_once 'Microsoft/WindowsAzure/RetryPolicy/Exception.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_WindowsAzure_RetryPolicy_RetryN extends Microsoft_WindowsAzure_RetryPolicy
+class Microsoft_WindowsAzure_RetryPolicy_RetryN extends Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
 {
     /**
      * Number of retries
@@ -89,17 +89,14 @@ class Microsoft_WindowsAzure_RetryPolicy_RetryN extends Microsoft_WindowsAzure_R
     {
         $returnValue = null;
         
-        for ($retriesLeft = $this->_retryCount; $retriesLeft >= 0; --$retriesLeft)
-        {
-            try
-            {
+        for ($retriesLeft = $this->_retryCount; $retriesLeft >= 0; --$retriesLeft) {
+            try {
                 $returnValue = call_user_func_array($function, $parameters);
                 return $returnValue;
-            }
-            catch (Exception $ex)
-            {
-                if ($retriesLeft == 1)
+            } catch (Exception $ex) {
+                if ($retriesLeft == 1) {
                     throw new Microsoft_WindowsAzure_RetryPolicy_Exception("Exceeded retry count of " . $this->_retryCount . ". " . $ex->getMessage());
+                }
                     
                 usleep($this->_retryInterval * 1000);
             }

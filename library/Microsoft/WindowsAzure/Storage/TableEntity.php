@@ -46,7 +46,7 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-abstract class Microsoft_WindowsAzure_Storage_TableEntity
+class Microsoft_WindowsAzure_Storage_TableEntity
 {
     /**
      * Partition key
@@ -186,19 +186,15 @@ abstract class Microsoft_WindowsAzure_Storage_TableEntity
         
         // Loop accessors and retrieve values
         $returnValue = array();
-        foreach ($accessors as $accessor)
-        {
-            if ($accessor->EntityType == 'ReflectionProperty')
-            {
+        foreach ($accessors as $accessor) {
+            if ($accessor->EntityType == 'ReflectionProperty') {
                 $property = $accessor->EntityAccessor;
                 $returnValue[] = (object)array(
                     'Name'  => $accessor->AzurePropertyName,
                 	'Type'  => $accessor->AzurePropertyType,
                 	'Value' => $this->$property,
                 );
-            }
-            else if ($accessor->EntityType == 'ReflectionMethod' && substr(strtolower($accessor->EntityAccessor), 0, 3) == 'get')
-            {
+            } else if ($accessor->EntityType == 'ReflectionMethod' && substr(strtolower($accessor->EntityAccessor), 0, 3) == 'get') {
                 $method = $accessor->EntityAccessor;
                 $returnValue[] = (object)array(
                     'Name'  => $accessor->AzurePropertyName,
@@ -226,14 +222,11 @@ abstract class Microsoft_WindowsAzure_Storage_TableEntity
         
         // Loop accessors and set values
         $returnValue = array();
-        foreach ($accessors as $accessor)
-        {
+        foreach ($accessors as $accessor) {
             if (isset($values[$accessor->AzurePropertyName])) {
                 // Cast to correct type
-                if ($accessor->AzurePropertyType != '')
-                {
-                    switch (strtolower($accessor->AzurePropertyType))
-        	        {
+                if ($accessor->AzurePropertyType != '') {
+                    switch (strtolower($accessor->AzurePropertyType)) {
         	            case 'edm.int32':
         	            case 'edm.int64':
         	                $values[$accessor->AzurePropertyName] = intval($values[$accessor->AzurePropertyName]); break;
@@ -249,19 +242,14 @@ abstract class Microsoft_WindowsAzure_Storage_TableEntity
                 }
                 
                 // Assign value
-                if ($accessor->EntityType == 'ReflectionProperty')
-                {
+                if ($accessor->EntityType == 'ReflectionProperty') {
                     $property = $accessor->EntityAccessor;
                     $this->$property = $values[$accessor->AzurePropertyName];
-                }
-                else if ($accessor->EntityType == 'ReflectionMethod' && substr(strtolower($accessor->EntityAccessor), 0, 3) == 'set')
-                {
+                } else if ($accessor->EntityType == 'ReflectionMethod' && substr(strtolower($accessor->EntityAccessor), 0, 3) == 'set') {
                     $method = $accessor->EntityAccessor;
                     $this->$method($values[$accessor->AzurePropertyName]);
                 }
-            }
-            else if ($throwOnError) 
-            {
+            } else if ($throwOnError) {
                 throw new Microsoft_WindowsAzure_Exception("Property '" . $accessor->AzurePropertyName . "' was not found in \$values array");    
             }
         }
@@ -286,8 +274,7 @@ abstract class Microsoft_WindowsAzure_Storage_TableEntity
         
         // Loop all properties
         $properties = $type->getProperties();
-        foreach ($properties as $property)
-        {
+        foreach ($properties as $property) {
             $accessor = self::getAzureAccessor($property);
             if (!is_null($accessor)) {
                 $azureAccessors[] = $accessor;
@@ -296,8 +283,7 @@ abstract class Microsoft_WindowsAzure_Storage_TableEntity
         
         // Loop all methods
         $methods = $type->getMethods();
-        foreach ($methods as $method)
-        {
+        foreach ($methods as $method) {
             $accessor = self::getAzureAccessor($method);
             if (!is_null($accessor)) {
                 $azureAccessors[] = $accessor;
@@ -321,18 +307,17 @@ abstract class Microsoft_WindowsAzure_Storage_TableEntity
         
         // Check for Azure comment
         if (strpos($docComment, '@azure') === false)
+        {
             return null;
+        }
             
         // Search for @azure contents
         $azureComment = '';
         $commentLines = explode("\n", $docComment);
-        foreach ($commentLines as $commentLine)
-        {
-            if (strpos($commentLine, '@azure') !== false)
-            {
+        foreach ($commentLines as $commentLine) {
+            if (strpos($commentLine, '@azure') !== false) {
                 $azureComment = trim(substr($commentLine, strpos($commentLine, '@azure') + 6));
-                while (strpos($azureComment, '  ') !== false)
-                {
+                while (strpos($azureComment, '  ') !== false) {
                     $azureComment = str_replace('  ', ' ', $azureComment);
                 }
                 break;

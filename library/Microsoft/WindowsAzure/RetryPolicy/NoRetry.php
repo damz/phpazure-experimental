@@ -34,9 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_RetryPolicy
+ * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
  */
-require_once 'Microsoft/WindowsAzure/RetryPolicy.php';
+require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
 
 /**
  * @category   Microsoft
@@ -45,7 +45,7 @@ require_once 'Microsoft/WindowsAzure/RetryPolicy.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_WindowsAzure_RetryPolicy_NoRetry extends Microsoft_WindowsAzure_RetryPolicy
+class Microsoft_WindowsAzure_RetryPolicy_NoRetry extends Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
 {
     /**
      * Execute function under retry policy

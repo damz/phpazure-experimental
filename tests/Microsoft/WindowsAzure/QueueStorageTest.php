@@ -59,8 +59,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
 {
     public static function main()
     {
-        if (TESTS_QUEUE_RUNTESTS) 
-        {
+        if (TESTS_QUEUE_RUNTESTS)  {
             $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_QueueStorageTest");
             $result = PHPUnit_TextUI_TestRunner::run($suite);
         }
@@ -88,17 +87,13 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
     protected function createStorageInstance()
     {
         $storageClient = null;
-        if (TESTS_QUEUE_RUNONPROD)
-        {
-            $storageClient = new Microsoft_WindowsAzure_Storage_Queue(TESTS_QUEUE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy::retryN(10, 250));
-        }
-        else
-        {
-            $storageClient = new Microsoft_WindowsAzure_Storage_Queue(TESTS_QUEUE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy::retryN(10, 250));
+        if (TESTS_QUEUE_RUNONPROD) {
+            $storageClient = new Microsoft_WindowsAzure_Storage_Queue(TESTS_QUEUE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
+        } else {
+            $storageClient = new Microsoft_WindowsAzure_Storage_Queue(TESTS_QUEUE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
         }
         
-        if (TESTS_STORAGE_USEPROXY)
-        {
+        if (TESTS_STORAGE_USEPROXY) {
             $storageClient->setProxy(TESTS_STORAGE_USEPROXY, TESTS_STORAGE_PROXY, TESTS_STORAGE_PROXY_PORT, TESTS_STORAGE_PROXY_CREDENTIALS);
         }
 
@@ -118,8 +113,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testQueueExists()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+    	if (TESTS_QUEUE_RUNTESTS) {
             $queueName1 = $this->generateName();
             $queueName2 = $this->generateName();
             $storageClient = $this->createStorageInstance();
@@ -139,8 +133,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateQueue()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+    	if (TESTS_QUEUE_RUNTESTS) {
             $queueName = $this->generateName();
             $storageClient = $this->createStorageInstance();
             $result = $storageClient->createQueue($queueName);
@@ -153,8 +146,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testSetQueueMetadata()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+    	if (TESTS_QUEUE_RUNTESTS) {
             $queueName = $this->generateName();
             $storageClient = $this->createStorageInstance();
             $storageClient->createQueue($queueName);
@@ -173,8 +165,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testGetQueue()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+    	if (TESTS_QUEUE_RUNTESTS) {
             $queueName = $this->generateName();
             $storageClient = $this->createStorageInstance();
             $storageClient->createQueue($queueName);
@@ -190,8 +181,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testListQueues()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+    	if (TESTS_QUEUE_RUNTESTS) {
             $queueName1 = 'testlist1';
             $queueName2 = 'testlist2';
             $queueName3 = 'testlist3';
@@ -219,8 +209,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testPutMessage()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+    	if (TESTS_QUEUE_RUNTESTS) {
             $queueName = $this->generateName();
             $storageClient = $this->createStorageInstance();
             $storageClient->createQueue($queueName);
@@ -239,8 +228,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testGetMessages()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+        if (TESTS_QUEUE_RUNTESTS) {
             $queueName = $this->generateName();
             $storageClient = $this->createStorageInstance();
             $storageClient->createQueue($queueName);
@@ -266,8 +254,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testPeekMessages()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+        if (TESTS_QUEUE_RUNTESTS) {
             $queueName = $this->generateName();
             $storageClient = $this->createStorageInstance();
             $storageClient->createQueue($queueName);
@@ -291,8 +278,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testClearMessages()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+        if (TESTS_QUEUE_RUNTESTS) {
             $queueName = $this->generateName();
             $storageClient = $this->createStorageInstance();
             $storageClient->createQueue($queueName);
@@ -320,8 +306,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteMessage()
     {
-        if (TESTS_QUEUE_RUNTESTS)  
-        {
+        if (TESTS_QUEUE_RUNTESTS) {
             $queueName = $this->generateName();
             $storageClient = $this->createStorageInstance();
             $storageClient->createQueue($queueName);

@@ -90,32 +90,24 @@ class Microsoft_WindowsAzure_Storage_DynamicTableEntity extends Microsoft_Window
      */
     public function setAzureProperty($name, $value = '', $type = null)
     {
-        if (strtolower($name) == 'partitionkey')
-        {
+        if (strtolower($name) == 'partitionkey') {
             $this->setPartitionKey($value);
-        }
-        else if (strtolower($name) == 'rowkey')
-        {
+        } else if (strtolower($name) == 'rowkey') {
             $this->setRowKey($value);
-        }
-        else if (strtolower($name) == 'etag')
-        {
+        } else if (strtolower($name) == 'etag') {
             $this->setEtag($value);
-        }
-        else
-        {
-            if (!array_key_exists(strtolower($name), $this->_dynamicProperties))
-            {
+        } else {
+            if (!array_key_exists(strtolower($name), $this->_dynamicProperties)) {
                 // Determine type?
-                if (is_null($type))
-                {
+                if (is_null($type)) {
                     $type = 'Edm.String';
-                    if (is_int($value))
+                    if (is_int($value)) {
                         $type = 'Edm.Int32';
-                    else if (is_float($value))
+                    } else if (is_float($value)) {
                         $type = 'Edm.Double';
-                    else if (is_bool($value))
+                    } else if (is_bool($value)) {
                         $type = 'Edm.Boolean';
+                    }
                 }
                 
                 // Set dynamic property
@@ -142,9 +134,7 @@ class Microsoft_WindowsAzure_Storage_DynamicTableEntity extends Microsoft_Window
     {
         if (!array_key_exists(strtolower($name), $this->_dynamicProperties)) {
             $this->setAzureProperty($name, '', $type);            
-        }
-        else 
-        {
+        } else {
             $this->_dynamicProperties[strtolower($name)]->Type = $type;   
         }
         return $this;
@@ -160,15 +150,17 @@ class Microsoft_WindowsAzure_Storage_DynamicTableEntity extends Microsoft_Window
      */
     public function getAzureProperty($name)
     {
-        if (strtolower($name) == 'partitionkey')
+        if (strtolower($name) == 'partitionkey') {
             return $this->getPartitionKey();
-        if (strtolower($name) == 'rowkey')
+        }
+        if (strtolower($name) == 'rowkey') {
             return $this->getRowKey();
-        if (strtolower($name) == 'etag')
+        }
+        if (strtolower($name) == 'etag') {
             return $this->getEtag();
+        }
 
-        if (!array_key_exists(strtolower($name), $this->_dynamicProperties))
-        {
+        if (!array_key_exists(strtolower($name), $this->_dynamicProperties)) {
             $this->setAzureProperty($name);            
         }
 

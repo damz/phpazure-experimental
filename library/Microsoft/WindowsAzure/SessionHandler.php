@@ -111,8 +111,7 @@ class Microsoft_WindowsAzure_SessionHandler
     {
     	// Make sure table exists
     	$tableExists = $this->_tableStorage->tableExists($this->_sessionTable);
-    	if (!$tableExists)
-    	{
+    	if (!$tableExists) {
 		    $this->_tableStorage->createTable($this->_sessionTable);
 		}
 		

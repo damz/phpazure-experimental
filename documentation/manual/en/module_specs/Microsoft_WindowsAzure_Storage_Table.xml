@@ -709,8 +709,7 @@ $sessionHandler->register();
 
 session_start();
 
-if (!isset($_SESSION['firstVisit']))
-{
+if (!isset($_SESSION['firstVisit'])) {
     $_SESSION['firstVisit'] = time();
 }
 

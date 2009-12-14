@@ -142,17 +142,13 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	{
 	    $condition = $this->replaceOperators($condition);
 	    
-	    if (!is_null($value))
-	    {
+	    if (!is_null($value)) {
 	        $condition = $this->quoteInto($condition, $value);
 	    }
 	    
-		if (count($this->_where) == 0)
-		{
+		if (count($this->_where) == 0) {
 			$cond = '';
-		}
-		else if ($cond !== '')
-		{
+		} else if ($cond !== '') {
 			$cond = ' ' . strtolower(trim($cond)) . ' ';
 		}
 		
@@ -218,22 +214,21 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	public function assembleQueryString($urlEncode = false)
 	{
 		$query = array();
-		if (count($this->_where) != 0)
-		{
+		if (count($this->_where) != 0) {
 		    $filter = implode('', $this->_where);
 			$query[] = '$filter=' . ($urlEncode ? urlencode($filter) : $filter);
 		}
-		if (count($this->_orderBy) != 0)
-		{
+		
+		if (count($this->_orderBy) != 0) {
 		    $orderBy = implode(',', $this->_orderBy);
 			$query[] = '$orderby=' . ($urlEncode ? urlencode($orderBy) : $orderBy);
 		}
-		if (!is_null($this->_top))
-		{
+		
+		if (!is_null($this->_top)) {
 			$query[] = '$top=' . $this->_top;
 		}
-		if (count($query) != 0)
-		{
+		
+		if (count($query) != 0) {
 			return '?' . implode('&', $query);
 		}
 		
@@ -249,18 +244,20 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	public function assembleFrom($includeParentheses = true)
 	{
 	    $identifier = '';
-	    if ($includeParentheses)
-	    {
+	    if ($includeParentheses) {
 	        $identifier .= '(';
 	        
-	        if (!is_null($this->_partitionKey))
+	        if (!is_null($this->_partitionKey)) {
 	            $identifier .= 'PartitionKey=\'' . $this->_partitionKey . '\'';
+	        }
 	            
-	        if (!is_null($this->_partitionKey) && !is_null($this->_rowKey))
+	        if (!is_null($this->_partitionKey) && !is_null($this->_rowKey)) {
 	            $identifier .= ', ';
+	        }
 	            
-	        if (!is_null($this->_rowKey))
+	        if (!is_null($this->_rowKey)) {
 	            $identifier .= 'RowKey=\'' . $this->_rowKey . '\'';
+	        }
 	            
 	        $identifier .= ')';
 	    }
@@ -277,8 +274,9 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 		$assembledQuery = $this->assembleFrom();
 		
 		$queryString = $this->assembleQueryString();
-		if ($queryString !== '')
+		if ($queryString !== '') {
 			$assembledQuery .= $queryString;
+		}
 		
 		return $assembledQuery;
 	}
@@ -292,21 +290,14 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	 */
 	protected function quoteInto($text, $value = null)
 	{
-		if (!is_array($value))
-	    {
+		if (!is_array($value)) {
 	        $text = str_replace('?', '\'' . addslashes($value) . '\'', $text);
-	    }
-	    else
-	    {
+	    } else {
 	        $i = 0;
-	        while(strpos($text, '?') !== false)
-	        {
-	            if (is_numeric($value[$i]))
-	            {
+	        while(strpos($text, '?') !== false) {
+	            if (is_numeric($value[$i])) {
 	                $text = substr_replace($text, $value[$i++], strpos($text, '?'), 1);
-	            }
-	            else
-	            {
+	            } else {
 	                $text = substr_replace($text, '\'' . addslashes($value[$i++]) . '\'', strpos($text, '?'), 1);
 	            }
 	        }

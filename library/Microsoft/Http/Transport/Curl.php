@@ -39,9 +39,9 @@
 require_once 'Microsoft/Http/Transport/Exception.php';
 
 /**
- * @see Microsoft_Http_Transport
+ * @see Microsoft_Http_Transport_TransportAbstract
  */
-require_once 'Microsoft/Http/Transport.php';
+require_once 'Microsoft/Http/Transport/TransportAbstract.php';
 
 /**
  * @see Microsoft_Http_Response
@@ -55,7 +55,7 @@ require_once 'Microsoft/Http/Response.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
+class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport_TransportAbstract
 {
     /**
      * Microsoft_Http_Transport_Curl constructor
@@ -91,16 +91,16 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         // Set HTTP parameters (version and request method)
         curl_setopt($curlHandle, CURL_HTTP_VERSION_1_1,   true);
         switch ($httpVerb) {
-            case Microsoft_Http_Transport::VERB_GET:
+            case Microsoft_Http_Transport_TransportAbstract::VERB_GET:
                 curl_setopt($curlHandle, CURLOPT_HTTPGET, true);
                 break;
-            case Microsoft_Http_Transport::VERB_POST:
+            case Microsoft_Http_Transport_TransportAbstract::VERB_POST:
                 curl_setopt($curlHandle, CURLOPT_POST,    true);
                 break;
-            /*case Microsoft_Http_Transport::VERB_PUT:
+            /*case Microsoft_Http_Transport_TransportAbstract::VERB_PUT:
                 curl_setopt($curlHandle, CURLOPT_PUT,     true);
                 break;*/
-            case Microsoft_Http_Transport::VERB_HEAD:
+            case Microsoft_Http_Transport_TransportAbstract::VERB_HEAD:
                 // http://stackoverflow.com/questions/770179/php-curl-head-request-takes-a-long-time-on-some-sites
                 curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST,  'HEAD');
                 curl_setopt($curlHandle, CURLOPT_NOBODY, true);
@@ -117,8 +117,7 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         curl_setopt($curlHandle, CURLOPT_HEADER,          true);
         
         // Set proxy?
-        if ($this->_useProxy)
-        {
+        if ($this->_useProxy) {
             curl_setopt($curlHandle, CURLOPT_PROXY,        $this->_proxyUrl); 
             curl_setopt($curlHandle, CURLOPT_PROXYPORT,    $this->_proxyPort); 
             curl_setopt($curlHandle, CURLOPT_PROXYUSERPWD, $this->_proxyCredentials); 
@@ -129,10 +128,8 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         
         // Set post fields / raw data
         // http://www.php.net/manual/en/function.curl-setopt.php#81161
-        if (!is_null($rawBody) || (!is_null($variables) && count($variables) > 0))
-        {
-            if (!is_null($rawBody))
-            {
+        if (!is_null($rawBody) || (!is_null($variables) && count($variables) > 0)) {
+            if (!is_null($rawBody)) {
                 unset($headers["Content-Length"]);
                 $headers["Content-Length"] = strlen($rawBody);   
             }
@@ -150,8 +147,7 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
 
         // Add additional headers to cURL instance
         $curlHeaders = array();
-        foreach ($headers as $key => $value)
-        {
+        foreach ($headers as $key => $value) {
             $curlHeaders[] = $key.': '.$value;
         }
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER,      $curlHeaders);
@@ -161,15 +157,12 @@ class Microsoft_Http_Transport_Curl extends Microsoft_Http_Transport
         // Execute request
         $rawResponse = curl_exec($curlHandle);
         $response    = null;
-        if ($rawResponse)
-        {
+        if ($rawResponse) {
             $response = Microsoft_Http_Response::fromString($rawResponse);
             // DEBUG: var_dump($url);  
             // DEBUG: var_dump(curl_getinfo($curlHandle,CURLINFO_HEADER_OUT));    
             // DEBUG: var_dump($rawResponse);
-        }
-        else
-        {
+        } else {
             throw new Microsoft_Http_Transport_Exception('cURL error occured during request for ' . $url . ': ' . curl_errno($curlHandle) . ' - ' . curl_error($curlHandle));
         }
         curl_close($curlHandle);

@@ -44,8 +44,8 @@ require_once dirname(__FILE__) . '/../../TestHelper.php';
 require_once dirname(__FILE__) . '/../../TestConfiguration.php';
 require_once 'PHPUnit/Framework/TestCase.php';
 
-/** Microsoft_WindowsAzure_RetryPolicy */
-require_once 'Microsoft/WindowsAzure/RetryPolicy.php';
+/** Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract */
+require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
 
 /**
  * @category   Microsoft
@@ -83,7 +83,7 @@ class Microsoft_WindowsAzure_RetryPolicyTest extends PHPUnit_Framework_TestCase
     public function testNoRetry()
     {
         $this->_executedRetries = 0;
-        $policy = Microsoft_WindowsAzure_RetryPolicy::noRetry();
+        $policy = Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::noRetry();
         $retries = $policy->execute(
             array($this, '_countRetries')
         );
@@ -98,7 +98,7 @@ class Microsoft_WindowsAzure_RetryPolicyTest extends PHPUnit_Framework_TestCase
         $this->_executedRetries = 0;
         $this->_exceptionCount = 9;
         
-        $policy = Microsoft_WindowsAzure_RetryPolicy::retryN(10, 100);
+        $policy = Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 100);
         $retries = $policy->execute(
             array($this, '_countRetriesAndThrowExceptions')
         );
@@ -119,8 +119,7 @@ class Microsoft_WindowsAzure_RetryPolicyTest extends PHPUnit_Framework_TestCase
     public function _countRetriesAndThrowExceptions()
     {
         ++$this->_executedRetries;
-        if ($this->_exceptionCount-- > 0)
-        {
+        if ($this->_exceptionCount-- > 0) {
             throw new Exception("Exception thrown.");
         }
         return $this->_executedRetries;

@@ -83,25 +83,21 @@ class Microsoft_WindowsAzure_AllTests
         $suite->addTestSuite('Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest');
         $suite->addTestSuite('Microsoft_WindowsAzure_RetryPolicyTest');
         $suite->addTestSuite('Microsoft_WindowsAzure_StorageTest');
-        if (TESTS_BLOB_RUNTESTS)
-        {
+        if (TESTS_BLOB_RUNTESTS) {
             $suite->addTestSuite('Microsoft_WindowsAzure_BlobStorageTest');
             $suite->addTestSuite('Microsoft_WindowsAzure_BlobStorageSharedAccessTest');
             $suite->addTestSuite('Microsoft_WindowsAzure_BlobStreamTest');
         }
-        if (TESTS_TABLE_RUNTESTS)
-        {
+        if (TESTS_TABLE_RUNTESTS) {
             $suite->addTestSuite('Microsoft_WindowsAzure_TableEntityTest');
             $suite->addTestSuite('Microsoft_WindowsAzure_DynamicTableEntityTest');
             $suite->addTestSuite('Microsoft_WindowsAzure_TableEntityQueryTest');
             $suite->addTestSuite('Microsoft_WindowsAzure_TableStorageTest');
         }
-        if (TESTS_QUEUE_RUNTESTS)
-        {
+        if (TESTS_QUEUE_RUNTESTS) {
             $suite->addTestSuite('Microsoft_WindowsAzure_QueueStorageTest');
         }
-        if (TESTS_SESSIONHANDLER_RUNTESTS)
-        {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
             $suite->addTestSuite('Microsoft_WindowsAzure_SessionHandlerTest');
         }
         return $suite;

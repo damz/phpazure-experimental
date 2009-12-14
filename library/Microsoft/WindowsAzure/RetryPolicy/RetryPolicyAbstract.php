@@ -28,7 +28,7 @@
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
  * @subpackage RetryPolicy
- * @version    $Id$
+ * @version    $Id: RetryPolicy.php 28585 2009-09-07 12:12:56Z unknown $
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
@@ -55,7 +55,7 @@ require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryN.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-abstract class Microsoft_WindowsAzure_RetryPolicy
+abstract class Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
 {
     /**
      * Execute function under retry policy

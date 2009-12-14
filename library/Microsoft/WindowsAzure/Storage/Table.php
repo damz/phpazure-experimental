@@ -49,14 +49,14 @@ require_once 'Microsoft/WindowsAzure/SharedKeyCredentials.php';
 require_once 'Microsoft/WindowsAzure/SharedKeyLiteCredentials.php';
 
 /**
- * @see Microsoft_WindowsAzure_RetryPolicy
+ * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
  */
-require_once 'Microsoft/WindowsAzure/RetryPolicy.php';
+require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
 
 /**
- * @see Microsoft_Http_Transport
+ * @see Microsoft_Http_Transport_TransportAbstract
  */
-require_once 'Microsoft/Http/Transport.php';
+require_once 'Microsoft/Http/Transport/TransportAbstract.php';
 
 /**
  * @see Microsoft_Http_Response
@@ -115,9 +115,9 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * @param string $accountName Account name for Windows Azure
 	 * @param string $accountKey Account key for Windows Azure
 	 * @param boolean $usePathStyleUri Use path-style URI's
-	 * @param Microsoft_WindowsAzure_RetryPolicy $retryPolicy Retry policy to use when making requests
+	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
 	 */
-	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_TABLE, $accountName = Microsoft_WindowsAzure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy $retryPolicy = null)
+	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_TABLE, $accountName = Microsoft_WindowsAzure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
 	{
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
 
@@ -136,15 +136,16 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function tableExists($tableName = '')
 	{
-		if ($tableName === '')
+		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
+		}
 			
 		// List tables
         $tables = $this->listTables($tableName);
-        foreach ($tables as $table)
-        {
-            if ($table->Name == $tableName)
+        foreach ($tables as $table) {
+            if ($table->Name == $tableName) {
                 return true;
+            }
         }
         
         return false;
@@ -161,35 +162,30 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	{
 	    // Build query string
 	    $queryString = '';
-	    if ($nextTableName != '')
-	    {
+	    if ($nextTableName != '') {
 	        $queryString = '?NextTableName=' . $nextTableName;
 	    }
 	    
 		// Perform request
-		$response = $this->performRequest('Tables', $queryString, Microsoft_Http_Transport::VERB_GET, null, true);
-		if ($response->isSuccessful())
-		{	    
+		$response = $this->performRequest('Tables', $queryString, Microsoft_Http_Transport_TransportAbstract::VERB_GET, null, true);
+		if ($response->isSuccessful()) {	    
 		    // Parse result
 		    $result = $this->parseResponse($response);	
 		    
-		    if (!$result || !$result->entry)
+		    if (!$result || !$result->entry) {
 		        return array();
+		    }
 	        
 		    $entries = null;
-		    if (count($result->entry) > 1)
-		    {
+		    if (count($result->entry) > 1) {
 		        $entries = $result->entry;
-		    } 
-		    else 
-		    {
+		    } else {
 		        $entries = array($result->entry);
 		    }
 
 		    // Create return value
 		    $returnValue = array();		    
-		    foreach ($entries as $entry)
-		    {
+		    foreach ($entries as $entry) {
 		        $tableName = $entry->xpath('.//m:properties/d:TableName');
 		        $tableName = (string)$tableName[0];
 		        
@@ -202,15 +198,12 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    }
 		    
 			// More tables?
-		    if (!is_null($response->getHeader('x-ms-continuation-NextTableName')))
-		    {
+		    if (!is_null($response->getHeader('x-ms-continuation-NextTableName'))) {
 		        $returnValue = array_merge($returnValue, $this->listTables($response->getHeader('x-ms-continuation-NextTableName')));
 		    }
 
 		    return $returnValue;
-		}
-		else
-		{
+		} else {
 			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
@@ -224,8 +217,9 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function createTable($tableName = '')
 	{
-		if ($tableName === '')
+		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
+		}
 			
 		// Generate request body
 		$requestBody = '<?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -260,9 +254,8 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
         $headers['MaxDataServiceVersion'] = '1.0;NetFx';        
 
 		// Perform request
-		$response = $this->performRequest('Tables', '', Microsoft_Http_Transport::VERB_POST, $headers, true, $requestBody);
-		if ($response->isSuccessful())
-		{
+		$response = $this->performRequest('Tables', '', Microsoft_Http_Transport_TransportAbstract::VERB_POST, $headers, true, $requestBody);
+		if ($response->isSuccessful()) {
 		    // Parse response
 		    $entry = $this->parseResponse($response);
 		    
@@ -275,9 +268,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		        (string)$entry->link['href'],
 		        (string)$entry->updated
 		    );
-		}
-		else
-		{
+		} else {
 			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
@@ -290,17 +281,17 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function deleteTable($tableName = '')
 	{
-		if ($tableName === '')
+		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
+		}
 
         // Add header information
         $headers = array();
         $headers['Content-Type'] = 'application/atom+xml';
 
 		// Perform request
-		$response = $this->performRequest('Tables(\'' . $tableName . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
-		if (!$response->isSuccessful())
-		{
+		$response = $this->performRequest('Tables(\'' . $tableName . '\')', '', Microsoft_Http_Transport_TransportAbstract::VERB_DELETE, $headers, true, null);
+		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
@@ -315,10 +306,12 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function insertEntity($tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null)
 	{
-		if ($tableName === '')
+		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
-		if (is_null($entity))
+		}
+		if (is_null($entity)) {
 			throw new Microsoft_WindowsAzure_Exception('Entity is not specified.');
+		}
 		                     
 		// Generate request body
 		$requestBody = '<?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -347,17 +340,13 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 
 		// Perform request
 	    $response = null;
-	    if ($this->isInBatch())
-		{
-		    $this->getCurrentBatch()->enlistOperation($tableName, '', Microsoft_Http_Transport::VERB_POST, $headers, true, $requestBody);
+	    if ($this->isInBatch()) {
+		    $this->getCurrentBatch()->enlistOperation($tableName, '', Microsoft_Http_Transport_TransportAbstract::VERB_POST, $headers, true, $requestBody);
 		    return null;
+		} else {
+		    $response = $this->performRequest($tableName, '', Microsoft_Http_Transport_TransportAbstract::VERB_POST, $headers, true, $requestBody);
 		}
-		else
-		{
-		    $response = $this->performRequest($tableName, '', Microsoft_Http_Transport::VERB_POST, $headers, true, $requestBody);
-		}
-		if ($response->isSuccessful())
-		{
+		if ($response->isSuccessful()) {
 		    // Parse result
 		    $result = $this->parseResponse($response);
 		    
@@ -372,9 +361,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    $entity->setEtag($etag);
 
 		    return $entity;
-		}
-		else
-		{
+		} else {
 			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
@@ -389,38 +376,35 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function deleteEntity($tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
-		if ($tableName === '')
+		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
-		if (is_null($entity))
+		}
+		if (is_null($entity)) {
 			throw new Microsoft_WindowsAzure_Exception('Entity is not specified.');
+		}
 		                     
         // Add header information
         $headers = array();
-        if (!$this->isInBatch()) // http://social.msdn.microsoft.com/Forums/en-US/windowsazure/thread/9e255447-4dc7-458a-99d3-bdc04bdc5474/
+        if (!$this->isInBatch()) {
+        	// http://social.msdn.microsoft.com/Forums/en-US/windowsazure/thread/9e255447-4dc7-458a-99d3-bdc04bdc5474/
             $headers['Content-Type']   = 'application/atom+xml';
+        }
         $headers['Content-Length'] = 0;
-        if (!$verifyEtag)
-        {
+        if (!$verifyEtag) {
             $headers['If-Match']       = '*';
-        } 
-        else 
-        {
+        } else {
             $headers['If-Match']       = $entity->getEtag();
         }
 
 		// Perform request
 	    $response = null;
-	    if ($this->isInBatch())
-		{
-		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
+	    if ($this->isInBatch()) {
+		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport_TransportAbstract::VERB_DELETE, $headers, true, null);
 		    return null;
+		} else {
+		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport_TransportAbstract::VERB_DELETE, $headers, true, null);
 		}
-		else
-		{
-		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport::VERB_DELETE, $headers, true, null);
-		}
-		if (!$response->isSuccessful())
-		{
+		if (!$response->isSuccessful()) {
 		    throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
@@ -437,23 +421,27 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function retrieveEntityById($tableName = '', $partitionKey = '', $rowKey = '', $entityClass = 'Microsoft_WindowsAzure_Storage_DynamicTableEntity')
 	{
-		if ($tableName === '')
+		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
-		if ($partitionKey === '')
+		}
+		if ($partitionKey === '') {
 			throw new Microsoft_WindowsAzure_Exception('Partition key is not specified.');
-		if ($rowKey === '')
+		}
+		if ($rowKey === '') {
 			throw new Microsoft_WindowsAzure_Exception('Row key is not specified.');
-		if ($entityClass === '')
+		}
+		if ($entityClass === '') {
 			throw new Microsoft_WindowsAzure_Exception('Entity class is not specified.');
+		}
 
 			
 		// Check for combined size of partition key and row key
 		// http://msdn.microsoft.com/en-us/library/dd179421.aspx
-		if (strlen($partitionKey . $rowKey) >= 256)
-		{
+		if (strlen($partitionKey . $rowKey) >= 256) {
 		    // Start a batch if possible
-		    if ($this->isInBatch())
+		    if ($this->isInBatch()) {
 		        throw new Microsoft_WindowsAzure_Exception('Entity cannot be retrieved. A transaction is required to retrieve the entity, but another transaction is already active.');
+		    }
 		        
 		    $this->startBatch();
 		}
@@ -469,8 +457,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
         );
         
         // Return
-        if (count($result) == 1)
-        {
+        if (count($result) == 1) {
             return $result[0];
         }
         
@@ -500,14 +487,15 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function retrieveEntities($tableName = '', $filter = '', $entityClass = 'Microsoft_WindowsAzure_Storage_DynamicTableEntity', $nextPartitionKey = null, $nextRowKey = null)
 	{
-		if ($tableName === '')
+		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
-		if ($entityClass === '')
+		}
+		if ($entityClass === '') {
 			throw new Microsoft_WindowsAzure_Exception('Entity class is not specified.');
+		}
 
 		// Convenience...
-		if (class_exists($filter))
-		{
+		if (class_exists($filter)) {
 		    $entityClass = $filter;
 		    $filter = '';
 		}
@@ -516,8 +504,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		$queryString = '';
 
 		// Determine query
-		if (is_string($tableName))
-		{
+		if (is_string($tableName)) {
 		    // Option 1: $tableName is a string
 		    
 		    // Append parentheses
@@ -527,19 +514,15 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
     	    $query = array();
     	    
     		// Filter?
-    		if ($filter !== '')
-    		{
+    		if ($filter !== '') {
     		    $query[] = '$filter=' . rawurlencode($filter);
     		}
     		    
     	    // Build queryString
-    	    if (count($query) > 0)
-    	    {
+    	    if (count($query) > 0)  {
     	        $queryString = '?' . implode('&', $query);
     	    }
-		}
-		else if (get_class($tableName) == 'Microsoft_WindowsAzure_Storage_TableEntityQuery')
-		{
+		} else if (get_class($tableName) == 'Microsoft_WindowsAzure_Storage_TableEntityQuery') {
 		    // Option 2: $tableName is a Microsoft_WindowsAzure_Storage_TableEntityQuery instance
 
 		    // Build queryString
@@ -547,26 +530,23 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 
 		    // Change $tableName
 		    $tableName = $tableName->assembleFrom(true);
-		}
-		else
-		{
+		} else {
 		    throw new Microsoft_WindowsAzure_Exception('Invalid argument: $tableName');
 		}
 		
 		// Add continuation querystring parameters?
-		if (!is_null($nextPartitionKey) && !is_null($nextRowKey))
-		{
-		    if ($queryString !== '')
+		if (!is_null($nextPartitionKey) && !is_null($nextRowKey)) {
+		    if ($queryString !== '') {
 		        $queryString .= '&';
+		    }
 		        
 		    $queryString .= '&NextPartitionKey=' . rawurlencode($nextPartitionKey) . '&NextRowKey=' . rawurlencode($nextRowKey);
 		}
 
 		// Perform request
 	    $response = null;
-	    if ($this->isInBatch() && $this->getCurrentBatch()->getOperationCount() == 0)
-		{
-		    $this->getCurrentBatch()->enlistOperation($tableName, $queryString, Microsoft_Http_Transport::VERB_GET, array(), true, null);
+	    if ($this->isInBatch() && $this->getCurrentBatch()->getOperationCount() == 0) {
+		    $this->getCurrentBatch()->enlistOperation($tableName, $queryString, Microsoft_Http_Transport_TransportAbstract::VERB_GET, array(), true, null);
 		    $response = $this->getCurrentBatch()->commit();
 		    
 		    // Get inner response (multipart)
@@ -574,48 +554,37 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    $innerResponse = substr($innerResponse, strpos($innerResponse, 'HTTP/1.1 200 OK'));
 		    $innerResponse = substr($innerResponse, 0, strpos($innerResponse, '--batchresponse'));
 		    $response = Microsoft_Http_Response::fromString($innerResponse);
+		} else {
+		    $response = $this->performRequest($tableName, $queryString, Microsoft_Http_Transport_TransportAbstract::VERB_GET, array(), true, null);
 		}
-		else
-		{
-		    $response = $this->performRequest($tableName, $queryString, Microsoft_Http_Transport::VERB_GET, array(), true, null);
-		}
-		if ($response->isSuccessful())
-		{
+		
+		if ($response->isSuccessful()) {
 		    // Parse result
 		    $result = $this->parseResponse($response);
-		    if (!$result)
+		    if (!$result) {
 		        return array();
+		    }
 
 		    $entries = null;
-		    if ($result->entry)
-		    {
-    		    if (count($result->entry) > 1)
-    		    {
+		    if ($result->entry) {
+    		    if (count($result->entry) > 1) {
     		        $entries = $result->entry;
-    		    }
-    		    else
-    		    {
+    		    } else {
     		        $entries = array($result->entry);
     		    }
-		    }
-		    else
-		    {
+		    } else {
 		        // This one is tricky... If we have properties defined, we have an entity.
 		        $properties = $result->xpath('//m:properties');
-		        if ($properties)
-		        {
+		        if ($properties) {
 		            $entries = array($result);
-		        } 
-		        else
-		        {
+		        } else {
 		            return array();
 		        }
 		    }
 
 		    // Create return value
 		    $returnValue = array();		    
-		    foreach ($entries as $entry)
-		    {
+		    foreach ($entries as $entry) {
     		    // Parse properties
     		    $properties = $entry->xpath('.//m:properties');
     		    $properties = $properties[0]->children('http://schemas.microsoft.com/ado/2007/08/dataservices');
@@ -625,14 +594,11 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
     		    $entity->setAzureValues((array)$properties, true);
     		    
     		    // If we have a Microsoft_WindowsAzure_Storage_DynamicTableEntity, make sure all property types are OK
-    		    if ($entity instanceof Microsoft_WindowsAzure_Storage_DynamicTableEntity)
-    		    {
-    		        foreach ($properties as $key => $value)
-    		        {  
+    		    if ($entity instanceof Microsoft_WindowsAzure_Storage_DynamicTableEntity) {
+    		        foreach ($properties as $key => $value) {  
     		            $attributes = $value->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
     		            $type = (string)$attributes['type'];
-    		            if ($type !== '')
-    		            {
+    		            if ($type !== '') {
     		                $entity->setAzurePropertyType($key, $type);
     		            }
     		        }
@@ -648,17 +614,15 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    }
 
 			// More entities?
-		    if (!is_null($response->getHeader('x-ms-continuation-NextPartitionKey')) && !is_null($response->getHeader('x-ms-continuation-NextRowKey')))
-		    {
-		        if (strpos($queryString, '$top') === false)
+		    if (!is_null($response->getHeader('x-ms-continuation-NextPartitionKey')) && !is_null($response->getHeader('x-ms-continuation-NextRowKey'))) {
+		        if (strpos($queryString, '$top') === false) {
 		            $returnValue = array_merge($returnValue, $this->retrieveEntities($tableName, $filter, $entityClass, $response->getHeader('x-ms-continuation-NextPartitionKey'), $response->getHeader('x-ms-continuation-NextRowKey')));
+		        }
 		    }
 		    
 		    // Return
 		    return $returnValue;
-		}
-		else
-		{
+		} else {
 		    throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
@@ -673,7 +637,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function updateEntity($tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
-	    return $this->changeEntity(Microsoft_Http_Transport::VERB_PUT, $tableName, $entity, $verifyEtag);
+	    return $this->changeEntity(Microsoft_Http_Transport_TransportAbstract::VERB_PUT, $tableName, $entity, $verifyEtag);
 	}
 	
 	/**
@@ -688,27 +652,22 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	public function mergeEntity($tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false, $properties = array())
 	{
 		$mergeEntity = null;
-		if (is_array($properties) && count($properties) > 0)
-		{
+		if (is_array($properties) && count($properties) > 0) {
 			// Build a new object
 			$mergeEntity = new Microsoft_WindowsAzure_Storage_DynamicTableEntity($entity->getPartitionKey(), $entity->getRowKey());
 			
 			// Keep only values mentioned in $properties
 			$azureValues = $entity->getAzureValues();
-			foreach ($azureValues as $key => $value)
-			{
-				if (in_array($value->Name, $properties))
-				{
+			foreach ($azureValues as $key => $value) {
+				if (in_array($value->Name, $properties)) {
 					$mergeEntity->setAzureProperty($value->Name, $value->Value, $value->Type);
 				}
 			}
-		}
-		else
-		{
+		} else {
 			$mergeEntity = $entity;
 		}
 		
-	    return $this->changeEntity(Microsoft_Http_Transport::VERB_MERGE, $tableName, $mergeEntity, $verifyEtag);
+	    return $this->changeEntity(Microsoft_Http_Transport_TransportAbstract::VERB_MERGE, $tableName, $mergeEntity, $verifyEtag);
 	}
 	
 	/**
@@ -721,10 +680,11 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	protected function getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknown error.')
 	{
 		$response = $this->parseResponse($response);
-		if ($response && $response->message)
+		if ($response && $response->message) {
 		    return (string)$response->message;
-		else
+		} else {
 		    return $alternativeError;
+		}
 	}
 	
 	/**
@@ -736,23 +696,22 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * @param boolean                             $verifyEtag  Verify etag of the entity (used for concurrency)
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	protected function changeEntity($httpVerb = Microsoft_Http_Transport::VERB_PUT, $tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
+	protected function changeEntity($httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_PUT, $tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
-		if ($tableName === '')
+		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
-		if (is_null($entity))
+		}
+		if (is_null($entity)) {
 			throw new Microsoft_WindowsAzure_Exception('Entity is not specified.');
+		}
 		                     
         // Add header information
         $headers = array();
         $headers['Content-Type']   = 'application/atom+xml';
         $headers['Content-Length'] = 0;
-        if (!$verifyEtag) 
-        {
+        if (!$verifyEtag) {
             $headers['If-Match']       = '*';
-        } 
-        else 
-        {
+        } else {
             $headers['If-Match']       = $entity->getEtag();
         }
 
@@ -780,36 +739,27 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
         // Add header information
         $headers = array();
         $headers['Content-Type'] = 'application/atom+xml';
-	    if (!$verifyEtag) 
-	    {
+	    if (!$verifyEtag) {
             $headers['If-Match']       = '*';
-        } 
-        else 
-        {
+        } else {
             $headers['If-Match']       = $entity->getEtag();
         }
         
 		// Perform request
 		$response = null;
-	    if ($this->isInBatch())
-		{
+	    if ($this->isInBatch()) {
 		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', $httpVerb, $headers, true, $requestBody);
 		    return null;
-		}
-		else
-		{
+		} else {
 		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', $httpVerb, $headers, true, $requestBody);
 		}
-		if ($response->isSuccessful())
-		{
+		if ($response->isSuccessful()) {
 		    // Update properties
 			$entity->setEtag($response->getHeader('Etag'));
 			$entity->setTimestamp($response->getHeader('Last-modified'));
 
 		    return $entity;
-		}
-		else
-		{
+		} else {
 			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
@@ -833,8 +783,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	protected function fillTemplate($templateText, $variables = array())
 	{
-	    foreach ($variables as $key => $value)
-	    {
+	    foreach ($variables as $key => $value) {
 	        $templateText = str_replace('{tpl:' . $key . '}', $value, $templateText);
 	    }
 	    return $templateText;
@@ -851,24 +800,21 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		// Generate Azure representation from entity
 		$azureRepresentation = array();
 		$azureValues         = $entity->getAzureValues();
-		foreach ($azureValues as $azureValue)
-		{
+		foreach ($azureValues as $azureValue) {
 		    $value = array();
 		    $value[] = '<d:' . $azureValue->Name;
-		    if ($azureValue->Type != '')
+		    if ($azureValue->Type != '') {
 		        $value[] = ' m:type="' . $azureValue->Type . '"';
-		    if (is_null($azureValue->Value))
+		    }
+		    if (is_null($azureValue->Value)) {
 		        $value[] = ' m:null="true"'; 
+		    }
 		    $value[] = '>';
 		    
-		    if (!is_null($azureValue->Value))
-		    {
-		        if (strtolower($azureValue->Type) == 'edm.boolean')
-		        {
+		    if (!is_null($azureValue->Value)) {
+		        if (strtolower($azureValue->Type) == 'edm.boolean') {
 		            $value[] = ($azureValue->Value == true ? '1' : '0');
-		        }
-		        else
-		        {
+		        } else {
 		            $value[] = $azureValue->Value;
 		        }
 		    }

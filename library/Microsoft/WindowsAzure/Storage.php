@@ -44,9 +44,9 @@ require_once 'Microsoft/WindowsAzure/Credentials.php';
 require_once 'Microsoft/WindowsAzure/SharedKeyCredentials.php';
 
 /**
- * @see Microsoft_WindowsAzure_RetryPolicy
+ * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
  */
-require_once 'Microsoft/WindowsAzure/RetryPolicy.php';
+require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
 
 /**
  * @see Microsoft_WindowsAzure_Exception
@@ -54,9 +54,9 @@ require_once 'Microsoft/WindowsAzure/RetryPolicy.php';
 require_once 'Microsoft/WindowsAzure/Exception.php';
 
 /**
- * @see Microsoft_Http_Transport
+ * @see Microsoft_Http_Transport_TransportAbstract
  */
-require_once 'Microsoft/Http/Transport.php';
+require_once 'Microsoft/Http/Transport/TransportAbstract.php';
 
 /**
  * @see Microsoft_Http_Response
@@ -139,9 +139,9 @@ class Microsoft_WindowsAzure_Storage
 	protected $_credentials = null;
 	
 	/**
-	 * Microsoft_WindowsAzure_RetryPolicy instance
+	 * Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract instance
 	 * 
-	 * @var Microsoft_WindowsAzure_RetryPolicy
+	 * @var Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
 	 */
 	protected $_retryPolicy = null;
 	
@@ -180,9 +180,9 @@ class Microsoft_WindowsAzure_Storage
 	 * @param string $accountName Account name for Windows Azure
 	 * @param string $accountKey Account key for Windows Azure
 	 * @param boolean $usePathStyleUri Use path-style URI's
-	 * @param Microsoft_WindowsAzure_RetryPolicy $retryPolicy Retry policy to use when making requests
+	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
 	 */
-	public function __construct($host = self::URL_DEV_BLOB, $accountName = Microsoft_WindowsAzure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy $retryPolicy = null)
+	public function __construct($host = self::URL_DEV_BLOB, $accountName = Microsoft_WindowsAzure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
 	{
 		$this->_host = $host;
 		$this->_accountName = $accountName;
@@ -190,27 +190,32 @@ class Microsoft_WindowsAzure_Storage
 		$this->_usePathStyleUri = $usePathStyleUri;
 		
 		// Using local storage?
-		if (!$this->_usePathStyleUri && ($this->_host == self::URL_DEV_BLOB || $this->_host == self::URL_DEV_QUEUE || $this->_host == self::URL_DEV_TABLE)) // Local storage
+		if (!$this->_usePathStyleUri && ($this->_host == self::URL_DEV_BLOB || $this->_host == self::URL_DEV_QUEUE || $this->_host == self::URL_DEV_TABLE)) {
+			// Local storage
 			$this->_usePathStyleUri = true;
+		}
 		
-		if (is_null($this->_credentials))
+		if (is_null($this->_credentials)) {
 		    $this->_credentials = new Microsoft_WindowsAzure_SharedKeyCredentials($this->_accountName, $this->_accountKey, $this->_usePathStyleUri);
+		}
 		
 		$this->_retryPolicy = $retryPolicy;
-		if (is_null($this->_retryPolicy))
-		    $this->_retryPolicy = Microsoft_WindowsAzure_RetryPolicy::noRetry();
+		if (is_null($this->_retryPolicy)) {
+		    $this->_retryPolicy = Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::noRetry();
+		}
 	}
 	
 	/**
 	 * Set retry policy to use when making requests
 	 *
-	 * @param Microsoft_WindowsAzure_RetryPolicy $retryPolicy Retry policy to use when making requests
+	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
 	 */
-	public function setRetryPolicy(Microsoft_WindowsAzure_RetryPolicy $retryPolicy = null)
+	public function setRetryPolicy(Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
 	{
 		$this->_retryPolicy = $retryPolicy;
-		if (is_null($this->_retryPolicy))
-		    $this->_retryPolicy = Microsoft_WindowsAzure_RetryPolicy::noRetry();
+		if (is_null($this->_retryPolicy)) {
+		    $this->_retryPolicy = Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::noRetry();
+		}
 	}
 	
 	/**
@@ -276,7 +281,7 @@ class Microsoft_WindowsAzure_Storage
 	}
 	
 	/**
-	 * Perform request using Microsoft_Http_Transport channel
+	 * Perform request using Microsoft_Http_Transport_TransportAbstract channel
 	 *
 	 * @param string $path Path
 	 * @param string $queryString Query string
@@ -288,15 +293,17 @@ class Microsoft_WindowsAzure_Storage
 	 * @param string $requiredPermission Required permission
 	 * @return Microsoft_Http_Response
 	 */
-	protected function performRequest($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
+	protected function performRequest($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
 	{
 	    // Clean path
-		if (strpos($path, '/') !== 0) 
+		if (strpos($path, '/') !== 0) {
 			$path = '/' . $path;
+		}
 			
 		// Clean headers
-		if (is_null($headers))
+		if (is_null($headers)) {
 		    $headers = array();
+		}
 		    
 		// Add version header
 		$headers['x-ms-version'] = $this->_apiVersion;
@@ -309,9 +316,8 @@ class Microsoft_WindowsAzure_Storage
 		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
 		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission);
 
-		$requestClient  = Microsoft_Http_Transport::createChannel();
-		if ($this->_useProxy)
-		{
+		$requestClient  = Microsoft_Http_Transport_TransportAbstract::createChannel();
+		if ($this->_useProxy) {
 		    $requestClient->setProxy($this->_useProxy, $this->_proxyUrl, $this->_proxyPort, $this->_proxyCredentials);
 		}
 		$response = $this->_retryPolicy->execute(
@@ -334,20 +340,21 @@ class Microsoft_WindowsAzure_Storage
 	 */
 	protected function parseResponse(Microsoft_Http_Response $response = null)
 	{
-		if (is_null($response))
+		if (is_null($response)) {
 			throw new Microsoft_WindowsAzure_Exception('Response should not be null.');
+		}
 		
         $xml = @simplexml_load_string($response->getBody());
         
-        if ($xml !== false)
-        {
+        if ($xml !== false) {
             // Fetch all namespaces 
             $namespaces = array_merge($xml->getNamespaces(true), $xml->getDocNamespaces(true)); 
             
             // Register all namespace prefixes
             foreach ($namespaces as $prefix => $ns) { 
-                if ($prefix != '')
-                    $xml->registerXPathNamespace($prefix, $ns); 
+                if ($prefix != '') {
+                    $xml->registerXPathNamespace($prefix, $ns);
+                } 
             } 
         }
         
@@ -365,8 +372,9 @@ class Microsoft_WindowsAzure_Storage
 	    $tz = @date_default_timezone_get();
 	    @date_default_timezone_set('UTC');
 	    
-	    if (is_null($timestamp))
+	    if (is_null($timestamp)) {
 	        $timestamp = time();
+	    }
 	        
 	    $returnValue = str_replace('+00:00', '.0000000Z', @date('c', $timestamp));
 	    @date_default_timezone_set($tz);

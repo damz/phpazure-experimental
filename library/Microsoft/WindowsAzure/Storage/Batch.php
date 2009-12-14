@@ -141,29 +141,30 @@ class Microsoft_WindowsAzure_Storage_Batch
 	 * @param mixed $rawData Optional RAW HTTP data to be sent over the wire
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function enlistOperation($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null)
+	public function enlistOperation($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null)
 	{
 	    // Set _forTableStorage
-	    if ($forTableStorage)
-	    {
+	    if ($forTableStorage) {
 	        $this->_forTableStorage = true;
 	    }
 	    
 	    // Set _isSingleSelect
-	    if ($httpVerb == Microsoft_Http_Transport::VERB_GET)
-	    {
-	        if (count($this->_operations) > 0)
+	    if ($httpVerb == Microsoft_Http_Transport_TransportAbstract::VERB_GET) {
+	        if (count($this->_operations) > 0) {
 	            throw new Microsoft_WindowsAzure_Exception("Select operations can only be performed in an empty batch transaction.");
+	        }
 	        $this->_isSingleSelect = true;
 	    }
 	    
 	    // Clean path
-		if (strpos($path, '/') !== 0) 
+		if (strpos($path, '/') !== 0) {
 			$path = '/' . $path;
+		}
 			
 		// Clean headers
-		if (is_null($headers))
+		if (is_null($headers)) {
 		    $headers = array();
+		}
 		    
 		// URL encoding
 		$path           = Microsoft_WindowsAzure_Storage::urlencode($path);
@@ -173,15 +174,16 @@ class Microsoft_WindowsAzure_Storage_Batch
 		$requestUrl     = $this->getBaseUrl() . $path . $queryString;
 		
 		// Generate $rawData
-		if (is_null($rawData))
+		if (is_null($rawData)) {
 		    $rawData = '';
+		}
 		    
 		// Add headers
-		if ($httpVerb != Microsoft_Http_Transport::VERB_GET)
-		{
+		if ($httpVerb != Microsoft_Http_Transport_TransportAbstract::VERB_GET) {
     		$headers['Content-ID'] = count($this->_operations) + 1;
-    		if ($httpVerb != Microsoft_Http_Transport::VERB_DELETE)
+    		if ($httpVerb != Microsoft_Http_Transport_TransportAbstract::VERB_DELETE) {
     		    $headers['Content-Type'] = 'application/atom+xml;type=entry';
+    		}
     		$headers['Content-Length'] = strlen($rawData);
 		}
 		    
@@ -220,8 +222,7 @@ class Microsoft_WindowsAzure_Storage_Batch
         preg_match_all('/<message (.*)>(.*)<\/message>/', $response->getBody(), $errors);
         
         // Error?
-        if (count($errors[2]) > 0)
-        {
+        if (count($errors[2]) > 0) {
             throw new Microsoft_WindowsAzure_Exception('An error has occured while committing a batch: ' . $errors[2][0]);
         }
         

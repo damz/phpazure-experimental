@@ -66,8 +66,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
     
     public static function main()
     {
-        if (TESTS_BLOB_RUNTESTS) 
-        {
+        if (TESTS_BLOB_RUNTESTS) {
             $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_BlobStreamTest");
             $result = PHPUnit_TextUI_TestRunner::run($suite);
         }
@@ -96,17 +95,13 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
     protected function createStorageInstance()
     {
         $storageClient = null;
-        if (TESTS_BLOB_RUNONPROD)
-        {
-            $storageClient = new Microsoft_WindowsAzure_Storage_Blob(TESTS_BLOB_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy::retryN(10, 250));
-        }
-        else
-        {
-            $storageClient = new Microsoft_WindowsAzure_Storage_Blob(TESTS_BLOB_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy::retryN(10, 250));
+        if (TESTS_BLOB_RUNONPROD) {
+            $storageClient = new Microsoft_WindowsAzure_Storage_Blob(TESTS_BLOB_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
+        } else {
+            $storageClient = new Microsoft_WindowsAzure_Storage_Blob(TESTS_BLOB_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
         }
         
-        if (TESTS_STORAGE_USEPROXY)
-        {
+        if (TESTS_STORAGE_USEPROXY) {
             $storageClient->setProxy(TESTS_STORAGE_USEPROXY, TESTS_STORAGE_PROXY, TESTS_STORAGE_PROXY_PORT, TESTS_STORAGE_PROXY_CREDENTIALS);
         }
 
@@ -126,8 +121,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testReadFile()
     {
-        if (TESTS_BLOB_RUNTESTS)  
-        {
+    	if (TESTS_BLOB_RUNTESTS) {
             $containerName = $this->generateName();
             $fileName = 'azure://' . $containerName . '/test.txt';
             
@@ -151,8 +145,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testWriteFile()
     {
-        if (TESTS_BLOB_RUNTESTS)  
-        {
+    	if (TESTS_BLOB_RUNTESTS) {
             $containerName = $this->generateName();
             $fileName = 'azure://' . $containerName . '/test.txt';
             
@@ -175,8 +168,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testUnlinkFile()
     {
-        if (TESTS_BLOB_RUNTESTS)  
-        {
+    	if (TESTS_BLOB_RUNTESTS) {
             $containerName = $this->generateName();
             $fileName = 'azure://' . $containerName . '/test.txt';
             
@@ -201,8 +193,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testCopyFile()
     {
-        if (TESTS_BLOB_RUNTESTS)  
-        {
+    	if (TESTS_BLOB_RUNTESTS) {
             $containerName = $this->generateName();
             $sourceFileName = 'azure://' . $containerName . '/test.txt';
             $destinationFileName = 'azure://' . $containerName . '/test2.txt';
@@ -228,8 +219,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testRenameFile()
     {
-        if (TESTS_BLOB_RUNTESTS)  
-        {
+    	if (TESTS_BLOB_RUNTESTS) {
             $containerName = $this->generateName();
             $sourceFileName = 'azure://' . $containerName . '/test.txt';
             $destinationFileName = 'azure://' . $containerName . '/test2.txt';
@@ -255,8 +245,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testMkdir()
     {
-        if (TESTS_BLOB_RUNTESTS)  
-        {
+    	if (TESTS_BLOB_RUNTESTS) {
             $containerName = $this->generateName();
             
             $storageClient = $this->createStorageInstance();
@@ -278,8 +267,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testRmdir()
     {
-        if (TESTS_BLOB_RUNTESTS)  
-        {
+    	if (TESTS_BLOB_RUNTESTS) {
             $containerName = $this->generateName();
             
             $storageClient = $this->createStorageInstance();
@@ -301,8 +289,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testOpendir()
     {
-        if (TESTS_BLOB_RUNTESTS)  
-        {
+        if (TESTS_BLOB_RUNTESTS) {
             $containerName = $this->generateName();
             $storageClient = $this->createStorageInstance();
             $storageClient->createContainer($containerName);

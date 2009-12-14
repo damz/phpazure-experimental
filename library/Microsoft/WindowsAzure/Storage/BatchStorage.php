@@ -54,9 +54,9 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
 require_once 'Microsoft/WindowsAzure/Storage/Batch.php';
 
 /**
- * @see Microsoft_Http_Transport
+ * @see Microsoft_Http_Transport_TransportAbstract
  */
-require_once 'Microsoft/Http/Transport.php';
+require_once 'Microsoft/Http/Transport/TransportAbstract.php';
 
 /**
  * @see Microsoft_Http_Response
@@ -87,8 +87,7 @@ abstract class Microsoft_WindowsAzure_Storage_BatchStorage extends Microsoft_Win
      */
     public function setCurrentBatch(Microsoft_WindowsAzure_Storage_Batch $batch = null)
     {
-        if (!is_null($batch) && $this->isInBatch())
-        {
+        if (!is_null($batch) && $this->isInBatch()) {
             throw new Microsoft_WindowsAzure_Exception('Only one batch can be active at a time.');
         }
         $this->_currentBatch = $batch;
@@ -126,7 +125,7 @@ abstract class Microsoft_WindowsAzure_Storage_BatchStorage extends Microsoft_Win
     }
 	
 	/**
-	 * Perform batch using Microsoft_Http_Transport channel, combining all batch operations into one request
+	 * Perform batch using Microsoft_Http_Transport_TransportAbstract channel, combining all batch operations into one request
 	 *
 	 * @param array $operations Operations in batch
 	 * @param boolean $forTableStorage Is the request for table storage?
@@ -155,23 +154,20 @@ abstract class Microsoft_WindowsAzure_Storage_BatchStorage extends Microsoft_Win
 		$queryString    = '';
 		
 		// Set verb
-		$httpVerb = Microsoft_Http_Transport::VERB_POST;
+		$httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_POST;
 		
 		// Generate raw data
     	$rawData = '';
     		
 		// Single select?
-		if ($isSingleSelect)
-		{
+		if ($isSingleSelect) {
 		    $operation = $operations[0];
 		    $rawData .= '--' . $batchBoundary . "\n";
             $rawData .= 'Content-Type: application/http' . "\n";
             $rawData .= 'Content-Transfer-Encoding: binary' . "\n\n";
             $rawData .= $operation; 
             $rawData .= '--' . $batchBoundary . '--';
-		} 
-		else 
-		{
+		} else {
     		$rawData .= '--' . $batchBoundary . "\n";
     		$rawData .= 'Content-Type: multipart/mixed; boundary=' . $changesetBoundary . "\n\n";
     		
@@ -192,9 +188,8 @@ abstract class Microsoft_WindowsAzure_Storage_BatchStorage extends Microsoft_Win
 		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
 		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission);
 
-		$requestClient  = Microsoft_Http_Transport::createChannel();
-		if ($this->_useProxy)
-		{
+		$requestClient  = Microsoft_Http_Transport_TransportAbstract::createChannel();
+		if ($this->_useProxy) {
 		    $requestClient->setProxy($this->_useProxy, $this->_proxyUrl, $this->_proxyPort, $this->_proxyCredentials);
 		}
 		$response = $this->_retryPolicy->execute(

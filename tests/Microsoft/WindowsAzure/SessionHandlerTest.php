@@ -66,8 +66,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
     
     public static function main()
     {
-        if (TESTS_SESSIONHANDLER_RUNTESTS)
-        {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
             $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_SessionHandlerTest");
             $result = PHPUnit_TextUI_TestRunner::run($suite);
         }
@@ -95,18 +94,14 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
     protected function createStorageInstance()
     {
         $storageClient = null;
-        if (TESTS_SESSIONHANDLER_RUNONPROD)
-        {
-            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy::retryN(10, 250));
-        }
-        else
-        {
-            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy::retryN(10, 250));
+        if (TESTS_SESSIONHANDLER_RUNONPROD) {
+            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
+        } else {
+            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
             $storageClient->setOdbcSettings(TESTS_TABLE_DEVCNSTRING, TESTS_TABLE_DEVCNUSER, TESTS_TABLE_DEVCNPASS);
         }
         
-        if (TESTS_STORAGE_USEPROXY)
-        {
+        if (TESTS_STORAGE_USEPROXY) {
             $storageClient->setProxy(TESTS_STORAGE_USEPROXY, TESTS_STORAGE_PROXY, TESTS_STORAGE_PROXY_PORT, TESTS_STORAGE_PROXY_CREDENTIALS);
         }
 
@@ -135,8 +130,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
      */
     public function testRegister()
     {
-        if (TESTS_SESSIONHANDLER_RUNTESTS)
-        {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
             $storageClient = $this->createStorageInstance();
             $tableName = $this->generateName();
             $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
@@ -151,8 +145,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
      */
     public function testOpen()
     {
-        if (TESTS_SESSIONHANDLER_RUNTESTS)
-        {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
             $storageClient = $this->createStorageInstance();
             $tableName = $this->generateName();
             $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
@@ -171,8 +164,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
      */
     public function testClose()
     {
-        if (TESTS_SESSIONHANDLER_RUNTESTS)
-        {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
             $storageClient = $this->createStorageInstance();
             $tableName = $this->generateName();
             $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
@@ -188,8 +180,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
      */
     public function testRead()
     {
-        if (TESTS_SESSIONHANDLER_RUNTESTS)
-        {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
             $storageClient = $this->createStorageInstance();
             $tableName = $this->generateName();
             $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
@@ -210,8 +201,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
      */
     public function testWrite()
     {
-        if (TESTS_SESSIONHANDLER_RUNTESTS)
-        {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
             $storageClient = $this->createStorageInstance();
             $tableName = $this->generateName();
             $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
@@ -232,8 +222,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
      */
     public function testDestroy()
     {
-        if (TESTS_SESSIONHANDLER_RUNTESTS)
-        {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
             $storageClient = $this->createStorageInstance();
             $tableName = $this->generateName();
             $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
@@ -256,8 +245,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
      */
     public function testGc()
     {
-        if (TESTS_SESSIONHANDLER_RUNTESTS)
-        {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
             $storageClient = $this->createStorageInstance();
             $tableName = $this->generateName();
             $sessionHandler = $this->createSessionHandler($storageClient, $tableName);

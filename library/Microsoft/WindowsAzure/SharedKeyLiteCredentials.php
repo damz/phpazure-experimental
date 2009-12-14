@@ -80,31 +80,31 @@ class Microsoft_WindowsAzure_SharedKeyLiteCredentials extends Microsoft_WindowsA
 	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
+	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
 	{
 		// Determine path
-		if ($this->_usePathStyleUri)
+		if ($this->_usePathStyleUri) {
 			$path = substr($path, strpos($path, '/'));
+		}
 
 		// Determine query
 		$queryString = $this->prepareQueryStringForSigning($queryString);
 
 		// Build canonicalized resource string
 		$canonicalizedResource  = '/' . $this->_accountName;
-		if ($this->_usePathStyleUri)
+		if ($this->_usePathStyleUri) {
 			$canonicalizedResource .= '/' . $this->_accountName;
+		}
 		$canonicalizedResource .= $path;
-		if ($queryString !== '')
+		if ($queryString !== '') {
 		    $canonicalizedResource .= $queryString;
+		}
 
 		// Request date
 		$requestDate = '';
-		if (isset($headers[self::PREFIX_STORAGE_HEADER . 'date']))
-		{
+		if (isset($headers[self::PREFIX_STORAGE_HEADER . 'date'])) {
 		    $requestDate = $headers[self::PREFIX_STORAGE_HEADER . 'date'];
-		}
-		else 
-		{
+		} else {
 		    $requestDate = gmdate('D, d M Y H:i:s', time()) . ' GMT'; // RFC 1123
 		}
 

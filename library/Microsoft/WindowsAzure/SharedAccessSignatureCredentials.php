@@ -43,9 +43,9 @@ require_once 'Microsoft/WindowsAzure/Credentials.php';
 require_once 'Microsoft/WindowsAzure/Storage.php';
 
 /**
- * @see Microsoft_Http_Transport
+ * @see Microsoft_Http_Transport_TransportAbstract
  */
-require_once 'Microsoft/Http/Transport.php';
+require_once 'Microsoft/Http/Transport/TransportAbstract.php';
 
 /**
  * @category   Microsoft
@@ -99,10 +99,10 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 	 */
     public function setPermissionSet($value = array())
 	{
-		foreach ($value as $url)
-		{
-			if (strpos($url, $this->_accountName) === false)
+		foreach ($value as $url) {
+			if (strpos($url, $this->_accountName) === false) {
 				throw new Microsoft_WindowsAzure_Exception('The permission set can only contain URLs for the account name specified in the Microsoft_WindowsAzure_SharedAccessSignatureCredentials instance.');
+			}
 		}
 	    $this->_permissionSet = $value;
 	}
@@ -121,17 +121,20 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
     public function createSignature($path = '/', $resource = 'b', $permissions = 'r', $start = '', $expiry = '', $identifier = '')
     {
 		// Determine path
-		if ($this->_usePathStyleUri)
+		if ($this->_usePathStyleUri) {
 			$path = substr($path, strpos($path, '/'));
+		}
 			
 		// Add trailing slash to $path
-		if (substr($path, 0, 1) !== '/')
+		if (substr($path, 0, 1) !== '/') {
 		    $path = '/' . $path;
+		}
 
 		// Build canonicalized resource string
 		$canonicalizedResource  = '/' . $this->_accountName;
-		if ($this->_usePathStyleUri)
+		if ($this->_usePathStyleUri) {
 			$canonicalizedResource .= '/' . $this->_accountName;
+		}
 		$canonicalizedResource .= $path;
 		    
 		// Create string to sign   
@@ -164,18 +167,21 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
     {
         // Parts
         $parts = array();
-        if ($start !== '')
+        if ($start !== '') {
             $parts[] = 'st=' . urlencode($start);
+        }
         $parts[] = 'se=' . urlencode($expiry);
         $parts[] = 'sr=' . $resource;
         $parts[] = 'sp=' . $permissions;
-        if ($identifier !== '')
+        if ($identifier !== '') {
             $parts[] = 'si=' . urlencode($identifier);
+        }
         $parts[] = 'sig=' . urlencode($this->createSignature($path, $resource, $permissions, $start, $expiry, $identifier));
 
         // Assemble parts and query string
-        if ($queryString != '')
+        if ($queryString != '') {
             $queryString .= '&';
+	    }
         $queryString .= implode('&', $parts);
 
         return $queryString;
@@ -194,8 +200,9 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
     {
         // Build requirements
         $requiredResourceType = $resourceType;
-        if ($requiredResourceType == Microsoft_WindowsAzure_Storage::RESOURCE_BLOB)
+        if ($requiredResourceType == Microsoft_WindowsAzure_Storage::RESOURCE_BLOB) {
             $requiredResourceType .= Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER;
+        }
 
         // Parse permission url
 	    $parsedPermissionUrl = parse_url($permissionUrl);
@@ -208,15 +215,14 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 	    
 	    // Check if permission matches request
 	    $matches = true;
-	    foreach ($permissionParts as $part)
-	    {
+	    foreach ($permissionParts as $part) {
 	        list($property, $value) = explode('=', $part, 2);
-	        if ($property == 'sr')
-	        {
+	        
+	        if ($property == 'sr') {
 	            $matches = $matches && (strpbrk($value, $requiredResourceType) !== false);
 	        }
-	    	if ($property == 'sp')
-	        {
+	        
+	    	if ($property == 'sp') {
 	            $matches = $matches && (strpbrk($value, $requiredPermission) !== false);
 	        }
 	    }
@@ -239,17 +245,16 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 	public function signRequestUrl($requestUrl = '', $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
 	{
 	    // Look for a matching permission
-	    foreach ($this->getPermissionSet() as $permittedUrl)
-	    {
-	        if ($this->permissionMatchesRequest($permittedUrl, $requestUrl, $resourceType, $requiredPermission))
-	        {
+	    foreach ($this->getPermissionSet() as $permittedUrl) {
+	        if ($this->permissionMatchesRequest($permittedUrl, $requestUrl, $resourceType, $requiredPermission)) {
 	            // This matches, append signature data
 	            $parsedPermittedUrl = parse_url($permittedUrl);
 
-	            if (strpos($requestUrl, '?') === false)
+	            if (strpos($requestUrl, '?') === false) {
 	                $requestUrl .= '?';
-	            else
+	            } else {
 	                $requestUrl .= '&';
+	            }
 	            
 	            $requestUrl .= $parsedPermittedUrl['query'];
 
@@ -274,7 +279,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
+	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
 	{
 	    return $headers;
 	}
