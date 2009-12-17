@@ -54,9 +54,9 @@ require_once 'Microsoft/WindowsAzure/SharedKeyLiteCredentials.php';
 require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
 
 /**
- * @see Microsoft_Http_Transport_TransportAbstract
+ * @see Microsoft_Http_Client
  */
-require_once 'Microsoft/Http/Transport/TransportAbstract.php';
+require_once 'Microsoft/Http/Client.php';
 
 /**
  * @see Microsoft_Http_Response
@@ -167,7 +167,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	    }
 	    
 		// Perform request
-		$response = $this->performRequest('Tables', $queryString, Microsoft_Http_Transport_TransportAbstract::VERB_GET, null, true);
+		$response = $this->performRequest('Tables', $queryString, Microsoft_Http_Client::GET, null, true);
 		if ($response->isSuccessful()) {	    
 		    // Parse result
 		    $result = $this->parseResponse($response);	
@@ -254,7 +254,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
         $headers['MaxDataServiceVersion'] = '1.0;NetFx';        
 
 		// Perform request
-		$response = $this->performRequest('Tables', '', Microsoft_Http_Transport_TransportAbstract::VERB_POST, $headers, true, $requestBody);
+		$response = $this->performRequest('Tables', '', Microsoft_Http_Client::POST, $headers, true, $requestBody);
 		if ($response->isSuccessful()) {
 		    // Parse response
 		    $entry = $this->parseResponse($response);
@@ -290,7 +290,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
         $headers['Content-Type'] = 'application/atom+xml';
 
 		// Perform request
-		$response = $this->performRequest('Tables(\'' . $tableName . '\')', '', Microsoft_Http_Transport_TransportAbstract::VERB_DELETE, $headers, true, null);
+		$response = $this->performRequest('Tables(\'' . $tableName . '\')', '', Microsoft_Http_Client::DELETE, $headers, true, null);
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -341,10 +341,10 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		// Perform request
 	    $response = null;
 	    if ($this->isInBatch()) {
-		    $this->getCurrentBatch()->enlistOperation($tableName, '', Microsoft_Http_Transport_TransportAbstract::VERB_POST, $headers, true, $requestBody);
+		    $this->getCurrentBatch()->enlistOperation($tableName, '', Microsoft_Http_Client::POST, $headers, true, $requestBody);
 		    return null;
 		} else {
-		    $response = $this->performRequest($tableName, '', Microsoft_Http_Transport_TransportAbstract::VERB_POST, $headers, true, $requestBody);
+		    $response = $this->performRequest($tableName, '', Microsoft_Http_Client::POST, $headers, true, $requestBody);
 		}
 		if ($response->isSuccessful()) {
 		    // Parse result
@@ -399,10 +399,10 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		// Perform request
 	    $response = null;
 	    if ($this->isInBatch()) {
-		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport_TransportAbstract::VERB_DELETE, $headers, true, null);
+		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Client::DELETE, $headers, true, null);
 		    return null;
 		} else {
-		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Transport_TransportAbstract::VERB_DELETE, $headers, true, null);
+		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Client::DELETE, $headers, true, null);
 		}
 		if (!$response->isSuccessful()) {
 		    throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
@@ -546,7 +546,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		// Perform request
 	    $response = null;
 	    if ($this->isInBatch() && $this->getCurrentBatch()->getOperationCount() == 0) {
-		    $this->getCurrentBatch()->enlistOperation($tableName, $queryString, Microsoft_Http_Transport_TransportAbstract::VERB_GET, array(), true, null);
+		    $this->getCurrentBatch()->enlistOperation($tableName, $queryString, Microsoft_Http_Client::GET, array(), true, null);
 		    $response = $this->getCurrentBatch()->commit();
 		    
 		    // Get inner response (multipart)
@@ -555,7 +555,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    $innerResponse = substr($innerResponse, 0, strpos($innerResponse, '--batchresponse'));
 		    $response = Microsoft_Http_Response::fromString($innerResponse);
 		} else {
-		    $response = $this->performRequest($tableName, $queryString, Microsoft_Http_Transport_TransportAbstract::VERB_GET, array(), true, null);
+		    $response = $this->performRequest($tableName, $queryString, Microsoft_Http_Client::GET, array(), true, null);
 		}
 		
 		if ($response->isSuccessful()) {
@@ -637,7 +637,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function updateEntity($tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
-	    return $this->changeEntity(Microsoft_Http_Transport_TransportAbstract::VERB_PUT, $tableName, $entity, $verifyEtag);
+	    return $this->changeEntity(Microsoft_Http_Client::PUT, $tableName, $entity, $verifyEtag);
 	}
 	
 	/**
@@ -667,7 +667,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 			$mergeEntity = $entity;
 		}
 		
-	    return $this->changeEntity(Microsoft_Http_Transport_TransportAbstract::VERB_MERGE, $tableName, $mergeEntity, $verifyEtag);
+	    return $this->changeEntity(Microsoft_Http_Client::MERGE, $tableName, $mergeEntity, $verifyEtag);
 	}
 	
 	/**
@@ -696,7 +696,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * @param boolean                             $verifyEtag  Verify etag of the entity (used for concurrency)
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	protected function changeEntity($httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_PUT, $tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
+	protected function changeEntity($httpVerb = Microsoft_Http_Client::PUT, $tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
 		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');

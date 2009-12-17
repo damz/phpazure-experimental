@@ -55,8 +55,8 @@ define('TESTS_TABLE_HOST_PROD',                 'table.core.windows.net');
  */
 define('TESTS_STORAGE_ACCOUNT_DEV',             'devstoreaccount1');
 define('TESTS_STORAGE_KEY_DEV',                 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==');
-define('TESTS_STORAGE_ACCOUNT_PROD',            'phpstorage');
-define('TESTS_STORAGE_KEY_PROD',                'jr8gNCVdStzPjnibh1wFLFfb6WxrRWEpl3KYuCBLi2DwlPtYZRa3p7QUf7kR//bqopdjCqHxnRQHkblh+ChksQ==');
+define('TESTS_STORAGE_ACCOUNT_PROD',            'phpazure');
+define('TESTS_STORAGE_KEY_PROD',                'I+ebYPcIDB6BsmfAe6pJSpOw8oXA6jMBZv1BEZcSPRqTpldt44refCl65YpKJqcBOiD21Lxsj8d6Ah8Oc2/gKA==');
 
 /**
  * Blob storage tests
@@ -86,7 +86,7 @@ define('TESTS_QUEUE_PREFIX',                    'phpazuretestqueue');
  * SessionHandler tests
  */
 define('TESTS_SESSIONHANDLER_RUNTESTS',         true);
-define('TESTS_SESSIONHANDLER_RUNONPROD',        true);
+define('TESTS_SESSIONHANDLER_RUNONPROD',        false);
 define('TESTS_SESSIONHANDLER_TABLENAME_PREFIX', 'phpazuretestsession');
 
 /**

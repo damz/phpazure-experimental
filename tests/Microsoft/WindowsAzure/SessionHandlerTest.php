@@ -98,7 +98,6 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
             $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
         } else {
             $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
-            $storageClient->setOdbcSettings(TESTS_TABLE_DEVCNSTRING, TESTS_TABLE_DEVCNUSER, TESTS_TABLE_DEVCNPASS);
         }
         
         if (TESTS_STORAGE_USEPROXY) {
@@ -150,7 +149,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
             $tableName = $this->generateName();
             $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
             $result = $sessionHandler->open();
-            
+
             $this->assertTrue($result);
             
             

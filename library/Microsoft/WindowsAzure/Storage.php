@@ -54,9 +54,9 @@ require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
 require_once 'Microsoft/WindowsAzure/Exception.php';
 
 /**
- * @see Microsoft_Http_Transport_TransportAbstract
+ * @see Microsoft_Http_Client
  */
-require_once 'Microsoft/Http/Transport/TransportAbstract.php';
+require_once 'Microsoft/Http/Client.php';
 
 /**
  * @see Microsoft_Http_Response
@@ -146,6 +146,13 @@ class Microsoft_WindowsAzure_Storage
 	protected $_retryPolicy = null;
 	
 	/**
+	 * Microsoft_Http_Client channel used for communication with REST services
+	 * 
+	 * @var Microsoft_Http_Client
+	 */
+	protected $_httpClientChannel = null;
+	
+	/**
 	 * Use proxy?
 	 * 
 	 * @var boolean
@@ -203,6 +210,28 @@ class Microsoft_WindowsAzure_Storage
 		if (is_null($this->_retryPolicy)) {
 		    $this->_retryPolicy = Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::noRetry();
 		}
+		
+		// Setup default Microsoft_Http_Client channel
+		$this->_httpClientChannel = new Microsoft_Http_Client(
+			null,
+			array(
+				'adapter' => 'Microsoft_Http_Client_Adapter_Proxy',
+				'curloptions' => array(
+					CURLOPT_FOLLOWLOCATION => true,
+					CURLOPT_TIMEOUT => 120
+				)
+			)
+		);
+	}
+	
+	/**
+	 * Set the HTTP client channel to use
+	 * 
+	 * @param Microsoft_Http_Client_Adapter_Interface|string $adapterInstance Adapter instance or adapter class name.
+	 */
+	public function setHttpClientChannel($adapterInstance = 'Microsoft_Http_Client_Adapter_Proxy')
+	{
+		$this->_httpClientChannel->setAdapter($adapterInstance);
 	}
 	
 	/**
@@ -232,6 +261,24 @@ class Microsoft_WindowsAzure_Storage
 	    $this->_proxyUrl = $proxyUrl;
 	    $this->_proxyPort = $proxyPort;
 	    $this->_proxyCredentials = $proxyCredentials;
+	    
+	    if ($this->_useProxy) {
+	    	$credentials = explode(':', $this->_proxyCredentials);
+	    	
+	    	$this->_httpClientChannel->setConfig(array(
+				'proxy_host' => $this->_proxyUrl,
+	    		'proxy_port' => $this->_proxyPort,
+	    		'proxy_user' => $credentials[0],
+	    		'proxy_pass' => $credentials[1]
+	    	));
+	    } else {
+			$this->_httpClientChannel->setConfig(array(
+				'proxy_host' => '',
+	    		'proxy_port' => 8080,
+	    		'proxy_user' => '',
+	    		'proxy_pass' => ''
+	    	));
+	    }
 	}
 	
 	/**
@@ -281,7 +328,7 @@ class Microsoft_WindowsAzure_Storage
 	}
 	
 	/**
-	 * Perform request using Microsoft_Http_Transport_TransportAbstract channel
+	 * Perform request using Microsoft_Http_Client channel
 	 *
 	 * @param string $path Path
 	 * @param string $queryString Query string
@@ -293,7 +340,7 @@ class Microsoft_WindowsAzure_Storage
 	 * @param string $requiredPermission Required permission
 	 * @return Microsoft_Http_Response
 	 */
-	protected function performRequest($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
+	protected function performRequest($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Client::GET, $headers = array(), $forTableStorage = false, $rawData = null, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
 	{
 	    // Clean path
 		if (strpos($path, '/') !== 0) {
@@ -304,7 +351,15 @@ class Microsoft_WindowsAzure_Storage
 		if (is_null($headers)) {
 		    $headers = array();
 		}
-		    
+		
+		// Ensure cUrl will also work correctly:
+		//  - disable Content-Type if required
+		//  - disable Expect: 100 Continue
+		if (!isset($headers["Content-Type"])) {
+			$headers["Content-Type"] = '';
+		}
+		$headers["Expect"]= '';
+
 		// Add version header
 		$headers['x-ms-version'] = $this->_apiVersion;
 		    
@@ -316,17 +371,17 @@ class Microsoft_WindowsAzure_Storage
 		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
 		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission);
 
-		$requestClient  = Microsoft_Http_Transport_TransportAbstract::createChannel();
-		if ($this->_useProxy) {
-		    $requestClient->setProxy($this->_useProxy, $this->_proxyUrl, $this->_proxyPort, $this->_proxyCredentials);
-		}
-		$response = $this->_retryPolicy->execute(
-		    array($requestClient, 'request'),
-		    array($httpVerb, $requestUrl, array(), $requestHeaders, $rawData)
-		);
+		// Prepare request
+		$this->_httpClientChannel->resetParameters(true);
+		$this->_httpClientChannel->setUri($requestUrl);
+		$this->_httpClientChannel->setHeaders($requestHeaders);
+		$this->_httpClientChannel->setRawData($rawData);
 		
-		$requestClient = null;
-		unset($requestClient);
+		// Execute request
+		$response = $this->_retryPolicy->execute(
+		    array($this->_httpClientChannel, 'request'),
+		    array($httpVerb)
+		);
 		
 		return $response;
 	}

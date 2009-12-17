@@ -43,9 +43,9 @@ require_once 'Microsoft/WindowsAzure/Credentials.php';
 require_once 'Microsoft/WindowsAzure/Storage.php';
 
 /**
- * @see Microsoft_Http_Transport_TransportAbstract
+ * @see Microsoft_Http_Client
  */
-require_once 'Microsoft/Http/Transport/TransportAbstract.php';
+require_once 'Microsoft/Http/Client.php';
 
 /**
  * @category   Microsoft
@@ -80,7 +80,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentials extends Microsoft_WindowsAzure
 	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
+	public function signRequestHeaders($httpVerb = Microsoft_Http_Client::GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
 	{
 		// http://github.com/sriramk/winazurestorage/blob/214010a2f8931bac9c96dfeb337d56fe084ca63b/winazurestorage.py
 
@@ -98,11 +98,11 @@ class Microsoft_WindowsAzure_SharedKeyCredentials extends Microsoft_WindowsAzure
 		
 		// Request date
 		$requestDate = '';
-		if (isset($headers[self::PREFIX_STORAGE_HEADER . 'date'])) {
-		    $requestDate = $headers[self::PREFIX_STORAGE_HEADER . 'date'];
+		if (isset($headers[Microsoft_WindowsAzure_Credentials::PREFIX_STORAGE_HEADER . 'date'])) {
+		    $requestDate = $headers[Microsoft_WindowsAzure_Credentials::PREFIX_STORAGE_HEADER . 'date'];
 		} else {
 		    $requestDate = gmdate('D, d M Y H:i:s', time()) . ' GMT'; // RFC 1123
-		    $canonicalizedHeaders[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate;
+		    $canonicalizedHeaders[] = Microsoft_WindowsAzure_Credentials::PREFIX_STORAGE_HEADER . 'date:' . $requestDate;
 		}
 		
 		// Build canonicalized headers
@@ -113,7 +113,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentials extends Microsoft_WindowsAzure
 				}
 
 				$headers[$header] = $value;
-				if (substr($header, 0, strlen(self::PREFIX_STORAGE_HEADER)) == self::PREFIX_STORAGE_HEADER) {
+				if (substr($header, 0, strlen(Microsoft_WindowsAzure_Credentials::PREFIX_STORAGE_HEADER)) == Microsoft_WindowsAzure_Credentials::PREFIX_STORAGE_HEADER) {
 				    $canonicalizedHeaders[] = strtolower($header) . ':' . $value;
 				}
 			}
@@ -148,7 +148,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentials extends Microsoft_WindowsAzure
     	$signString = base64_encode(hash_hmac('sha256', $stringToSign, $this->_accountKey, true));
 
     	// Sign request
-    	$headers[self::PREFIX_STORAGE_HEADER . 'date'] = $requestDate;
+    	$headers[Microsoft_WindowsAzure_Credentials::PREFIX_STORAGE_HEADER . 'date'] = $requestDate;
     	$headers['Authorization'] = 'SharedKey ' . $this->_accountName . ':' . $signString;
     	
     	// Return headers

@@ -33,9 +33,9 @@
  */
 
 /**
- * @see Microsoft_Http_Transport_TransportAbstract
+ * @see Microsoft_Http_Client
  */
-require_once 'Microsoft/Http/Transport/TransportAbstract.php';
+require_once 'Microsoft/Http/Client.php';
 
 /**
  * @category   Microsoft
@@ -153,7 +153,7 @@ abstract class Microsoft_WindowsAzure_Credentials
 	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public abstract function signRequestHeaders($httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ);
+	public abstract function signRequestHeaders($httpVerb = Microsoft_Http_Client::GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ);
 	
 	
 	/**

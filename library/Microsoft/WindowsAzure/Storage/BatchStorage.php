@@ -54,9 +54,9 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
 require_once 'Microsoft/WindowsAzure/Storage/Batch.php';
 
 /**
- * @see Microsoft_Http_Transport_TransportAbstract
+ * @see Microsoft_Http_Client
  */
-require_once 'Microsoft/Http/Transport/TransportAbstract.php';
+require_once 'Microsoft/Http/Client.php';
 
 /**
  * @see Microsoft_Http_Response
@@ -125,7 +125,7 @@ abstract class Microsoft_WindowsAzure_Storage_BatchStorage extends Microsoft_Win
     }
 	
 	/**
-	 * Perform batch using Microsoft_Http_Transport_TransportAbstract channel, combining all batch operations into one request
+	 * Perform batch using Microsoft_Http_Client channel, combining all batch operations into one request
 	 *
 	 * @param array $operations Operations in batch
 	 * @param boolean $forTableStorage Is the request for table storage?
@@ -154,7 +154,7 @@ abstract class Microsoft_WindowsAzure_Storage_BatchStorage extends Microsoft_Win
 		$queryString    = '';
 		
 		// Set verb
-		$httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_POST;
+		$httpVerb = Microsoft_Http_Client::POST;
 		
 		// Generate raw data
     	$rawData = '';
@@ -188,17 +188,17 @@ abstract class Microsoft_WindowsAzure_Storage_BatchStorage extends Microsoft_Win
 		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
 		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission);
 
-		$requestClient  = Microsoft_Http_Transport_TransportAbstract::createChannel();
-		if ($this->_useProxy) {
-		    $requestClient->setProxy($this->_useProxy, $this->_proxyUrl, $this->_proxyPort, $this->_proxyCredentials);
-		}
-		$response = $this->_retryPolicy->execute(
-		    array($requestClient, 'request'),
-		    array($httpVerb, $requestUrl, array(), $requestHeaders, $rawData)
-		);
+		// Prepare request
+		$this->_httpClientChannel->resetParameters(true);
+		$this->_httpClientChannel->setUri($requestUrl);
+		$this->_httpClientChannel->setHeaders($requestHeaders);
+		$this->_httpClientChannel->setRawData($rawData);
 		
-		$requestClient = null;
-		unset($requestClient);
+		// Execute request
+		$response = $this->_retryPolicy->execute(
+		    array($this->_httpClientChannel, 'request'),
+		    array($httpVerb)
+		);
 
 		return $response;
 	}

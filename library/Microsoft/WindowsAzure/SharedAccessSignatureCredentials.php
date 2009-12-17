@@ -43,9 +43,9 @@ require_once 'Microsoft/WindowsAzure/Credentials.php';
 require_once 'Microsoft/WindowsAzure/Storage.php';
 
 /**
- * @see Microsoft_Http_Transport_TransportAbstract
+ * @see Microsoft_Http_Client
  */
-require_once 'Microsoft/Http/Transport/TransportAbstract.php';
+require_once 'Microsoft/Http/Client.php';
 
 /**
  * @category   Microsoft
@@ -132,9 +132,9 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 
 		// Build canonicalized resource string
 		$canonicalizedResource  = '/' . $this->_accountName;
-		if ($this->_usePathStyleUri) {
+		/*if ($this->_usePathStyleUri) {
 			$canonicalizedResource .= '/' . $this->_accountName;
-		}
+		}*/
 		$canonicalizedResource .= $path;
 		    
 		// Create string to sign   
@@ -147,7 +147,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 
     	$stringToSign = implode("\n", $stringToSign);
     	$signature = base64_encode(hash_hmac('sha256', $stringToSign, $this->_accountKey, true));
-
+	
     	return $signature;
     }
 
@@ -279,7 +279,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public function signRequestHeaders($httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
+	public function signRequestHeaders($httpVerb = Microsoft_Http_Client::GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
 	{
 	    return $headers;
 	}

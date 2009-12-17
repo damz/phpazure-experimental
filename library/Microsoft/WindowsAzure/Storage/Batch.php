@@ -141,7 +141,7 @@ class Microsoft_WindowsAzure_Storage_Batch
 	 * @param mixed $rawData Optional RAW HTTP data to be sent over the wire
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function enlistOperation($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Transport_TransportAbstract::VERB_GET, $headers = array(), $forTableStorage = false, $rawData = null)
+	public function enlistOperation($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Client::GET, $headers = array(), $forTableStorage = false, $rawData = null)
 	{
 	    // Set _forTableStorage
 	    if ($forTableStorage) {
@@ -149,7 +149,7 @@ class Microsoft_WindowsAzure_Storage_Batch
 	    }
 	    
 	    // Set _isSingleSelect
-	    if ($httpVerb == Microsoft_Http_Transport_TransportAbstract::VERB_GET) {
+	    if ($httpVerb == Microsoft_Http_Client::GET) {
 	        if (count($this->_operations) > 0) {
 	            throw new Microsoft_WindowsAzure_Exception("Select operations can only be performed in an empty batch transaction.");
 	        }
@@ -179,9 +179,9 @@ class Microsoft_WindowsAzure_Storage_Batch
 		}
 		    
 		// Add headers
-		if ($httpVerb != Microsoft_Http_Transport_TransportAbstract::VERB_GET) {
+		if ($httpVerb != Microsoft_Http_Client::GET) {
     		$headers['Content-ID'] = count($this->_operations) + 1;
-    		if ($httpVerb != Microsoft_Http_Transport_TransportAbstract::VERB_DELETE) {
+    		if ($httpVerb != Microsoft_Http_Client::DELETE) {
     		    $headers['Content-Type'] = 'application/atom+xml;type=entry';
     		}
     		$headers['Content-Length'] = strlen($rawData);
