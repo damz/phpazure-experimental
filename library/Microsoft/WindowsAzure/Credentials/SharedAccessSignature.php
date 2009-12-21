@@ -33,9 +33,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Credentials
+ * @see Microsoft_WindowsAzure_Credentials_CredentialsAbstract
  */
-require_once 'Microsoft/WindowsAzure/Credentials.php';
+require_once 'Microsoft/WindowsAzure/Credentials/CredentialsAbstract.php';
 
 /**
  * @see Microsoft_WindowsAzure_Storage
@@ -53,7 +53,8 @@ require_once 'Microsoft/Http/Client.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */ 
-class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_WindowsAzure_Credentials
+class Microsoft_WindowsAzure_Credentials_SharedAccessSignature
+    extends Microsoft_WindowsAzure_Credentials_CredentialsAbstract
 {
     /**
      * Permission set
@@ -63,15 +64,18 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
     protected $_permissionSet = array();
     
 	/**
-	 * Creates a new Microsoft_WindowsAzure_SharedAccessSignatureCredentials instance
+	 * Creates a new Microsoft_WindowsAzure_Credentials_SharedAccessSignature instance
 	 *
 	 * @param string $accountName Account name for Windows Azure
 	 * @param string $accountKey Account key for Windows Azure
 	 * @param boolean $usePathStyleUri Use path-style URI's
 	 * @param array $permissionSet Permission set
 	 */
-	public function __construct($accountName = Microsoft_WindowsAzure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false, $permissionSet = array())
-	{
+	public function __construct(
+		$accountName = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_ACCOUNT,
+		$accountKey  = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_KEY,
+		$usePathStyleUri = false, $permissionSet = array()
+	) {
 	    parent::__construct($accountName, $accountKey, $usePathStyleUri);
 	    $this->_permissionSet = $permissionSet;
 	}
@@ -93,15 +97,16 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 	 * For example: first add blob permissions, end with container-wide permissions.
 	 * 
 	 * Warning: the signed access signature URL must match the account name of the
-	 * Microsoft_WindowsAzure_SharedAccessSignatureCredentials instance
+	 * Microsoft_WindowsAzure_Credentials_Microsoft_WindowsAzure_Credentials_SharedAccessSignature instance
 	 * 
-	 * @param array $value Permission set
+	 * @param  array $value Permission set
+	 * @return void
 	 */
     public function setPermissionSet($value = array())
 	{
 		foreach ($value as $url) {
 			if (strpos($url, $this->_accountName) === false) {
-				throw new Microsoft_WindowsAzure_Exception('The permission set can only contain URLs for the account name specified in the Microsoft_WindowsAzure_SharedAccessSignatureCredentials instance.');
+				throw new Microsoft_WindowsAzure_Exception('The permission set can only contain URLs for the account name specified in the Microsoft_WindowsAzure_Credentials_SharedAccessSignature instance.');
 			}
 		}
 	    $this->_permissionSet = $value;
@@ -118,8 +123,14 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
      * @param string $identifier   Signed identifier
      * @return string 
      */
-    public function createSignature($path = '/', $resource = 'b', $permissions = 'r', $start = '', $expiry = '', $identifier = '')
-    {
+    public function createSignature(
+    	$path = '/',
+    	$resource = 'b',
+    	$permissions = 'r',
+    	$start = '',
+    	$expiry = '',
+    	$identifier = ''
+    ) {
 		// Determine path
 		if ($this->_usePathStyleUri) {
 			$path = substr($path, strpos($path, '/'));
@@ -138,7 +149,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 		$canonicalizedResource .= $path;
 		    
 		// Create string to sign   
-		$stringToSign = array();
+		$stringToSign   = array();
 		$stringToSign[] = $permissions;
     	$stringToSign[] = $start;
     	$stringToSign[] = $expiry;
@@ -146,7 +157,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
     	$stringToSign[] = $identifier;
 
     	$stringToSign = implode("\n", $stringToSign);
-    	$signature = base64_encode(hash_hmac('sha256', $stringToSign, $this->_accountKey, true));
+    	$signature    = base64_encode(hash_hmac('sha256', $stringToSign, $this->_accountKey, true));
 	
     	return $signature;
     }
@@ -163,8 +174,15 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
      * @param string $identifier   Signed identifier
      * @return string 
      */
-    public function createSignedQueryString($path = '/', $queryString = '', $resource = 'b', $permissions = 'r', $start = '', $expiry = '', $identifier = '')
-    {
+    public function createSignedQueryString(
+    	$path = '/',
+    	$queryString = '',
+    	$resource = 'b',
+    	$permissions = 'r',
+    	$start = '',
+    	$expiry = '',
+    	$identifier = ''
+    ) {
         // Parts
         $parts = array();
         if ($start !== '') {
@@ -196,8 +214,12 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 	 * @param string $requiredPermission Required permission
 	 * @return string Signed request URL
 	 */
-    public function permissionMatchesRequest($permissionUrl = '', $requestUrl = '', $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
-    {
+    public function permissionMatchesRequest(
+    	$permissionUrl = '',
+    	$requestUrl = '',
+    	$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
+    	$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ
+    ) {
         // Build requirements
         $requiredResourceType = $resourceType;
         if ($requiredResourceType == Microsoft_WindowsAzure_Storage::RESOURCE_BLOB) {
@@ -242,8 +264,11 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 	 * @param string $requiredPermission Required permission
 	 * @return string Signed request URL
 	 */
-	public function signRequestUrl($requestUrl = '', $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
-	{
+	public function signRequestUrl(
+		$requestUrl = '',
+		$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
+		$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ
+	) {
 	    // Look for a matching permission
 	    foreach ($this->getPermissionSet() as $permittedUrl) {
 	        if ($this->permissionMatchesRequest($permittedUrl, $requestUrl, $resourceType, $requiredPermission)) {
@@ -279,8 +304,15 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentials extends Microsoft_
 	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public function signRequestHeaders($httpVerb = Microsoft_Http_Client::GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
-	{
+	public function signRequestHeaders(
+		$httpVerb = Microsoft_Http_Client::GET,
+		$path = '/',
+		$queryString = '',
+		$headers = null,
+		$forTableStorage = false,
+		$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
+		$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ
+	) {
 	    return $headers;
 	}
 }

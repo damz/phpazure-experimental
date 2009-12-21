@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Reviewed: no -->
-<sect1 id="microsoft.service.windowsazure.storage.table">
-    <title>Microsoft_Service_WindowsAzure_Storage_Table</title>
+<sect1 id="microsoft.windowsazure.storage.table">
+    <title>Microsoft_WindowsAzure_Storage_Table</title>
 
     <para>
         The Table service offers structured storage in the form of tables.
@@ -9,13 +9,13 @@
 
     <para>
         Table Storage is offered by Windows Azure as a REST API which is wrapped by the
-        <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> class in order to provide a
+        <classname>Microsoft_WindowsAzure_Storage_Table</classname> class in order to provide a
         native PHP interface to the storage account.
     </para>
 
     <para>
         This topic lists some examples of using the
-        <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> class.  Other features are
+        <classname>Microsoft_WindowsAzure_Storage_Table</classname> class.  Other features are
         available in the download package, as well as a detailed API documentation of those
         features.
     </para>
@@ -26,14 +26,14 @@
         Azure production table storage.
     </para>
 
-    <sect2 id="microsoft.service.windowsazure.storage.table.api">
+    <sect2 id="microsoft.windowsazure.storage.table.api">
         <title>Operations on tables</title>
 
         <para>
             This topic lists some samples of operations that can be executed on tables.
         </para>
 
-        <sect3 id="microsoft.service.windowsazure.storage.table.api.create">
+        <sect3 id="microsoft.windowsazure.storage.table.api.create">
             <title>Creating a table</title>
 
             <para>
@@ -41,11 +41,11 @@
                 storage.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.api.create.example">
+            <example id="microsoft.windowsazure.storage.table.api.create.example">
                 <title>Creating a table</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 $result = $storageClient->createTable('testtable');
@@ -55,7 +55,7 @@ echo 'New table name is: ' . $result->Name;
             </example>
         </sect3>
 
-        <sect3 id="microsoft.service.windowsazure.storage.table.api.list">
+        <sect3 id="microsoft.windowsazure.storage.table.api.list">
             <title>Listing all tables</title>
 
             <para>
@@ -63,11 +63,11 @@ echo 'New table name is: ' . $result->Name;
                 storage can be queried.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.api.list.example">
+            <example id="microsoft.windowsazure.storage.table.api.list.example">
                 <title>Listing all tables</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 $result = $storageClient->listTables();
@@ -79,7 +79,7 @@ foreach ($result as $table) {
         </sect3>
     </sect2>
 
-    <sect2 id="microsoft.service.windowsazure.storage.table.entities">
+    <sect2 id="microsoft.windowsazure.storage.table.entities">
         <title>Operations on entities</title>
 
         <para>
@@ -95,7 +95,7 @@ foreach ($result as $table) {
         </para>
         
         <para>
-            <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> provides 2 ways of
+            <classname>Microsoft_WindowsAzure_Storage_Table</classname> provides 2 ways of
             working with entities:
         </para>
 
@@ -117,11 +117,11 @@ foreach ($result as $table) {
             All examples will make use of the following enforced schema class.
         </para>
 
-        <example id="microsoft.service.windowsazure.storage.table.entities.schema">
+        <example id="microsoft.windowsazure.storage.table.entities.schema">
             <title>Enforced schema used in samples</title>
 
             <programlisting language="php"><![CDATA[
-class SampleEntity extends Microsoft_Service_WindowsAzure_Storage_TableEntity
+class SampleEntity extends Microsoft_WindowsAzure_Storage_TableEntity
 {
     /**
     * @azure Name
@@ -143,26 +143,26 @@ class SampleEntity extends Microsoft_Service_WindowsAzure_Storage_TableEntity
 
         <para>
             Note that if no schema class is passed into table storage methods,
-            <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> automatically works with
-            <classname>Microsoft_Service_WindowsAzure_Storage_DynamicTableEntity</classname>.
+            <classname>Microsoft_WindowsAzure_Storage_Table</classname> automatically works with
+            <classname>Microsoft_WindowsAzure_Storage_DynamicTableEntity</classname>.
         </para>
 
-        <sect3 id="microsoft.service.windowsazure.storage.table.entities.enforced">
+        <sect3 id="microsoft.windowsazure.storage.table.entities.enforced">
             <title>Enforced schema entities</title>
 
             <para>
                 To enforce a schema on the client side using the
-                <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> class, you can create
+                <classname>Microsoft_WindowsAzure_Storage_Table</classname> class, you can create
                 a class which inherits
-                <classname>Microsoft_Service_WindowsAzure_Storage_TableEntity</classname>.  This class
+                <classname>Microsoft_WindowsAzure_Storage_TableEntity</classname>.  This class
                 provides some basic functionality for the
-                <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> class to work with a
+                <classname>Microsoft_WindowsAzure_Storage_Table</classname> class to work with a
                 client-side schema.
             </para>
 
             <para>
                 Base properties provided by
-                <classname>Microsoft_Service_WindowsAzure_Storage_TableEntity</classname> are:
+                <classname>Microsoft_WindowsAzure_Storage_TableEntity</classname> are:
             </para>
 
             <itemizedlist>
@@ -197,14 +197,14 @@ class SampleEntity extends Microsoft_Service_WindowsAzure_Storage_TableEntity
 
             <para>
                 Here's a sample class inheriting
-                <classname>Microsoft_Service_WindowsAzure_Storage_TableEntity</classname>:
+                <classname>Microsoft_WindowsAzure_Storage_TableEntity</classname>:
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.entities.enforced.schema">
+            <example id="microsoft.windowsazure.storage.table.entities.enforced.schema">
                 <title>Sample enforced schema class</title>
 
                 <programlisting language="php"><![CDATA[
-class SampleEntity extends Microsoft_Service_WindowsAzure_Storage_TableEntity
+class SampleEntity extends Microsoft_WindowsAzure_Storage_TableEntity
 {
     /**
      * @azure Name
@@ -225,15 +225,15 @@ class SampleEntity extends Microsoft_Service_WindowsAzure_Storage_TableEntity
             </example>
 
             <para>
-                The <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> class will map
+                The <classname>Microsoft_WindowsAzure_Storage_Table</classname> class will map
                 any class inherited from
-                <classname>Microsoft_Service_WindowsAzure_Storage_TableEntity</classname> to Windows
+                <classname>Microsoft_WindowsAzure_Storage_TableEntity</classname> to Windows
                 Azure table storage entities with the correct data type and property name. All there
                 is to storing a property in Windows Azure is adding a docblock comment to a public
                 property or public getter/setter, in the following format:
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.entities.enforced.schema-property">
+            <example id="microsoft.windowsazure.storage.table.entities.enforced.schema-property">
                 <title>Enforced property</title>
 
                 <programlisting language="php"><![CDATA[
@@ -249,7 +249,7 @@ public $<property name in PHP>;
                 storage:
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.entities.enforced.schema-property-sample">
+            <example id="microsoft.windowsazure.storage.table.entities.enforced.schema-property-sample">
                 <title>Sample enforced property</title>
 
                 <programlisting language="php"><![CDATA[
@@ -325,21 +325,21 @@ public $Age;
             </itemizedlist>
         </sect3>
 
-        <sect3 id="microsoft.service.windowsazure.storage.table.entities.dynamic">
+        <sect3 id="microsoft.windowsazure.storage.table.entities.dynamic">
             <title>No enforced schema entities (a.k.a. DynamicEntity)</title>
 
             <para>
-                To use the <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> class
+                To use the <classname>Microsoft_WindowsAzure_Storage_Table</classname> class
                 without defining a schema, you can make use of the
-                <classname>Microsoft_Service_WindowsAzure_Storage_DynamicTableEntity</classname> class.
-                This class inherits <classname>Microsoft_Service_WindowsAzure_Storage_TableEntity</classname>
+                <classname>Microsoft_WindowsAzure_Storage_DynamicTableEntity</classname> class.
+                This class inherits <classname>Microsoft_WindowsAzure_Storage_TableEntity</code>
                 like an enforced schema class does, but contains additional logic to make it dynamic
                 and not bound to a schema.
             </para>
 
             <para>
                 Base properties provided by
-                <classname>Microsoft_Service_WindowsAzure_Storage_DynamicTableEntity</classname> are:
+                <classname>Microsoft_WindowsAzure_Storage_DynamicTableEntity</classname> are:
             </para>
 
             <itemizedlist>
@@ -377,11 +377,11 @@ public $Age;
                 will be determined on-the-fly:
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.entities.dynamic.schema">
-                <title>Dynamicaly adding properties to Microsoft_Service_WindowsAzure_Storage_DynamicTableEntity</title>
+            <example id="microsoft.windowsazure.storage.table.entities.dynamic.schema">
+                <title>Dynamicaly adding properties to Microsoft_WindowsAzure_Storage_DynamicTableEntity</title>
 
                 <programlisting language="php"><![CDATA[
-$target = new Microsoft_Service_WindowsAzure_Storage_DynamicTableEntity(
+$target = new Microsoft_WindowsAzure_Storage_DynamicTableEntity(
     'partition1', '000001'
 );
 $target->Name = 'Name'; // Will add property "Name" of type "Edm.String"
@@ -393,11 +393,11 @@ $target->Age  = 25;     // Will add property "Age" of type "Edm.Int32"
                 Optionally, a property type can be enforced:
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.entities.dynamic.schema-forcedproperties">
-                <title>Forcing property types on Microsoft_Service_WindowsAzure_Storage_DynamicTableEntity</title>
+            <example id="microsoft.windowsazure.storage.table.entities.dynamic.schema-forcedproperties">
+                <title>Forcing property types on Microsoft_WindowsAzure_Storage_DynamicTableEntity</title>
 
                 <programlisting language="php"><![CDATA[
-$target = new Microsoft_Service_WindowsAzure_Storage_DynamicTableEntity(
+$target = new Microsoft_WindowsAzure_Storage_DynamicTableEntity(
     'partition1', '000001'
 );
 $target->Name = 'Name'; // Will add property "Name" of type "Edm.String"
@@ -409,17 +409,17 @@ $target->setAzurePropertyType('Age', 'Edm.Int64');
             </example>
 
             <para>
-                The <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> class
+                The <classname>Microsoft_WindowsAzure_Storage_Table</classname> class
                 automatically works with
-                <classname>Microsoft_Service_WindowsAzure_Storage_TableEntity</classname> if no specific
+                <classname>Microsoft_WindowsAzure_Storage_TableEntity</classname> if no specific
                 class is passed into Table Storage methods.
             </para>
         </sect3>
 
-        <sect3 id="microsoft.service.windowsazure.storage.table.entities.api">
+        <sect3 id="microsoft.windowsazure.storage.table.entities.api">
             <title>Entities API examples</title>
 
-            <sect4 id="microsoft.service.windowsazure.storage.table.entities.api.insert">
+            <sect4 id="microsoft.windowsazure.storage.table.entities.api.insert">
                 <title>Inserting an entity</title>
 
                 <para>
@@ -427,7 +427,7 @@ $target->setAzurePropertyType('Age', 'Edm.Int64');
                     "testtable".  Note that the table has already been created before.
                 </para>
 
-                <example id="microsoft.service.windowsazure.storage.table.api.entities.insert.example">
+                <example id="microsoft.windowsazure.storage.table.api.entities.insert.example">
                     <title>Inserting an entity</title>
 
                     <programlisting language="php"><![CDATA[
@@ -436,7 +436,7 @@ $entity->FullName = "Maarten";
 $entity->Age = 25;
 $entity->Visible = true;
 
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 $result = $storageClient->insertEntity('testtable', $entity);
@@ -448,7 +448,7 @@ echo 'Etag: ' . $result->getEtag() . "\n";
                 </example>
             </sect4>
 
-            <sect4 id="microsoft.service.windowsazure.storage.table.entities.api.retrieve-by-id">
+            <sect4 id="microsoft.windowsazure.storage.table.entities.api.retrieve-by-id">
                 <title>Retrieving an entity by partition key and row key</title>
 
                 <para>
@@ -456,11 +456,11 @@ echo 'Etag: ' . $result->getEtag() . "\n";
                     key.  Note that the table and entity have already been created before.
                 </para>
 
-                <example id="microsoft.service.windowsazure.storage.table.entities.api.retrieve-by-id.example">
+                <example id="microsoft.windowsazure.storage.table.entities.api.retrieve-by-id.example">
                     <title>Retrieving an entity by partition key and row key</title>
 
                     <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 $entity= $storageClient->retrieveEntityById(
@@ -470,7 +470,7 @@ $entity= $storageClient->retrieveEntityById(
                 </example>
             </sect4>
 
-            <sect4 id="microsoft.service.windowsazure.storage.table.entities.api.updating">
+            <sect4 id="microsoft.windowsazure.storage.table.entities.api.updating">
                 <title>Updating an entity</title>
 
                 <para>
@@ -478,11 +478,11 @@ $entity= $storageClient->retrieveEntityById(
                     entity have already been created before.
                 </para>
 
-                <example id="microsoft.service.windowsazure.storage.table.api.entities.updating.example">
+                <example id="microsoft.windowsazure.storage.table.api.entities.updating.example">
                     <title>Updating an entity</title>
 
                     <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 $entity = $storageClient->retrieveEntityById(
@@ -501,11 +501,11 @@ $result = $storageClient->updateEntity('testtable', $entity);
                     newer data.
                 </para>
 
-                <example id="microsoft.service.windowsazure.storage.table.entities.api.updating.example-etag">
+                <example id="microsoft.windowsazure.storage.table.entities.api.updating.example-etag">
                     <title>Updating an entity (with Etag check)</title>
 
                     <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 $entity = $storageClient->retrieveEntityById(
@@ -520,7 +520,7 @@ $result = $storageClient->updateEntity('testtable', $entity, true);
                 </example>
             </sect4>
 
-            <sect4 id="microsoft.service.windowsazure.storage.table.entities.api.delete">
+            <sect4 id="microsoft.windowsazure.storage.table.entities.api.delete">
                 <title>Deleting an entity</title>
 
                 <para>
@@ -528,11 +528,11 @@ $result = $storageClient->updateEntity('testtable', $entity, true);
                     entity have already been created before.
                 </para>
 
-                <example id="microsoft.service.windowsazure.storage.table.entities.api.delete.example">
+                <example id="microsoft.windowsazure.storage.table.entities.api.delete.example">
                     <title>Deleting an entity</title>
 
                     <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 $entity = $storageClient->retrieveEntityById(
@@ -544,11 +544,11 @@ $result = $storageClient->deleteEntity('testtable', $entity);
             </sect4>
         </sect3>
 
-        <sect3 id="microsoft.service.windowsazure.storage.table.entities.querying">
+        <sect3 id="microsoft.windowsazure.storage.table.entities.querying">
             <title>Performing queries</title>
 
             <para>
-                Queries in <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname> table
+                Queries in <classname>Microsoft_WindowsAzure_Storage_Table</classname> table
                 storage can be performed in two ways:
             </para>
 
@@ -563,7 +563,7 @@ $result = $storageClient->deleteEntity('testtable', $entity);
                 <listitem>
                     <para>
                         By using the fluent interface provided by the
-                        <classname>Microsoft_Service_WindowsAzure_Storage_Table</classname>
+                        <classname>Microsoft_WindowsAzure_Storage_Table</classname>
                     </para>
                 </listitem>
             </itemizedlist>
@@ -573,11 +573,11 @@ $result = $storageClient->deleteEntity('testtable', $entity);
                 that the table and entities have already been created before.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.entities.querying.query-filter">
+            <example id="microsoft.windowsazure.storage.table.entities.querying.query-filter">
                 <title>Performing queries using a filter condition</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 $entities = $storageClient->storageClient->retrieveEntities(
@@ -597,11 +597,11 @@ foreach ($entities as $entity) {
                 that the table and entities have already been created before.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.api.entities.query-fluent">
+            <example id="microsoft.windowsazure.storage.table.api.entities.query-fluent">
                 <title>Performing queries using a fluent interface</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 $entities = $storageClient->storageClient->retrieveEntities(
@@ -620,7 +620,7 @@ foreach ($entities as $entity) {
             </example>
         </sect3>
 
-        <sect3 id="microsoft.service.windowsazure.storage.table.entities.batch">
+        <sect3 id="microsoft.windowsazure.storage.table.entities.batch">
             <title>Batch operations</title>
 
             <para>
@@ -636,11 +636,11 @@ foreach ($entities as $entity) {
                 before.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.table.api.batch">
+            <example id="microsoft.windowsazure.storage.table.api.batch">
                 <title>Executing a batch operation</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 
@@ -660,32 +660,32 @@ $batch->commit();
         </sect3>
     </sect2>
   
-    <sect2 id="microsoft.service.windowsazure.storage.table.sessionhandler">
+    <sect2 id="microsoft.windowsazure.storage.table.sessionhandler">
         <title>Table storage session handler</title>
 
         <para>
             When running a PHP application on the Windows Azure platform in a load-balanced mode
             (running 2 Web Role instances or more), it is important that PHP session data can be
             shared between multiple Web Role instances. The Windows Azure SDK for PHP provides the
-            <classname>Microsoft_Service_WindowsAzure_SessionHandler</classname> class, which uses
+            <classname>Microsoft_WindowsAzure_SessionHandler</classname> class, which uses
             Windows Azure Table Storage as a session handler for PHP applications.
         </para>
         
         <para>
-            To use the <classname>Microsoft_Service_WindowsAzure_SessionHandler</classname> session
+            To use the <classname>Microsoft_WindowsAzure_SessionHandler</classname> session
             handler, it should be registered as the default session handler for your PHP
             application:
         </para>
 
-        <example id="microsoft.service.windowsazure.storage.table.api.sessionhandler-register">
+        <example id="microsoft.windowsazure.storage.table.api.sessionhandler-register">
             <title>Registering table storage session handler</title>
 
             <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 
-$sessionHandler = new Microsoft_Service_WindowsAzure_SessionHandler(
+$sessionHandler = new Microsoft_WindowsAzure_SessionHandler(
     $storageClient , 'sessionstable'
 );
 $sessionHandler->register();
@@ -694,25 +694,25 @@ $sessionHandler->register();
     
         <para>
             The above classname registers the
-            <classname>Microsoft_Service_WindowsAzure_SessionHandler</classname> session handler and will
+            <classname>Microsoft_WindowsAzure_SessionHandler</classname> session handler and will
             store sessions in a table called "sessionstable".
         </para>
         
         <para>
             After registration of the
-            <classname>Microsoft_Service_WindowsAzure_SessionHandler</classname> session handler,
+            <classname>Microsoft_WindowsAzure_SessionHandler</classname> session handler,
             sessions can be started and used in the same way as a normal PHP session:
         </para>
         
-        <example id="microsoft.service.windowsazure.storage.table.api.sessionhandler-usage">
+        <example id="microsoft.windowsazure.storage.table.api.sessionhandler-usage">
             <title>Using table storage session handler</title>
 
             <programlisting role="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Table(
+$storageClient = new Microsoft_WindowsAzure_Storage_Table(
     'table.core.windows.net', 'myaccount', 'myauthkey'
 );
 
-$sessionHandler = new Microsoft_Service_WindowsAzure_SessionHandler(
+$sessionHandler = new Microsoft_WindowsAzure_SessionHandler(
     $storageClient , 'sessionstable'
 );
 $sessionHandler->register();
@@ -729,7 +729,7 @@ if (!isset($_SESSION['firstVisit'])) {
     
         <warning>
             <para>
-                The <classname>Microsoft_Service_WindowsAzure_SessionHandler</classname> session handler
+                The <classname>Microsoft_WindowsAzure_SessionHandler</classname> session handler
                 should be registered before a call to <functionname>session_start()</functionname>
                 is made!
             </para>

@@ -34,9 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_SharedKeyCredentials
+ * @see Microsoft_WindowsAzure_Credentials_SharedKey
  */
-require_once 'Microsoft/WindowsAzure/SharedKeyCredentials.php';
+require_once 'Microsoft/WindowsAzure/Credentials/SharedKey.php';
 
 /**
  * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
@@ -102,7 +102,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	 * @param boolean $usePathStyleUri Use path-style URI's
 	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
 	 */
-	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_QUEUE, $accountName = Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
+	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_QUEUE, $accountName = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
 	{
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
 		
@@ -160,14 +160,14 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		}
 		
 		// Perform request
-		$response = $this->performRequest($queueName, '', Microsoft_Http_Client::PUT, $headers);			
+		$response = $this->_performRequest($queueName, '', Microsoft_Http_Client::PUT, $headers);			
 		if ($response->isSuccessful()) {
 		    return new Microsoft_WindowsAzure_Storage_QueueInstance(
 		        $queueName,
 		        $metadata
 		    );
 		} else {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -188,7 +188,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		}
 		    
 		// Perform request
-		$response = $this->performRequest($queueName, '?comp=metadata', Microsoft_Http_Client::GET);	
+		$response = $this->_performRequest($queueName, '?comp=metadata', Microsoft_Http_Client::GET);	
 		if ($response->isSuccessful()) {
 		    // Parse metadata
 		    $metadata = array();
@@ -206,7 +206,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		    $queue->ApproximateMessageCount = intval($response->getHeader('x-ms-approximate-message-count'));
 		    return $queue;
 		} else {
-		    throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -257,10 +257,10 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		}
 		
 		// Perform request
-		$response = $this->performRequest($queueName, '?comp=metadata', Microsoft_Http_Client::PUT, $headers);
+		$response = $this->_performRequest($queueName, '?comp=metadata', Microsoft_Http_Client::PUT, $headers);
 
 		if (!$response->isSuccessful()) {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -280,9 +280,9 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		}
 			
 		// Perform request
-		$response = $this->performRequest($queueName, '', Microsoft_Http_Client::DELETE);
+		$response = $this->_performRequest($queueName, '', Microsoft_Http_Client::DELETE);
 		if (!$response->isSuccessful()) {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -311,10 +311,10 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	    }
 	        
 		// Perform request
-		$response = $this->performRequest('', $queryString, Microsoft_Http_Client::GET);	
+		$response = $this->_performRequest('', $queryString, Microsoft_Http_Client::GET);	
 		if ($response->isSuccessful()) {
-			$xmlQueues = $this->parseResponse($response)->Queues->Queue;
-			$xmlMarker = (string)$this->parseResponse($response)->NextMarker;
+			$xmlQueues = $this->_parseResponse($response)->Queues->Queue;
+			$xmlMarker = (string)$this->_parseResponse($response)->NextMarker;
 
 			$queues = array();
 			if (!is_null($xmlQueues)) {
@@ -336,7 +336,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 			    
 			return $queues;
 		} else {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -379,7 +379,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	    $rawData .= '</QueueMessage>';
 	        
 		// Perform request
-		$response = $this->performRequest($queueName . '/messages', $queryString, Microsoft_Http_Client::POST, array(), false, $rawData);
+		$response = $this->_performRequest($queueName . '/messages', $queryString, Microsoft_Http_Client::POST, array(), false, $rawData);
 
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception('Error putting message into queue.');
@@ -425,10 +425,10 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
     	$queryString = '?' . implode('&', $query);
 	        
 		// Perform request
-		$response = $this->performRequest($queueName . '/messages', $queryString, Microsoft_Http_Client::GET);	
+		$response = $this->_performRequest($queueName . '/messages', $queryString, Microsoft_Http_Client::GET);	
 		if ($response->isSuccessful()) {
 		    // Parse results
-			$result = $this->parseResponse($response);
+			$result = $this->_parseResponse($response);
 		    if (!$result) {
 		        return array();
 		    }
@@ -454,7 +454,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 			    
 			return $messages;
 		} else {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -487,7 +487,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		}
 
 		// Perform request
-		$response = $this->performRequest($queueName . '/messages', '', Microsoft_Http_Client::DELETE);	
+		$response = $this->_performRequest($queueName . '/messages', '', Microsoft_Http_Client::DELETE);	
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception('Error clearing messages from queue.');
 		}
@@ -513,9 +513,9 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		}
 
 		// Perform request
-		$response = $this->performRequest($queueName . '/messages/' . $message->MessageId, '?popreceipt=' . $message->PopReceipt, Microsoft_Http_Client::DELETE);	
+		$response = $this->_performRequest($queueName . '/messages/' . $message->MessageId, '?popreceipt=' . $message->PopReceipt, Microsoft_Http_Client::DELETE);	
 		if (!$response->isSuccessful()) {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -557,9 +557,9 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	 * @param string $alternativeError Alternative error message
 	 * @return string
 	 */
-	protected function getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknown error.')
+	protected function _getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknown error.')
 	{
-		$response = $this->parseResponse($response);
+		$response = $this->_parseResponse($response);
 		if ($response && $response->Message) {
 		    return (string)$response->Message;
 		} else {

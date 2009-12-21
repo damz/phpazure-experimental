@@ -43,7 +43,7 @@ require_once 'Microsoft/Http/Client.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */ 
-abstract class Microsoft_WindowsAzure_Credentials
+abstract class Microsoft_WindowsAzure_Credentials_CredentialsAbstract
 {
 	/**
 	 * Development storage account and key
@@ -88,14 +88,17 @@ abstract class Microsoft_WindowsAzure_Credentials
 	protected $_usePathStyleUri = false;
 	
 	/**
-	 * Creates a new Microsoft_WindowsAzure_Credentials instance
+	 * Creates a new Microsoft_WindowsAzure_Credentials_CredentialsAbstract instance
 	 *
 	 * @param string $accountName Account name for Windows Azure
 	 * @param string $accountKey Account key for Windows Azure
 	 * @param boolean $usePathStyleUri Use path-style URI's
 	 */
-	public function __construct($accountName = Microsoft_WindowsAzure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false)
-	{
+	public function __construct(
+		$accountName = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_ACCOUNT,
+		$accountKey  = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_KEY,
+		$usePathStyleUri = false
+	) {
 		$this->_accountName = $accountName;
 		$this->_accountKey = base64_decode($accountKey);
 		$this->_usePathStyleUri = $usePathStyleUri;
@@ -104,31 +107,37 @@ abstract class Microsoft_WindowsAzure_Credentials
 	/**
 	 * Set account name for Windows Azure
 	 *
-	 * @param string $value
+	 * @param  string $value
+	 * @return Microsoft_WindowsAzure_Credentials_CredentialsAbstract
 	 */
-	public function setAccountName($value = Microsoft_WindowsAzure_Credentials::DEVSTORE_ACCOUNT)
+	public function setAccountName($value = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_ACCOUNT)
 	{
 		$this->_accountName = $value;
+		return $this;
 	}
 	
 	/**
 	 * Set account key for Windows Azure
 	 *
-	 * @param string $value
+	 * @param  string $value
+	 * @return Microsoft_WindowsAzure_Credentials_CredentialsAbstract
 	 */
-	public function setAccountkey($value = Microsoft_WindowsAzure_Credentials::DEVSTORE_KEY)
+	public function setAccountkey($value = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_KEY)
 	{
 		$this->_accountKey = base64_decode($value);
+		return $this;
 	}
 	
 	/**
 	 * Set use path-style URI's
 	 *
-	 * @param boolean $value
+	 * @param  boolean $value
+	 * @return Microsoft_WindowsAzure_Credentials_CredentialsAbstract
 	 */
 	public function setUsePathStyleUri($value = false)
 	{
 		$this->_usePathStyleUri = $value;
+		return $this;
 	}
 	
 	/**
@@ -139,7 +148,11 @@ abstract class Microsoft_WindowsAzure_Credentials
 	 * @param string $requiredPermission Required permission
 	 * @return string Signed request URL
 	 */
-	public abstract function signRequestUrl($requestUrl = '');
+	abstract public function signRequestUrl(
+		$requestUrl = '',
+		$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
+		$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ
+	);
 	
 	/**
 	 * Sign request headers with credentials
@@ -153,7 +166,15 @@ abstract class Microsoft_WindowsAzure_Credentials
 	 * @param string $requiredPermission Required permission
 	 * @return array Array of headers
 	 */
-	public abstract function signRequestHeaders($httpVerb = Microsoft_Http_Client::GET, $path = '/', $queryString = '', $headers = null, $forTableStorage = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ);
+	abstract public function signRequestHeaders(
+		$httpVerb = Microsoft_Http_Client::GET,
+		$path = '/',
+		$queryString = '',
+		$headers = null,
+		$forTableStorage = false,
+		$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
+		$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ
+	);
 	
 	
 	/**
@@ -162,7 +183,7 @@ abstract class Microsoft_WindowsAzure_Credentials
 	 * @param  string $value Original query string
 	 * @return string        Query string for signing
 	 */
-	protected function prepareQueryStringForSigning($value)
+	protected function _prepareQueryStringForSigning($value)
 	{
 	    // Check for 'comp='
 	    if (strpos($value, 'comp=') === false) {

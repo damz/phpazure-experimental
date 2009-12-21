@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project name="PHPAzure" default="release" basedir=".">
-  <propertyprompt propertyName="outputPath" defaultValue="C:\Projects\ZF\Laboratory\Zend_Service_WindowsAzure"
+  <propertyprompt propertyName="outputPath" defaultValue="C:\Projects\ZF\Standard"
 		promptText="Enter output path" />
 
   <adhoc-task name="replaceHeader">

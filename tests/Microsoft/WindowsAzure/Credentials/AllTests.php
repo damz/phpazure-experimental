@@ -28,7 +28,7 @@
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
  * @subpackage UnitTests
- * @version    $Id$
+ * @version    $Id: AllTests.php 35709 2009-12-14 14:14:14Z unknown $
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
@@ -36,34 +36,24 @@
 /**
  * Test helpers
  */
-require_once dirname(__FILE__) . '/../../TestHelper.php';
+require_once dirname(__FILE__) . '/../../../TestHelper.php';
 
 if (!defined('PHPUnit_MAIN_METHOD')) {
-    define('PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_AllTests::main');
+    define('PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_Credentials_AllTests::main');
 }
 
-require_once 'Microsoft/WindowsAzure/Credentials/AllTests.php';
-require_once 'Microsoft/WindowsAzure/RetryPolicyTest.php';
-require_once 'Microsoft/WindowsAzure/StorageTest.php';
-require_once 'Microsoft/WindowsAzure/BlobStorageTest.php';
-require_once 'Microsoft/WindowsAzure/BlobStreamTest.php';
-require_once 'Microsoft/WindowsAzure/BlobStorageSharedAccessTest.php';
-require_once 'Microsoft/WindowsAzure/TableEntityTest.php';
-require_once 'Microsoft/WindowsAzure/DynamicTableEntityTest.php';
-require_once 'Microsoft/WindowsAzure/TableEntityQueryTest.php';
-require_once 'Microsoft/WindowsAzure/TableStorageTest.php';
-require_once 'Microsoft/WindowsAzure/QueueStorageTest.php';
-require_once 'Microsoft/WindowsAzure/SessionHandlerTest.php';
-
+require_once 'Microsoft/WindowsAzure/Credentials/SharedKeyTest.php';
+require_once 'Microsoft/WindowsAzure/Credentials/SharedKeyLiteTest.php';
+require_once 'Microsoft/WindowsAzure/Credentials/SharedAccessSignatureTest.php';
 /**
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
  * @subpackage UnitTests
- * @version    $Id$
+ * @version    $Id: AllTests.php 35709 2009-12-14 14:14:14Z unknown $
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_WindowsAzure_AllTests
+class Microsoft_WindowsAzure_Credentials_AllTests
 {
     public static function main()
     {
@@ -74,31 +64,14 @@ class Microsoft_WindowsAzure_AllTests
     {
         $suite = new PHPUnit_Framework_TestSuite(__CLASS__);
 
-        $suite->addTest(Microsoft_WindowsAzure_Credentials_AllTests::suite());
+        $suite->addTestSuite('Microsoft_WindowsAzure_Credentials_SharedKeyTest');
+        $suite->addTestSuite('Microsoft_WindowsAzure_Credentials_SharedKeyLiteTest');
+        $suite->addTestSuite('Microsoft_WindowsAzure_Credentials_SharedAccessSignatureTest');
         
-        $suite->addTestSuite('Microsoft_WindowsAzure_RetryPolicyTest');
-        $suite->addTestSuite('Microsoft_WindowsAzure_StorageTest');
-        if (TESTS_BLOB_RUNTESTS) {
-            $suite->addTestSuite('Microsoft_WindowsAzure_BlobStorageTest');
-            $suite->addTestSuite('Microsoft_WindowsAzure_BlobStorageSharedAccessTest');
-            $suite->addTestSuite('Microsoft_WindowsAzure_BlobStreamTest');
-        }
-        if (TESTS_TABLE_RUNTESTS) {
-            $suite->addTestSuite('Microsoft_WindowsAzure_TableEntityTest');
-            $suite->addTestSuite('Microsoft_WindowsAzure_DynamicTableEntityTest');
-            $suite->addTestSuite('Microsoft_WindowsAzure_TableEntityQueryTest');
-            $suite->addTestSuite('Microsoft_WindowsAzure_TableStorageTest');
-        }
-        if (TESTS_QUEUE_RUNTESTS) {
-            $suite->addTestSuite('Microsoft_WindowsAzure_QueueStorageTest');
-        }
-        if (TESTS_SESSIONHANDLER_RUNTESTS) {
-            $suite->addTestSuite('Microsoft_WindowsAzure_SessionHandlerTest');
-        }
         return $suite;
     }
 }
 
-if (PHPUnit_MAIN_METHOD == 'Microsoft_WindowsAzure_AllTests::main') {
-    Microsoft_WindowsAzure_AllTests::main();
+if (PHPUnit_MAIN_METHOD == 'Microsoft_WindowsAzure_Credentials_AllTests::main') {
+    Microsoft_WindowsAzure_Credentials_AllTests::main();
 }

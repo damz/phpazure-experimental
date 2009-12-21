@@ -39,9 +39,9 @@
 require_once 'Microsoft/WindowsAzure/Storage.php';
 
 /**
- * @see Microsoft_WindowsAzure_Credentials
+ * @see Microsoft_WindowsAzure_Credentials_CredentialsAbstract
  */
-require_once 'Microsoft/WindowsAzure/Credentials.php';
+require_once 'Microsoft/WindowsAzure/Credentials/CredentialsAbstract.php';
 
 /**
  * @see Microsoft_WindowsAzure_Exception
@@ -70,7 +70,8 @@ require_once 'Microsoft/Http/Response.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-abstract class Microsoft_WindowsAzure_Storage_BatchStorage extends Microsoft_WindowsAzure_Storage
+abstract class Microsoft_WindowsAzure_Storage_BatchStorageAbstract
+    extends Microsoft_WindowsAzure_Storage
 {	
     /**
      * Current batch
@@ -134,7 +135,7 @@ abstract class Microsoft_WindowsAzure_Storage_BatchStorage extends Microsoft_Win
 	 * @param string $requiredPermission Required permission
 	 * @return Microsoft_Http_Response
 	 */
-	public function performBatch($operations = array(), $forTableStorage = false, $isSingleSelect = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
+	public function performBatch($operations = array(), $forTableStorage = false, $isSingleSelect = false, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ)
 	{
 	    // Generate boundaries
 	    $batchBoundary = 'batch_' . md5(time() . microtime());

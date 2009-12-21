@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Reviewed: no -->
-<sect1 id="microsoft.service.windowsazure">
-    <title>Microsoft_Service_WindowsAzure</title>
+<sect1 id="microsoft.windowsazure">
+    <title>Microsoft_WindowsAzure</title>
 
-    <sect2 id="microsoft.service.windowsazure.introduction">
+    <sect2 id="microsoft.windowsazure.introduction">
         <title>Introduction</title>
 
         <para>
@@ -15,7 +15,7 @@
         </para>
     </sect2>
 
-    <sect2 id="microsoft.service.windowsazure.sdk">
+    <sect2 id="microsoft.windowsazure.sdk">
         <title>Installing the Windows Azure SDK</title>
 
         <para>
@@ -26,7 +26,7 @@
             <listitem>
                 <para>
                     You can develop your application using
-                    <classname>Microsoft_Service_WindowsAzure</classname> and the Windows Azure SDK,
+                    <classname>Microsoft_WindowsAzure</classname> and the Windows Azure SDK,
                     which provides a local developent environment of the services provided by
                     Windows Azure's cloud infrastructure.
                 </para>
@@ -35,7 +35,7 @@
             <listitem>
                 <para>
                     You can develop your application using
-                    <classname>Microsoft_Service_WindowsAzure</classname>, working directly with the
+                    <classname>Microsoft_WindowsAzure</classname>, working directly with the
                     Windows Azure cloud infrastructure.
                 </para>
             </listitem>
@@ -55,11 +55,11 @@
         </para>
     </sect2>
 
-    <sect2 id="microsoft.service.windowsazure.apiDocumentation">
+    <sect2 id="microsoft.windowsazure.apiDocumentation">
         <title>API Documentation</title>
 
         <para>
-            The <classname>Microsoft_Service_WindowsAzure</classname> class provides the PHP wrapper to
+            The <classname>Microsoft_WindowsAzure</classname> class provides the PHP wrapper to
             the Windows Azure <acronym>REST</acronym> interface. Please consult the <ulink
                 url="http://msdn.microsoft.com/en-us/library/dd179355.aspx">REST
                 documentation</ulink> for detailed description of the service. You will need to be
@@ -68,11 +68,11 @@
     
     </sect2>
 
-    <sect2 id="microsoft.service.windowsazure.features">
+    <sect2 id="microsoft.windowsazure.features">
         <title>Features</title>
 
         <para>
-            <classname>Microsoft_Service_WindowsAzure</classname> provides the following functionality:
+            <classname>Microsoft_WindowsAzure</classname> provides the following functionality:
         </para>
 
         <itemizedlist>
@@ -97,17 +97,17 @@
         </itemizedlist>
     </sect2>
 
-    <sect2 id="microsoft.service.windowsazure.architecture">
+    <sect2 id="microsoft.windowsazure.architecture">
         <title>Architecture</title>
 
         <para>
-            <classname>Microsoft_Service_WindowsAzure</classname> provides access to Windows Azure's
+            <classname>Microsoft_WindowsAzure</classname> provides access to Windows Azure's
             storage, computation and management interfaces by abstracting the REST/XML interface
             Windows Azure provides into a simple PHP API.
         </para>
 
         <para>
-            An application built using <classname>Microsoft_Service_WindowsAzure</classname> can access
+            An application built using <classname>Microsoft_WindowsAzure</classname> can access
             Windows Azure's features, no matter if it is hosted on the Windows Azure platform or on
             an in-premise web server.
         </para>

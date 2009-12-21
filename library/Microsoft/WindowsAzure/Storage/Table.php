@@ -34,19 +34,19 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Credentials
+ * @see Microsoft_WindowsAzure_Credentials_CredentialsAbstract
  */
-require_once 'Microsoft/WindowsAzure/Credentials.php';
+require_once 'Microsoft/WindowsAzure/Credentials/CredentialsAbstract.php';
 
 /**
- * @see Microsoft_WindowsAzure_SharedKeyCredentials
+ * @see Microsoft_WindowsAzure_Credentials_SharedKey
  */
-require_once 'Microsoft/WindowsAzure/SharedKeyCredentials.php';
+require_once 'Microsoft/WindowsAzure/Credentials/SharedKey.php';
 
 /**
- * @see Microsoft_WindowsAzure_SharedKeyLiteCredentials
+ * @see Microsoft_WindowsAzure_Credentials_SharedKeyLite
  */
-require_once 'Microsoft/WindowsAzure/SharedKeyLiteCredentials.php';
+require_once 'Microsoft/WindowsAzure/Credentials/SharedKeyLite.php';
 
 /**
  * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
@@ -69,9 +69,9 @@ require_once 'Microsoft/Http/Response.php';
 require_once 'Microsoft/WindowsAzure/Storage.php';
 
 /**
- * @see Microsoft_WindowsAzure_Storage_BatchStorage
+ * @see Microsoft_WindowsAzure_Storage_BatchStorageAbstract
  */
-require_once 'Microsoft/WindowsAzure/Storage/BatchStorage.php';
+require_once 'Microsoft/WindowsAzure/Storage/BatchStorageAbstract.php';
 
 /**
  * @see Microsoft_WindowsAzure_Storage_TableInstance
@@ -106,7 +106,8 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storage_BatchStorage
+class Microsoft_WindowsAzure_Storage_Table
+    extends Microsoft_WindowsAzure_Storage_BatchStorageAbstract
 {
 	/**
 	 * Creates a new Microsoft_WindowsAzure_Storage_Table instance
@@ -117,12 +118,12 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * @param boolean $usePathStyleUri Use path-style URI's
 	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
 	 */
-	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_TABLE, $accountName = Microsoft_WindowsAzure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
+	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_TABLE, $accountName = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
 	{
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
 
 	    // Always use SharedKeyLite authentication
-	    $this->_credentials = new Microsoft_WindowsAzure_SharedKeyLiteCredentials($accountName, $accountKey, $this->_usePathStyleUri);
+	    $this->_credentials = new Microsoft_WindowsAzure_Credentials_SharedKeyLite($accountName, $accountKey, $this->_usePathStyleUri);
 	    
 	    // API version
 		$this->_apiVersion = '2009-04-14';
@@ -167,10 +168,10 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	    }
 	    
 		// Perform request
-		$response = $this->performRequest('Tables', $queryString, Microsoft_Http_Client::GET, null, true);
+		$response = $this->_performRequest('Tables', $queryString, Microsoft_Http_Client::GET, null, true);
 		if ($response->isSuccessful()) {	    
 		    // Parse result
-		    $result = $this->parseResponse($response);	
+		    $result = $this->_parseResponse($response);	
 		    
 		    if (!$result || !$result->entry) {
 		        return array();
@@ -204,7 +205,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 
 		    return $returnValue;
 		} else {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -240,7 +241,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
                           </content>
                         </entry>';
 		
-        $requestBody = $this->fillTemplate($requestBody, array(
+        $requestBody = $this->_fillTemplate($requestBody, array(
             'BaseUrl' => $this->getBaseUrl(),
             'TableName' => $tableName,
         	'Updated' => $this->isoDate(),
@@ -254,10 +255,10 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
         $headers['MaxDataServiceVersion'] = '1.0;NetFx';        
 
 		// Perform request
-		$response = $this->performRequest('Tables', '', Microsoft_Http_Client::POST, $headers, true, $requestBody);
+		$response = $this->_performRequest('Tables', '', Microsoft_Http_Client::POST, $headers, true, $requestBody);
 		if ($response->isSuccessful()) {
 		    // Parse response
-		    $entry = $this->parseResponse($response);
+		    $entry = $this->_parseResponse($response);
 		    
 		    $tableName = $entry->xpath('.//m:properties/d:TableName');
 		    $tableName = (string)$tableName[0];
@@ -269,7 +270,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		        (string)$entry->updated
 		    );
 		} else {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -290,9 +291,9 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
         $headers['Content-Type'] = 'application/atom+xml';
 
 		// Perform request
-		$response = $this->performRequest('Tables(\'' . $tableName . '\')', '', Microsoft_Http_Client::DELETE, $headers, true, null);
+		$response = $this->_performRequest('Tables(\'' . $tableName . '\')', '', Microsoft_Http_Client::DELETE, $headers, true, null);
 		if (!$response->isSuccessful()) {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -329,9 +330,9 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
                           </content>
                         </entry>';
 		
-        $requestBody = $this->fillTemplate($requestBody, array(
+        $requestBody = $this->_fillTemplate($requestBody, array(
         	'Updated'    => $this->isoDate(),
-            'Properties' => $this->generateAzureRepresentation($entity)
+            'Properties' => $this->_generateAzureRepresentation($entity)
         ));
 
         // Add header information
@@ -344,11 +345,11 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    $this->getCurrentBatch()->enlistOperation($tableName, '', Microsoft_Http_Client::POST, $headers, true, $requestBody);
 		    return null;
 		} else {
-		    $response = $this->performRequest($tableName, '', Microsoft_Http_Client::POST, $headers, true, $requestBody);
+		    $response = $this->_performRequest($tableName, '', Microsoft_Http_Client::POST, $headers, true, $requestBody);
 		}
 		if ($response->isSuccessful()) {
 		    // Parse result
-		    $result = $this->parseResponse($response);
+		    $result = $this->_parseResponse($response);
 		    
 		    $timestamp = $result->xpath('//m:properties/d:Timestamp');
 		    $timestamp = (string)$timestamp[0];
@@ -362,7 +363,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 
 		    return $entity;
 		} else {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -402,10 +403,10 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Client::DELETE, $headers, true, null);
 		    return null;
 		} else {
-		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Client::DELETE, $headers, true, null);
+		    $response = $this->_performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', Microsoft_Http_Client::DELETE, $headers, true, null);
 		}
 		if (!$response->isSuccessful()) {
-		    throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -555,12 +556,12 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    $innerResponse = substr($innerResponse, 0, strpos($innerResponse, '--batchresponse'));
 		    $response = Microsoft_Http_Response::fromString($innerResponse);
 		} else {
-		    $response = $this->performRequest($tableName, $queryString, Microsoft_Http_Client::GET, array(), true, null);
+		    $response = $this->_performRequest($tableName, $queryString, Microsoft_Http_Client::GET, array(), true, null);
 		}
 		
 		if ($response->isSuccessful()) {
 		    // Parse result
-		    $result = $this->parseResponse($response);
+		    $result = $this->_parseResponse($response);
 		    if (!$result) {
 		        return array();
 		    }
@@ -623,7 +624,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    // Return
 		    return $returnValue;
 		} else {
-		    throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -637,7 +638,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 */
 	public function updateEntity($tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
-	    return $this->changeEntity(Microsoft_Http_Client::PUT, $tableName, $entity, $verifyEtag);
+	    return $this->_changeEntity(Microsoft_Http_Client::PUT, $tableName, $entity, $verifyEtag);
 	}
 	
 	/**
@@ -667,7 +668,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 			$mergeEntity = $entity;
 		}
 		
-	    return $this->changeEntity(Microsoft_Http_Client::MERGE, $tableName, $mergeEntity, $verifyEtag);
+	    return $this->_changeEntity(Microsoft_Http_Client::MERGE, $tableName, $mergeEntity, $verifyEtag);
 	}
 	
 	/**
@@ -677,9 +678,9 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * @param string $alternativeError Alternative error message
 	 * @return string
 	 */
-	protected function getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknown error.')
+	protected function _getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknown error.')
 	{
-		$response = $this->parseResponse($response);
+		$response = $this->_parseResponse($response);
 		if ($response && $response->message) {
 		    return (string)$response->message;
 		} else {
@@ -696,7 +697,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * @param boolean                             $verifyEtag  Verify etag of the entity (used for concurrency)
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	protected function changeEntity($httpVerb = Microsoft_Http_Client::PUT, $tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
+	protected function _changeEntity($httpVerb = Microsoft_Http_Client::PUT, $tableName = '', Microsoft_WindowsAzure_Storage_TableEntity $entity = null, $verifyEtag = false)
 	{
 		if ($tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
@@ -731,9 +732,9 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
                           </content>
                         </entry>';
 		
-        $requestBody = $this->fillTemplate($requestBody, array(
+        $requestBody = $this->_fillTemplate($requestBody, array(
         	'Updated'    => $this->isoDate(),
-            'Properties' => $this->generateAzureRepresentation($entity)
+            'Properties' => $this->_generateAzureRepresentation($entity)
         ));
 
         // Add header information
@@ -751,7 +752,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 		    $this->getCurrentBatch()->enlistOperation($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', $httpVerb, $headers, true, $requestBody);
 		    return null;
 		} else {
-		    $response = $this->performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', $httpVerb, $headers, true, $requestBody);
+		    $response = $this->_performRequest($tableName . '(PartitionKey=\'' . $entity->getPartitionKey() . '\', RowKey=\'' . $entity->getRowKey() . '\')', '', $httpVerb, $headers, true, $requestBody);
 		}
 		if ($response->isSuccessful()) {
 		    // Update properties
@@ -760,7 +761,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 
 		    return $entity;
 		} else {
-			throw new Microsoft_WindowsAzure_Exception($this->getErrorMessage($response, 'Resource could not be accessed.'));
+			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
 	
@@ -769,7 +770,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * 
 	 * @return string
 	 */
-	protected function rfcDate()
+	protected function _rfcDate()
 	{
 	    return gmdate('D, d M Y H:i:s', time()) . ' GMT'; // RFC 1123
 	}
@@ -781,7 +782,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * @param array $variables Array containing key/value pairs
 	 * @return string
 	 */
-	protected function fillTemplate($templateText, $variables = array())
+	protected function _fillTemplate($templateText, $variables = array())
 	{
 	    foreach ($variables as $key => $value) {
 	        $templateText = str_replace('{tpl:' . $key . '}', $value, $templateText);
@@ -795,7 +796,7 @@ class Microsoft_WindowsAzure_Storage_Table extends Microsoft_WindowsAzure_Storag
 	 * @param Microsoft_WindowsAzure_Storage_TableEntity $entity
 	 * @return string
 	 */
-	protected function generateAzureRepresentation(Microsoft_WindowsAzure_Storage_TableEntity $entity = null)
+	protected function _generateAzureRepresentation(Microsoft_WindowsAzure_Storage_TableEntity $entity = null)
 	{
 		// Generate Azure representation from entity
 		$azureRepresentation = array();

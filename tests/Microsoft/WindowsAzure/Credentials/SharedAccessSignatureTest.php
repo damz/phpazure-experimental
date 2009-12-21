@@ -40,12 +40,12 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 /**
  * Test helpers
  */
-require_once dirname(__FILE__) . '/../../TestHelper.php';
-require_once dirname(__FILE__) . '/../../TestConfiguration.php';
+require_once dirname(__FILE__) . '/../../../TestHelper.php';
+require_once dirname(__FILE__) . '/../../../TestConfiguration.php';
 require_once 'PHPUnit/Framework/TestCase.php';
 
-/** Microsoft_WindowsAzure_SharedAccessSignatureCredentials */
-require_once 'Microsoft/WindowsAzure/SharedAccessSignatureCredentials.php';
+/** Microsoft_WindowsAzure_Credentials_SharedAccessSignature */
+require_once 'Microsoft/WindowsAzure/Credentials/SharedAccessSignature.php';
 
 /**
  * @category   Microsoft
@@ -55,11 +55,11 @@ require_once 'Microsoft/WindowsAzure/SharedAccessSignatureCredentials.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest extends PHPUnit_Framework_TestCase
+class Microsoft_WindowsAzure_Credentials_SharedAccessSignatureTest extends PHPUnit_Framework_TestCase
 {
     public static function main()
     {
-        $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest");
+        $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_Credentials_SharedAccessSignatureTest");
         $result = PHPUnit_TextUI_TestRunner::run($suite);
     }
     
@@ -68,7 +68,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest extends PHPUni
      */
     public function testGenerateSignatureContainer()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedAccessSignatureCredentials('myaccount', 'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqYQ/uxbMpEx+7S/jo9sT3ZIkEucZGbEafDuxD1kwFOXf3xyw==', false);
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedAccessSignature('myaccount', 'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqYQ/uxbMpEx+7S/jo9sT3ZIkEucZGbEafDuxD1kwFOXf3xyw==', false);
         $result = $credentials->createSignature(
             'pictures',
             'c',
@@ -85,7 +85,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest extends PHPUni
      */
     public function testGenerateSignatureBlob()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedAccessSignatureCredentials('myaccount', 'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqYQ/uxbMpEx+7S/jo9sT3ZIkEucZGbEafDuxD1kwFOXf3xyw==', false);
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedAccessSignature('myaccount', 'WXuEUKMijV/pxUu5/RhDn1bYRuFlLSbmLUJJWRqYQ/uxbMpEx+7S/jo9sT3ZIkEucZGbEafDuxD1kwFOXf3xyw==', false);
         $result = $credentials->createSignature(
             'pictures/blob.txt',
             'b',
@@ -101,7 +101,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest extends PHPUni
      */
     public function testContainerSignedQueryString()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedAccessSignatureCredentials('myaccount', '', false);
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedAccessSignature('myaccount', '', false);
         $result = $credentials->createSignedQueryString(
             'pictures',
             '',
@@ -119,7 +119,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest extends PHPUni
      */
     public function testBlobSignedQueryString()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedAccessSignatureCredentials('myaccount', '', false);
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedAccessSignature('myaccount', '', false);
         $result = $credentials->createSignedQueryString(
             'pictures/blob.txt',
         	'',
@@ -136,7 +136,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest extends PHPUni
      */
     public function testSignRequestUrl()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedAccessSignatureCredentials('myaccount', '', false);
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedAccessSignature('myaccount', '', false);
         $queryString = $credentials->createSignedQueryString('pictures/blob.txt', '', 'b', 'r', '2009-02-09', '2009-02-10');
         
         $credentials->setPermissionSet(array(
@@ -150,7 +150,7 @@ class Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest extends PHPUni
     }
 }
 
-// Call Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest::main") {
-    Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest::main();
+// Call Microsoft_WindowsAzure_Credentials_SharedAccessSignatureTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_Credentials_SharedAccessSignatureTest::main") {
+    Microsoft_WindowsAzure_Credentials_SharedAccessSignatureTest::main();
 }

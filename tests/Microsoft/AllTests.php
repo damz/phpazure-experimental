@@ -61,7 +61,7 @@ class Microsoft_AllTests
 
     public static function suite()
     {
-        $suite = new PHPUnit_Framework_TestSuite('Microsoft');
+        $suite = new PHPUnit_Framework_TestSuite(__CLASS__);
 
         $suite->addTest(Microsoft_WindowsAzure_AllTests::suite());
 

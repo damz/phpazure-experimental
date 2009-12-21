@@ -47,8 +47,8 @@ require_once 'PHPUnit/Framework/TestCase.php';
 /** Microsoft_WindowsAzure_Storage_Blob */
 require_once 'Microsoft/WindowsAzure/Storage/Blob.php';
 
-/** Microsoft_WindowsAzure_SharedAccessSignatureCredentials */
-require_once 'Microsoft/WindowsAzure/SharedAccessSignatureCredentials.php';
+/** Microsoft_WindowsAzure_Credentials_SharedAccessSignature */
+require_once 'Microsoft/WindowsAzure/Credentials/SharedAccessSignature.php';
 
 /**
  * @category   Microsoft
@@ -101,12 +101,12 @@ class Microsoft_WindowsAzure_BlobStorageSharedAccessTest extends PHPUnit_Framewo
         if (TESTS_BLOB_RUNONPROD) {
             $storageClient = new Microsoft_WindowsAzure_Storage_Blob(TESTS_BLOB_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
             $storageClient->setCredentials(
-                new Microsoft_WindowsAzure_SharedAccessSignatureCredentials(TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false)
+                new Microsoft_WindowsAzure_Credentials_SharedAccessSignature(TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false)
             );
         } else {
             $storageClient = new Microsoft_WindowsAzure_Storage_Blob(TESTS_BLOB_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
             $storageClient->setCredentials(
-                new Microsoft_WindowsAzure_SharedAccessSignatureCredentials(TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true)
+                new Microsoft_WindowsAzure_Credentials_SharedAccessSignature(TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true)
             );
         }
         

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Reviewed: no -->
-<sect1 id="microsoft.service.windowsazure.storage.queue">
-    <title>Microsoft_Service_WindowsAzure_Storage_Queue</title>
+<sect1 id="microsoft.windowsazure.storage.queue">
+    <title>Microsoft_WindowsAzure_Storage_Queue</title>
 
     <para>
         The Queue service stores messages that may be read by any client who has access to the
@@ -18,32 +18,32 @@
 
     <para>
         Queue Storage is offered by Windows Azure as a <acronym>REST</acronym> API which is wrapped
-        by the <classname>Microsoft_Service_WindowsAzure_Storage_Queue</classname> class in order to
+        by the <classname>Microsoft_WindowsAzure_Storage_Queue</classname> class in order to
         provide a native PHP interface to the storage account.
     </para>
 
-    <sect2 id="microsoft.service.windowsazure.storage.queue.api">
+    <sect2 id="microsoft.windowsazure.storage.queue.api">
         <title>API Examples</title>
 
         <para>
             This topic lists some examples of using the
-            <classname>Microsoft_Service_WindowsAzure_Storage_Queue</classname> class.  Other features
+            <classname>Microsoft_WindowsAzure_Storage_Queue</classname> class.  Other features
             are available in the download package, as well as a detailed API documentation of those
             features.
         </para>
 
-        <sect3 id="microsoft.service.windowsazure.storage.queue.api.create-queue">
+        <sect3 id="microsoft.windowsazure.storage.queue.api.create-queue">
             <title>Creating a queue</title>
 
             <para>
                 Using the following code, a queue can be created on development storage.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.queue.api.create-queue.example">
+            <example id="microsoft.windowsazure.storage.queue.api.create-queue.example">
                 <title>Creating a queue</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Queue();
+$storageClient = new Microsoft_WindowsAzure_Storage_Queue();
 $result = $storageClient->createQueue('testqueue');
 
 echo 'Queue name is: ' . $result->Name;
@@ -51,24 +51,24 @@ echo 'Queue name is: ' . $result->Name;
             </example>
         </sect3>
 
-        <sect3 id="microsoft.service.windowsazure.storage.queue.api.delete-queue">
+        <sect3 id="microsoft.windowsazure.storage.queue.api.delete-queue">
             <title>Deleting a queue</title>
 
             <para>
                 Using the following code, a queue can be removed from development storage.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.queue.api.delete-queue.example">
+            <example id="microsoft.windowsazure.storage.queue.api.delete-queue.example">
                 <title>Deleting a queue</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Queue();
+$storageClient = new Microsoft_WindowsAzure_Storage_Queue();
 $storageClient->deleteQueue('testqueue');
 ]]></programlisting>
             </example>
         </sect3>
 
-        <sect3 id="microsoft.service.windowsazure.storage.queue.api.storing-queue">
+        <sect3 id="microsoft.windowsazure.storage.queue.api.storing-queue">
             <title>Adding a message to a queue</title>
 
             <para>
@@ -76,11 +76,11 @@ $storageClient->deleteQueue('testqueue');
                 Note that the queue has already been created before.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.queue.api.storing-queue.example">
+            <example id="microsoft.windowsazure.storage.queue.api.storing-queue.example">
                 <title>Adding a message to a queue</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Queue();
+$storageClient = new Microsoft_WindowsAzure_Storage_Queue();
 
 // 3600 = time-to-live of the message, if omitted defaults to 7 days
 $storageClient->putMessage('testqueue', 'This is a test message', 3600); 
@@ -88,7 +88,7 @@ $storageClient->putMessage('testqueue', 'This is a test message', 3600);
             </example>
         </sect3>
 
-        <sect3 id="microsoft.service.windowsazure.storage.queue.api.read-queue">
+        <sect3 id="microsoft.windowsazure.storage.queue.api.read-queue">
             <title>Reading a message from a queue</title>
 
             <para>
@@ -96,11 +96,11 @@ $storageClient->putMessage('testqueue', 'This is a test message', 3600);
                 Note that the queue and message have already been created before.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.queue.api.read-queue.example">
+            <example id="microsoft.windowsazure.storage.queue.api.read-queue.example">
                 <title>Reading a message from a queue</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Queue();
+$storageClient = new Microsoft_WindowsAzure_Storage_Queue();
 
 // retrieve 10 messages at once
 $messages = $storageClient->getMessages('testqueue', 10);
@@ -118,11 +118,11 @@ foreach ($messages as $message) {
                 <methodname>deleteMessage()</methodname> method.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.queue.api.read-queue.processexample">
+            <example id="microsoft.windowsazure.storage.queue.api.read-queue.processexample">
                 <title>Marking a message as processed</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Queue();
+$storageClient = new Microsoft_WindowsAzure_Storage_Queue();
 
 // retrieve 10 messages at once
 $messages = $storageClient->getMessages('testqueue', 10);
@@ -137,7 +137,7 @@ foreach ($messages as $message) {
             </example>
         </sect3>
 
-        <sect3 id="microsoft.service.windowsazure.storage.queue.api.peek-queue">
+        <sect3 id="microsoft.windowsazure.storage.queue.api.peek-queue">
             <title>Check if there are messages in a queue</title>
 
             <para>
@@ -145,11 +145,11 @@ foreach ($messages as $message) {
                 queue and message have already been created before.
             </para>
 
-            <example id="microsoft.service.windowsazure.storage.queue.api.peek-queue.example">
+            <example id="microsoft.windowsazure.storage.queue.api.peek-queue.example">
                 <title>Check if there are messages in a queue</title>
 
                 <programlisting language="php"><![CDATA[
-$storageClient = new Microsoft_Service_WindowsAzure_Storage_Queue();
+$storageClient = new Microsoft_WindowsAzure_Storage_Queue();
 
 // retrieve 10 messages at once
 $messages = $storageClient->peekMessages('testqueue', 10);

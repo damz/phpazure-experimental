@@ -39,9 +39,9 @@
 require_once 'Microsoft/WindowsAzure/Exception.php';
 
 /**
- * @see Microsoft_WindowsAzure_Storage_BatchStorage
+ * @see Microsoft_WindowsAzure_Storage_BatchStorageAbstract
  */
-require_once 'Microsoft/WindowsAzure/Storage/BatchStorage.php';
+require_once 'Microsoft/WindowsAzure/Storage/BatchStorageAbstract.php';
 
 /**
  * @category   Microsoft
@@ -55,7 +55,7 @@ class Microsoft_WindowsAzure_Storage_Batch
     /**
      * Storage client the batch is defined on
      * 
-     * @var Microsoft_WindowsAzure_Storage_BatchStorage
+     * @var Microsoft_WindowsAzure_Storage_BatchStorageAbstract
      */
     protected $_storageClient = null;
     
@@ -90,13 +90,13 @@ class Microsoft_WindowsAzure_Storage_Batch
     /**
      * Creates a new Microsoft_WindowsAzure_Storage_Batch
      * 
-     * @param Microsoft_WindowsAzure_Storage_BatchStorage $storageClient Storage client the batch is defined on
+     * @param Microsoft_WindowsAzure_Storage_BatchStorageAbstract $storageClient Storage client the batch is defined on
      */
-    public function __construct(Microsoft_WindowsAzure_Storage_BatchStorage $storageClient = null, $baseUrl = '')
+    public function __construct(Microsoft_WindowsAzure_Storage_BatchStorageAbstract $storageClient = null, $baseUrl = '')
     {
         $this->_storageClient = $storageClient;
-        $this->_baseUrl = $baseUrl;
-        $this->beginBatch();
+        $this->_baseUrl       = $baseUrl;
+        $this->_beginBatch();
     }
     
 	/**
@@ -114,7 +114,7 @@ class Microsoft_WindowsAzure_Storage_Batch
      * 
      * @throws Microsoft_WindowsAzure_Exception
      */
-    protected function beginBatch()
+    protected function _beginBatch()
     {
         $this->_storageClient->setCurrentBatch($this);
     }
@@ -122,7 +122,7 @@ class Microsoft_WindowsAzure_Storage_Batch
     /**
      * Cleanup current batch
      */
-    protected function clean()
+    protected function _clean()
     {
         unset($this->_operations);
         $this->_storageClient->setCurrentBatch(null);
@@ -215,7 +215,7 @@ class Microsoft_WindowsAzure_Storage_Batch
         $response = $this->_storageClient->performBatch($this->_operations, $this->_forTableStorage, $this->_isSingleSelect);
         
         // Dispose
-        $this->clean();
+        $this->_clean();
         
         // Parse response
         $errors = null;
@@ -236,7 +236,7 @@ class Microsoft_WindowsAzure_Storage_Batch
     public function rollback()
     {
         // Dispose
-        $this->clean();
+        $this->_clean();
     }
     
     /**

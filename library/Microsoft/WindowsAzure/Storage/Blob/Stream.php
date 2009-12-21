@@ -101,7 +101,7 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      * @param string $path
      * @return Microsoft_WindowsAzure_Storage_Blob
      */
-    protected function getStorageClient($path = '')
+    protected function _getStorageClient($path = '')
     {
         if (is_null($this->_storageClient)) {
             $url = explode(':', $path);
@@ -124,7 +124,7 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      * @param string $path
      * @return string
      */
-    protected function getContainerName($path)
+    protected function _getContainerName($path)
     {
         $url = parse_url($path);
         if ($url['host']) {
@@ -140,7 +140,7 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      * @param string $path
      * @return string
      */
-    protected function getFileName($path)
+    protected function _getFileName($path)
     {
         $url = parse_url($path);
         if ($url['host']) {
@@ -184,9 +184,9 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
         
         // If read/append, fetch the file
         if (!$this->_writeMode || strpbrk($mode, 'ra+')) {
-            $this->getStorageClient($this->_fileName)->getBlob(
-                $this->getContainerName($this->_fileName),
-                $this->getFileName($this->_fileName),
+            $this->_getStorageClient($this->_fileName)->getBlob(
+                $this->_getContainerName($this->_fileName),
+                $this->_getFileName($this->_fileName),
                 $this->_temporaryFileName
             );
         }
@@ -210,20 +210,20 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
         // Upload the file?
         if ($this->_writeMode) {
             // Make sure the container exists
-            $containerExists = $this->getStorageClient($this->_fileName)->containerExists(
-                $this->getContainerName($this->_fileName)
+            $containerExists = $this->_getStorageClient($this->_fileName)->containerExists(
+                $this->_getContainerName($this->_fileName)
             );
             if (!$containerExists) {
-                $this->getStorageClient($this->_fileName)->createContainer(
-                    $this->getContainerName($this->_fileName)
+                $this->_getStorageClient($this->_fileName)->createContainer(
+                    $this->_getContainerName($this->_fileName)
                 );
             }
             
             // Upload the file
             try {
-                $this->getStorageClient($this->_fileName)->putBlob(
-                    $this->getContainerName($this->_fileName),
-                    $this->getFileName($this->_fileName),
+                $this->_getStorageClient($this->_fileName)->putBlob(
+                    $this->_getContainerName($this->_fileName),
+                    $this->_getFileName($this->_fileName),
                     $this->_temporaryFileName
                 );
             } catch (Microsoft_WindowsAzure_Exception $ex) {
@@ -322,20 +322,20 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
          // Upload the file?
         if ($this->_writeMode) {
             // Make sure the container exists
-            $containerExists = $this->getStorageClient($this->_fileName)->containerExists(
-                $this->getContainerName($this->_fileName)
+            $containerExists = $this->_getStorageClient($this->_fileName)->containerExists(
+                $this->_getContainerName($this->_fileName)
             );
             if (!$containerExists) {
-                $this->getStorageClient($this->_fileName)->createContainer(
-                    $this->getContainerName($this->_fileName)
+                $this->_getStorageClient($this->_fileName)->createContainer(
+                    $this->_getContainerName($this->_fileName)
                 );
             }
             
             // Upload the file
             try {
-                $this->getStorageClient($this->_fileName)->putBlob(
-                    $this->getContainerName($this->_fileName),
-                    $this->getFileName($this->_fileName),
+                $this->_getStorageClient($this->_fileName)->putBlob(
+                    $this->_getContainerName($this->_fileName),
+                    $this->_getFileName($this->_fileName),
                     $this->_temporaryFileName
                 );
             } catch (Microsoft_WindowsAzure_Exception $ex) {
@@ -377,9 +377,9 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
 
         $info = null;
         try {
-            $info = $this->getStorageClient($this->_fileName)->getBlobInstance(
-                        $this->getContainerName($this->_fileName),
-                        $this->getFileName($this->_fileName)
+            $info = $this->_getStorageClient($this->_fileName)->getBlobInstance(
+                        $this->_getContainerName($this->_fileName),
+                        $this->_getFileName($this->_fileName)
                     );
         } catch (Microsoft_WindowsAzure_Exception $ex) {
             // Unexisting file...
@@ -400,9 +400,9 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      */
     public function unlink($path)
     {
-        $this->getStorageClient($path)->deleteBlob(
-            $this->getContainerName($path),
-            $this->getFileName($path)
+        $this->_getStorageClient($path)->deleteBlob(
+            $this->_getContainerName($path),
+            $this->_getFileName($path)
         );
     }
 
@@ -415,23 +415,23 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      */
     public function rename($path_from, $path_to)
     {
-        if ($this->getContainerName($path_from) != $this->getContainerName($path_to)) {
+        if ($this->_getContainerName($path_from) != $this->_getContainerName($path_to)) {
             throw new Microsoft_WindowsAzure_Exception('Container name can not be changed.');
         }
         
-        if ($this->getFileName($path_from) == $this->getContainerName($path_to)) {
+        if ($this->_getFileName($path_from) == $this->_getContainerName($path_to)) {
             return true;
         }
             
-        $this->getStorageClient($path_from)->copyBlob(
-            $this->getContainerName($path_from),
-            $this->getFileName($path_from),
-            $this->getContainerName($path_to),
-            $this->getFileName($path_to)
+        $this->_getStorageClient($path_from)->copyBlob(
+            $this->_getContainerName($path_from),
+            $this->_getFileName($path_from),
+            $this->_getContainerName($path_to),
+            $this->_getFileName($path_to)
         );
-        $this->getStorageClient($path_from)->deleteBlob(
-            $this->getContainerName($path_from),
-            $this->getFileName($path_from)
+        $this->_getStorageClient($path_from)->deleteBlob(
+            $this->_getContainerName($path_from),
+            $this->_getFileName($path_from)
         );
         return true;
     }
@@ -462,9 +462,9 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
 
         $info = null;
         try {
-            $info = $this->getStorageClient($path)->getBlobInstance(
-                        $this->getContainerName($path),
-                        $this->getFileName($path)
+            $info = $this->_getStorageClient($path)->getBlobInstance(
+                        $this->_getContainerName($path),
+                        $this->_getFileName($path)
                     );
         } catch (Microsoft_WindowsAzure_Exception $ex) {
             // Unexisting file...
@@ -487,11 +487,11 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      */
     public function mkdir($path, $mode, $options)
     {
-        if ($this->getContainerName($path) == $this->getFileName($path)) {
+        if ($this->_getContainerName($path) == $this->_getFileName($path)) {
             // Create container
             try {
-                $this->getStorageClient($path)->createContainer(
-                    $this->getContainerName($path)
+                $this->_getStorageClient($path)->createContainer(
+                    $this->_getContainerName($path)
                 );
             } catch (Microsoft_WindowsAzure_Exception $ex) {
                 return false;
@@ -510,11 +510,11 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      */
     public function rmdir($path, $options)
     {
-        if ($this->getContainerName($path) == $this->getFileName($path)) {
+        if ($this->_getContainerName($path) == $this->_getFileName($path)) {
             // Delete container
             try {
-                $this->getStorageClient($path)->deleteContainer(
-                    $this->getContainerName($path)
+                $this->_getStorageClient($path)->deleteContainer(
+                    $this->_getContainerName($path)
                 );
             } catch (Microsoft_WindowsAzure_Exception $ex) {
                 return false;
@@ -533,8 +533,8 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      */
     public function dir_opendir($path, $options)
     {
-        $this->_blobs = $this->getStorageClient($path)->listBlobs(
-            $this->getContainerName($path)
+        $this->_blobs = $this->_getStorageClient($path)->listBlobs(
+            $this->_getContainerName($path)
         );
         return is_array($this->_blobs);
     }

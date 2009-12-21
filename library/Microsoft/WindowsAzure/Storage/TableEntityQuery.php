@@ -140,10 +140,10 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	 */
 	public function where($condition, $value = null, $cond = '')
 	{
-	    $condition = $this->replaceOperators($condition);
+	    $condition = $this->_replaceOperators($condition);
 	    
 	    if (!is_null($value)) {
-	        $condition = $this->quoteInto($condition, $value);
+	        $condition = $this->_quoteInto($condition, $value);
 	    }
 	    
 		if (count($this->_where) == 0) {
@@ -288,7 +288,7 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	 * @param string|array $value  Value(s) to insert in question mark (?) parameters.
 	 * @return string
 	 */
-	protected function quoteInto($text, $value = null)
+	protected function _quoteInto($text, $value = null)
 	{
 		if (!is_array($value)) {
 	        $text = str_replace('?', '\'' . addslashes($value) . '\'', $text);
@@ -311,7 +311,7 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	 * @param string $text
 	 * @return string
 	 */
-	protected function replaceOperators($text)
+	protected function _replaceOperators($text)
 	{
 	    $text = str_replace('==', 'eq',  $text);
 	    $text = str_replace('>',  'gt',  $text);

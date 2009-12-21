@@ -40,12 +40,12 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 /**
  * Test helpers
  */
-require_once dirname(__FILE__) . '/../../TestHelper.php';
-require_once dirname(__FILE__) . '/../../TestConfiguration.php';
+require_once dirname(__FILE__) . '/../../../TestHelper.php';
+require_once dirname(__FILE__) . '/../../../TestConfiguration.php';
 require_once 'PHPUnit/Framework/TestCase.php';
 
-/** Microsoft_WindowsAzure_SharedKeyCredentials */
-require_once 'Microsoft/WindowsAzure/SharedKeyCredentials.php';
+/** Microsoft_WindowsAzure_Credentials_SharedKey */
+require_once 'Microsoft/WindowsAzure/Credentials/SharedKey.php';
 
 /**
  * @category   Microsoft
@@ -55,11 +55,11 @@ require_once 'Microsoft/WindowsAzure/SharedKeyCredentials.php';
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_WindowsAzure_SharedKeyCredentialsTest extends PHPUnit_Framework_TestCase
+class Microsoft_WindowsAzure_Credentials_SharedKeyTest extends PHPUnit_Framework_TestCase
 {
     public static function main()
     {
-        $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_SharedKeyCredentialsTest");
+        $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_Credentials_SharedKeyTest");
         $result = PHPUnit_TextUI_TestRunner::run($suite);
     }
 
@@ -68,7 +68,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentialsTest extends PHPUnit_Framework_
      */
     public function testSignForDevstoreWithRootPath()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedKeyCredentials(Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_ACCOUNT, Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_KEY, true);
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedKey(Microsoft_WindowsAzure_Credentials_SharedKey::DEVSTORE_ACCOUNT, Microsoft_WindowsAzure_Credentials_SharedKey::DEVSTORE_KEY, true);
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
@@ -87,7 +87,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentialsTest extends PHPUnit_Framework_
      */
     public function testSignForDevstoreWithOtherPath()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedKeyCredentials(Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_ACCOUNT, Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_KEY, true);
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedKey(Microsoft_WindowsAzure_Credentials_SharedKey::DEVSTORE_ACCOUNT, Microsoft_WindowsAzure_Credentials_SharedKey::DEVSTORE_KEY, true);
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/test',
@@ -106,7 +106,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentialsTest extends PHPUnit_Framework_
      */
     public function testSignForDevstoreWithQueryString()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedKeyCredentials(Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_ACCOUNT, Microsoft_WindowsAzure_SharedKeyCredentials::DEVSTORE_KEY, true);
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedKey(Microsoft_WindowsAzure_Credentials_SharedKey::DEVSTORE_ACCOUNT, Microsoft_WindowsAzure_Credentials_SharedKey::DEVSTORE_KEY, true);
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
@@ -125,7 +125,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentialsTest extends PHPUnit_Framework_
      */
     public function testSignForProductionWithRootPath()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedKeyCredentials('testing', 'abcdefg');
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedKey('testing', 'abcdefg');
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
@@ -144,7 +144,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentialsTest extends PHPUnit_Framework_
      */
     public function testSignForProductionWithOtherPath()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedKeyCredentials('testing', 'abcdefg');
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedKey('testing', 'abcdefg');
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/test',
@@ -163,7 +163,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentialsTest extends PHPUnit_Framework_
      */
     public function testSignForProductionWithQueryString()
     {
-        $credentials = new Microsoft_WindowsAzure_SharedKeyCredentials('testing', 'abcdefg');
+        $credentials = new Microsoft_WindowsAzure_Credentials_SharedKey('testing', 'abcdefg');
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
@@ -178,7 +178,7 @@ class Microsoft_WindowsAzure_SharedKeyCredentialsTest extends PHPUnit_Framework_
     }
 }
 
-// Call Microsoft_WindowsAzure_SharedKeyCredentialsTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_SharedKeyCredentialsTest::main") {
-    Microsoft_WindowsAzure_SharedKeyCredentialsTest::main();
+// Call Microsoft_WindowsAzure_Credentials_SharedKeyTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_Credentials_SharedKeyTest::main") {
+    Microsoft_WindowsAzure_Credentials_SharedKeyTest::main();
 }

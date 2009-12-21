@@ -67,7 +67,7 @@ class AllTests
 
     public static function suite()
     {
-        $suite = new PHPUnit_Framework_TestSuite('Global test suite');
+        $suite = new PHPUnit_Framework_TestSuite(__CLASS__);
 
         $suite->addTest(Microsoft_AllTests::suite());
 

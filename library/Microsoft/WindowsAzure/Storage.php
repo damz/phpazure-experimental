@@ -34,14 +34,14 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Credentials
+ * @see Microsoft_WindowsAzure_Credentials_CredentialsAbstract
  */
-require_once 'Microsoft/WindowsAzure/Credentials.php';
+require_once 'Microsoft/WindowsAzure/Credentials/CredentialsAbstract.php';
 
 /**
- * @see Microsoft_WindowsAzure_SharedKeyCredentials
+ * @see Microsoft_WindowsAzure_Credentials_SharedKey
  */
-require_once 'Microsoft/WindowsAzure/SharedKeyCredentials.php';
+require_once 'Microsoft/WindowsAzure/Credentials/SharedKey.php';
 
 /**
  * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
@@ -132,9 +132,9 @@ class Microsoft_WindowsAzure_Storage
 	protected $_usePathStyleUri = false;
 	
 	/**
-	 * Microsoft_WindowsAzure_Credentials instance
+	 * Microsoft_WindowsAzure_Credentials_CredentialsAbstract instance
 	 *
-	 * @var Microsoft_WindowsAzure_Credentials
+	 * @var Microsoft_WindowsAzure_Credentials_CredentialsAbstract
 	 */
 	protected $_credentials = null;
 	
@@ -189,21 +189,31 @@ class Microsoft_WindowsAzure_Storage
 	 * @param boolean $usePathStyleUri Use path-style URI's
 	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
 	 */
-	public function __construct($host = self::URL_DEV_BLOB, $accountName = Microsoft_WindowsAzure_Credentials::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
-	{
+	public function __construct(
+		$host = self::URL_DEV_BLOB,
+		$accountName = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_ACCOUNT,
+		$accountKey = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_KEY,
+		$usePathStyleUri = false,
+		Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null
+	) {
 		$this->_host = $host;
 		$this->_accountName = $accountName;
 		$this->_accountKey = $accountKey;
 		$this->_usePathStyleUri = $usePathStyleUri;
 		
 		// Using local storage?
-		if (!$this->_usePathStyleUri && ($this->_host == self::URL_DEV_BLOB || $this->_host == self::URL_DEV_QUEUE || $this->_host == self::URL_DEV_TABLE)) {
+		if (!$this->_usePathStyleUri
+			&& ($this->_host == self::URL_DEV_BLOB
+				|| $this->_host == self::URL_DEV_QUEUE
+				|| $this->_host == self::URL_DEV_TABLE)
+		) {
 			// Local storage
 			$this->_usePathStyleUri = true;
 		}
 		
 		if (is_null($this->_credentials)) {
-		    $this->_credentials = new Microsoft_WindowsAzure_SharedKeyCredentials($this->_accountName, $this->_accountKey, $this->_usePathStyleUri);
+		    $this->_credentials = new Microsoft_WindowsAzure_Credentials_SharedKey(
+		    	$this->_accountName, $this->_accountKey, $this->_usePathStyleUri);
 		}
 		
 		$this->_retryPolicy = $retryPolicy;
@@ -218,7 +228,7 @@ class Microsoft_WindowsAzure_Storage
 				'adapter' => 'Microsoft_Http_Client_Adapter_Proxy',
 				'curloptions' => array(
 					CURLOPT_FOLLOWLOCATION => true,
-					CURLOPT_TIMEOUT => 120
+					CURLOPT_TIMEOUT => 120,
 				)
 			)
 		);
@@ -257,9 +267,9 @@ class Microsoft_WindowsAzure_Storage
 	 */
 	public function setProxy($useProxy = false, $proxyUrl = '', $proxyPort = 80, $proxyCredentials = '')
 	{
-	    $this->_useProxy = $useProxy;
-	    $this->_proxyUrl = $proxyUrl;
-	    $this->_proxyPort = $proxyPort;
+	    $this->_useProxy         = $useProxy;
+	    $this->_proxyUrl         = $proxyUrl;
+	    $this->_proxyPort        = $proxyPort;
 	    $this->_proxyCredentials = $proxyCredentials;
 	    
 	    if ($this->_useProxy) {
@@ -269,14 +279,14 @@ class Microsoft_WindowsAzure_Storage
 				'proxy_host' => $this->_proxyUrl,
 	    		'proxy_port' => $this->_proxyPort,
 	    		'proxy_user' => $credentials[0],
-	    		'proxy_pass' => $credentials[1]
+	    		'proxy_pass' => $credentials[1],
 	    	));
 	    } else {
 			$this->_httpClientChannel->setConfig(array(
 				'proxy_host' => '',
 	    		'proxy_port' => 8080,
 	    		'proxy_user' => '',
-	    		'proxy_pass' => ''
+	    		'proxy_pass' => '',
 	    	));
 	    }
 	}
@@ -298,18 +308,19 @@ class Microsoft_WindowsAzure_Storage
 	 */
 	public function getBaseUrl()
 	{
-		if ($this->_usePathStyleUri)
+		if ($this->_usePathStyleUri) {
 			return 'http://' . $this->_host . '/' . $this->_accountName;
-		else
+		} else {
 			return 'http://' . $this->_accountName . '.' . $this->_host;
+		}
 	}
 	
 	/**
-	 * Set Microsoft_WindowsAzure_Credentials instance
+	 * Set Microsoft_WindowsAzure_Credentials_CredentialsAbstract instance
 	 * 
-	 * @param Microsoft_WindowsAzure_Credentials $credentials Microsoft_WindowsAzure_Credentials instance to use for request signing.
+	 * @param Microsoft_WindowsAzure_Credentials_CredentialsAbstract $credentials Microsoft_WindowsAzure_Credentials_CredentialsAbstract instance to use for request signing.
 	 */
-	public function setCredentials(Microsoft_WindowsAzure_Credentials $credentials)
+	public function setCredentials(Microsoft_WindowsAzure_Credentials_CredentialsAbstract $credentials)
 	{
 	    $this->_credentials = $credentials;
 	    $this->_credentials->setAccountName($this->_accountName);
@@ -318,9 +329,9 @@ class Microsoft_WindowsAzure_Storage
 	}
 	
 	/**
-	 * Get Microsoft_WindowsAzure_Credentials instance
+	 * Get Microsoft_WindowsAzure_Credentials_CredentialsAbstract instance
 	 * 
-	 * @return Microsoft_WindowsAzure_Credentials
+	 * @return Microsoft_WindowsAzure_Credentials_CredentialsAbstract
 	 */
 	public function getCredentials()
 	{
@@ -340,8 +351,16 @@ class Microsoft_WindowsAzure_Storage
 	 * @param string $requiredPermission Required permission
 	 * @return Microsoft_Http_Response
 	 */
-	protected function performRequest($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Client::GET, $headers = array(), $forTableStorage = false, $rawData = null, $resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN, $requiredPermission = Microsoft_WindowsAzure_Credentials::PERMISSION_READ)
-	{
+	protected function _performRequest(
+		$path = '/',
+		$queryString = '',
+		$httpVerb = Microsoft_Http_Client::GET,
+		$headers = array(),
+		$forTableStorage = false,
+		$rawData = null,
+		$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
+		$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ
+	) {
 	    // Clean path
 		if (strpos($path, '/') !== 0) {
 			$path = '/' . $path;
@@ -368,8 +387,10 @@ class Microsoft_WindowsAzure_Storage
 		$queryString    = self::urlencode($queryString);
 
 		// Generate URL and sign request
-		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
-		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission);
+		$requestUrl     = $this->_credentials
+						  ->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
+		$requestHeaders = $this->_credentials
+						  ->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission);
 
 		// Prepare request
 		$this->_httpClientChannel->resetParameters(true);
@@ -393,7 +414,7 @@ class Microsoft_WindowsAzure_Storage
 	 * @return object
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	protected function parseResponse(Microsoft_Http_Response $response = null)
+	protected function _parseResponse(Microsoft_Http_Response $response = null)
 	{
 		if (is_null($response)) {
 			throw new Microsoft_WindowsAzure_Exception('Response should not be null.');
