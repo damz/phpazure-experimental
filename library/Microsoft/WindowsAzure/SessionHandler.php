@@ -78,7 +78,7 @@ class Microsoft_WindowsAzure_SessionHandler
      * @param string $sessionTable Session table name
      * @param string $sessionTablePartition Session table partition
      */
-    public function __construct(Microsoft_WindowsAzure_Storage_Table $tableStorage, $sessionTable = 'php-sessions', $sessionTablePartition = 'sessions')
+    public function __construct(Microsoft_WindowsAzure_Storage_Table $tableStorage, $sessionTable = 'phpsessions', $sessionTablePartition = 'sessions')
 	{
 	    // Set properties
 		$this->_tableStorage = $tableStorage;
