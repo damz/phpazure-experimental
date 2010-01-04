@@ -155,9 +155,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 			
 		// Create metadata headers
 		$headers = array();
-		foreach ($metadata as $key => $value) {
-		    $headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
+		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata)); 
 		
 		// Perform request
 		$response = $this->_performRequest($queueName, '', Microsoft_Http_Client::PUT, $headers);			
@@ -191,12 +189,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		$response = $this->_performRequest($queueName, '?comp=metadata', Microsoft_Http_Client::GET);	
 		if ($response->isSuccessful()) {
 		    // Parse metadata
-		    $metadata = array();
-		    foreach ($response->getHeaders() as $key => $value) {
-		        if (substr(strtolower($key), 0, 10) == "x-ms-meta-") {
-		            $metadata[str_replace("x-ms-meta-", '', strtolower($key))] = $value;
-		        }
-		    }
+		    $metadata = $this->_parseMetadataHeaders($response->getHeaders());
 
 		    // Return queue
 		    $queue = new Microsoft_WindowsAzure_Storage_QueueInstance(
@@ -252,9 +245,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		    
 		// Create metadata headers
 		$headers = array();
-		foreach ($metadata as $key => $value) {
-		    $headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
+		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata)); 
 		
 		// Perform request
 		$response = $this->_performRequest($queueName, '?comp=metadata', Microsoft_Http_Client::PUT, $headers);

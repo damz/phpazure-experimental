@@ -225,9 +225,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			
 		// Create metadata headers
 		$headers = array();
-		foreach ($metadata as $key => $value) {
-		    $headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
+		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata));
 		
 		// Perform request
 		$response = $this->_performRequest($containerName, '?restype=container', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);			
@@ -367,12 +365,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$response = $this->_performRequest($containerName, '?restype=container', Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);	
 		if ($response->isSuccessful()) {
 		    // Parse metadata
-		    $metadata = array();
-		    foreach ($response->getHeaders() as $key => $value) {
-		        if (substr(strtolower($key), 0, 10) == "x-ms-meta-") {
-		            $metadata[str_replace("x-ms-meta-", '', strtolower($key))] = $value;
-		        }
-		    }
+		    $metadata = $this->_parseMetadataHeaders($response->getHeaders());
 
 		    // Return container
 		    return new Microsoft_WindowsAzure_Storage_BlobContainer(
@@ -432,9 +425,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		    
 		// Create metadata headers
 		$headers = array();
-		foreach ($metadata as $key => $value) {
-		    $headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
+		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata)); 
 		
 		// Additional headers?
 		foreach ($additionalHeaders as $key => $value) {
@@ -572,9 +563,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 
 		// Create metadata headers
 		$headers = array();
-		foreach ($metadata as $key => $value) {
-		    $headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
+		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata)); 
 		
 		// Additional headers?
 		foreach ($additionalHeaders as $key => $value) {
@@ -766,9 +755,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		
 	    // Create metadata headers
 		$headers = array();
-		foreach ($metadata as $key => $value) {
-		    $headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
+		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata)); 
 		
 		// Additional headers?
 		foreach ($additionalHeaders as $key => $value) {
@@ -893,9 +880,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 
 		// Create metadata headers
 		$headers = array();
-		foreach ($metadata as $key => $value) {
-		    $headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
+		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata)); 
 		
 		// Additional headers?
 		foreach ($additionalHeaders as $key => $value) {
@@ -1009,12 +994,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::HEAD, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 		    // Parse metadata
-		    $metadata = array();
-		    foreach ($response->getHeaders() as $key => $value) {
-		        if (substr(strtolower($key), 0, 10) == "x-ms-meta-") {
-		            $metadata[str_replace("x-ms-meta-", '', strtolower($key))] = $value;
-		        }
-		    }
+		    $metadata = $this->_parseMetadataHeaders($response->getHeaders());
 
 		    // Return blob
 			return new Microsoft_WindowsAzure_Storage_BlobInstance(
@@ -1092,9 +1072,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		    
 		// Create metadata headers
 		$headers = array();
-		foreach ($metadata as $key => $value) {
-		    $headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
+		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata)); 
 		
 		// Additional headers?
 		foreach ($additionalHeaders as $key => $value) {

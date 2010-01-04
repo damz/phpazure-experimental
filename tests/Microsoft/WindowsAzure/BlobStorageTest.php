@@ -359,6 +359,30 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
         }
     }
     
+	/**
+     * Test set blob metadata, ensuring no additional headers can be added.
+     */
+    public function testSetBlobMetadata_Security_AdditionalHeaders()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            $storageClient->putBlob($containerName, 'images/WindowsAzure.gif', self::$path . 'WindowsAzure.gif');
+            
+			$exceptionThrown = false;
+            try {
+            	// adding a newline should not be possible...
+                $storageClient->setBlobMetadata($containerName, 'images/WindowsAzure.gif', array(
+	                'createdby' => "PHPAzure\nx-ms-meta-something:false",
+	            ));
+            } catch (Exception $ex) {
+                $exceptionThrown = true;
+            }
+            $this->assertTrue($exceptionThrown);
+        }
+    }
+    
     /**
      * Test delete blob
      */

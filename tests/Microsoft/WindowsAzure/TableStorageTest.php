@@ -210,6 +210,28 @@ class Microsoft_WindowsAzure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test insert entity, with XML in content. This should not break the XML sent to Windows Azure.
+     */
+    public function testInsertEntity_Security_HtmlSpecialChars()
+    {
+        if (TESTS_TABLE_RUNTESTS) {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
+            $entity->FullName = 'XML <test>'; // this should work without breaking the XML
+            
+            $result = $storageClient->insertEntity($tableName, $entity);
+
+            $this->assertNotEquals('0001-01-01T00:00:00', $result->getTimestamp());
+            $this->assertNotEquals('', $result->getEtag());
+            $this->assertEquals($entity, $result);
+        }
+    }
+    
+    /**
      * Test delete entity, not taking etag into account
      */
     public function testDeleteEntity_NoEtag()

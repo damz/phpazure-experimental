@@ -438,6 +438,53 @@ class Microsoft_WindowsAzure_Storage
 	}
 	
 	/**
+	 * Generate metadata headers
+	 * 
+	 * @param array $metadata
+	 * @return HTTP headers containing metadata
+	 */
+	protected function _generateMetadataHeaders($metadata = array())
+	{
+		// Validate
+		if (!is_array($metadata)) {
+			return array();
+		}
+		
+		// Return headers
+		$headers = array();
+		foreach ($metadata as $key => $value) {
+			if (strpos($value, "\r") !== false || strpos($value, "\n") !== false) {
+				throw new Microsoft_WindowsAzure_Exception('Metadata cannot contain newline characters.');
+			}
+		    $headers["x-ms-meta-" . strtolower($key)] = $value;
+		}
+		return $headers;
+	}
+	
+	/**
+	 * Parse metadata errors
+	 * 
+	 * @param array $headers HTTP headers containing metadata
+	 * @return array
+	 */
+	protected function _parseMetadataHeaders($headers = array())
+	{
+		// Validate
+		if (!is_array($headers)) {
+			return array();
+		}
+		
+		// Return metadata
+		$metadata = array();
+		foreach ($headers as $key => $value) {
+		    if (substr(strtolower($key), 0, 10) == "x-ms-meta-") {
+		        $metadata[str_replace("x-ms-meta-", '', strtolower($key))] = $value;
+		    }
+		}
+		return $metadata;
+	}
+	
+	/**
 	 * Generate ISO 8601 compliant date string in UTC time zone
 	 * 
 	 * @param int $timestamp
