@@ -222,16 +222,17 @@ class Microsoft_WindowsAzure_Storage
 		}
 		
 		// Setup default Microsoft_Http_Client channel
-		$this->_httpClientChannel = new Microsoft_Http_Client(
-			null,
-			array(
-				'adapter' => 'Microsoft_Http_Client_Adapter_Proxy',
-				'curloptions' => array(
+		$options = array(
+			'adapter' => 'Microsoft_Http_Client_Adapter_Proxy'
+		);
+		if (function_exists('curl_init')) {
+			// Set cURL options if cURL is used afterwards
+			$options['curloptions'] = array(
 					CURLOPT_FOLLOWLOCATION => true,
 					CURLOPT_TIMEOUT => 120,
-				)
-			)
-		);
+			);
+		}
+		$this->_httpClientChannel = new Microsoft_Http_Client(null, $options);
 	}
 	
 	/**
