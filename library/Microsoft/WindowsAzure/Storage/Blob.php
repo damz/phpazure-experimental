@@ -1356,7 +1356,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
             return true;
         }
             
-        if (preg_match("^[a-z0-9][a-z0-9-]*$", $containerName) === 0) {
+        if (preg_match("/^[a-z0-9][a-z0-9-]*$/", $containerName) === 0) {
             return false;
         }
     
