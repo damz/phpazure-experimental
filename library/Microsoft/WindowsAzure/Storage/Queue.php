@@ -518,7 +518,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	 */
     public static function isValidQueueName($queueName = '')
     {
-        if (!ereg("^[a-z0-9][a-z0-9-]*$", $queueName)) {
+        if (preg_match("^[a-z0-9][a-z0-9-]*$", $queueName) === 0) {
             return false;
         }
     
