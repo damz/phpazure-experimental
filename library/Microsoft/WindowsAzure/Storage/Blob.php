@@ -136,7 +136,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * @param boolean $usePathStyleUri Use path-style URI's
 	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
 	 */
-	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_BLOB, $accountName = Microsoft_WindowsAzure_Credentials_CredentialsAbstract_CredentialsAbstract::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials_CredentialsAbstract_CredentialsAbstract::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
+	public function __construct($host = Microsoft_WindowsAzure_Storage::URL_DEV_BLOB, $accountName = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_ACCOUNT, $accountKey = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::DEVSTORE_KEY, $usePathStyleUri = false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
 	{
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
 		
