@@ -288,6 +288,22 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test put blob data
+     */
+    public function testPutBlobData()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            $result = $storageClient->putBlobData($containerName, 'test.txt', 'Hello World!');
+    
+            $this->assertEquals($containerName, $result->Container);
+            $this->assertEquals('test.txt', $result->Name);
+        }
+    }
+    
+    /**
      * Test put large blob
      */
     public function testPutLargeBlob()
@@ -336,6 +352,26 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             
             // Remove file
             unlink($fileName);
+        }
+    }
+    
+    /**
+     * Test get blob data
+     */
+    public function testGetBlobData()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            $result = $storageClient->putBlobData($containerName, 'test.txt', 'Hello World!');
+
+            $data = $storageClient->getBlobData($containerName, 'test.txt');
+    
+            $this->assertEquals(
+                'Hello World!',
+                $data
+            );
         }
     }
     

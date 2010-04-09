@@ -560,6 +560,36 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		if (filesize($localFileName) >= self::MAX_BLOB_SIZE) {
 			return $this->putLargeBlob($containerName, $blobName, $localFileName, $metadata);
 		}
+		
+		// Put the data to Windows Azure Storage
+		return $this->putBlobData($containerName, $blobName, file_get_contents($localFileName), $metadata, $additionalHeaders);
+	}
+	
+	/**
+	 * Put blob data
+	 *
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param mixed  $data      		 Data to store
+	 * @param array  $metadata           Key/value pairs of meta data
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 * @return object Partial blob properties
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function putBlobData($containerName = '', $blobName = '', $data = '', $metadata = array(), $additionalHeaders = array())
+	{
+		if ($containerName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
+		}
+		if (!self::isValidContainerName($containerName)) {
+		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+		if ($blobName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
+		}
+		if ($containerName === '$root' && strpos($blobName, '/') !== false) {
+		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
 
 		// Create metadata headers
 		$headers = array();
@@ -570,14 +600,11 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		    $headers[$key] = $value;
 		}
 		
-		// File contents
-		$fileContents = file_get_contents($localFileName);
-		
 		// Resource name
 		$resourceName = self::createResourceName($containerName , $blobName);
 		
 		// Perform request
-		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::PUT, $headers, false, $fileContents, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);	
+		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::PUT, $headers, false, $data, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);	
 		if ($response->isSuccessful()) {
 			return new Microsoft_WindowsAzure_Storage_BlobInstance(
 				$containerName,
@@ -585,7 +612,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 				$response->getHeader('Etag'),
 				$response->getHeader('Last-modified'),
 				$this->getBaseUrl() . '/' . $containerName . '/' . $blobName,
-				strlen($fileContents),
+				strlen($data),
 				'',
 				'',
 				'',
@@ -938,6 +965,31 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		if ($localFileName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Local file name is not specified.');
 		}
+		
+		// Fetch data
+		file_put_contents($localFileName, $this->getBlobData($containerName, $blobName, $additionalHeaders));
+	}
+	
+	/**
+	 * Get blob data
+	 *
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 * @return mixed Blob contents
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function getBlobData($containerName = '', $blobName = '', $additionalHeaders = array())
+	{
+		if ($containerName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
+		}
+		if (!self::isValidContainerName($containerName)) {
+		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+		if ($blobName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
+		}
 			
 		// Additional headers?
 		$headers = array();
@@ -951,7 +1003,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		// Perform request
 		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
-			file_put_contents($localFileName, $response->getBody());
+			return $response->getBody();
 		} else {
 		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
