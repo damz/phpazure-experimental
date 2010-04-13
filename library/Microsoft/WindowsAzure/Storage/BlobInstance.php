@@ -55,6 +55,9 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
  * @property string  $ContentType     Content Type
  * @property string  $ContentEncoding Content Encoding
  * @property string  $ContentLanguage Content Language
+ * @property string  $CacheControl    Cache control
+ * @property string  $BlobType        Blob type
+ * @property string  $LeaseStatus     Lease status
  * @property boolean $IsPrefix        Is Prefix?
  * @property array   $Metadata        Key/value pairs of meta data
  */
@@ -79,10 +82,13 @@ class Microsoft_WindowsAzure_Storage_BlobInstance
      * @param string  $contentType     Content Type
      * @param string  $contentEncoding Content Encoding
      * @param string  $contentLanguage Content Language
+     * @param string  $cacheControl    Cache control
+     * @param string  $blobType        Blob type
+     * @param string  $leaseStatus     Lease status
      * @param boolean $isPrefix        Is Prefix?
      * @param array   $metadata        Key/value pairs of meta data
      */
-    public function __construct($containerName, $name, $etag, $lastModified, $url = '', $size = 0, $contentType = '', $contentEncoding = '', $contentLanguage = '', $isPrefix = false, $metadata = array()) 
+    public function __construct($containerName, $name, $etag, $lastModified, $url = '', $size = 0, $contentType = '', $contentEncoding = '', $contentLanguage = '', $cacheControl = '', $blobType = '', $leaseStatus = '', $isPrefix = false, $metadata = array()) 
     {	        
         $this->_data = array(
             'container'        => $containerName,
@@ -94,6 +100,9 @@ class Microsoft_WindowsAzure_Storage_BlobInstance
             'contenttype'      => $contentType,
             'contentencoding'  => $contentEncoding,
             'contentlanguage'  => $contentLanguage,
+            'cachecontrol'     => $cacheControl,
+            'blobtype'         => $blobType,
+            'leasestatus'      => $leaseStatus,
             'isprefix'         => $isPrefix,
             'metadata'         => $metadata
         );

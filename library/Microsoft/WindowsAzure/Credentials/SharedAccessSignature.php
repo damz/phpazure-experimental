@@ -302,6 +302,7 @@ class Microsoft_WindowsAzure_Credentials_SharedAccessSignature
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @param string $resourceType Resource type
 	 * @param string $requiredPermission Required permission
+	 * @param mixed  $rawData Raw post data
 	 * @return array Array of headers
 	 */
 	public function signRequestHeaders(
@@ -311,7 +312,8 @@ class Microsoft_WindowsAzure_Credentials_SharedAccessSignature
 		$headers = null,
 		$forTableStorage = false,
 		$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
-		$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ
+		$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ,
+		$rawData = null
 	) {
 	    return $headers;
 	}

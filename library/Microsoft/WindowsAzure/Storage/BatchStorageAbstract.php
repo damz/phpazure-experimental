@@ -147,6 +147,10 @@ abstract class Microsoft_WindowsAzure_Storage_BatchStorageAbstract
 		// Add version header
 		$headers['x-ms-version'] = $this->_apiVersion;
 		
+		// Add dataservice headers
+		$headers['DataServiceVersion'] = '1.0;NetFx';
+		$headers['MaxDataServiceVersion'] = '1.0;NetFx';
+		
 		// Add content-type header
 		$headers['Content-Type'] = 'multipart/mixed; boundary=' . $batchBoundary;
 

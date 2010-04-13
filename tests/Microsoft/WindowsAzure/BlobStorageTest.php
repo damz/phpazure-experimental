@@ -194,10 +194,20 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             $storageClient = $this->createStorageInstance();
             $storageClient->createContainer($containerName);
             
-            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC);
+            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_BLOB);
             $acl = $storageClient->getContainerAcl($containerName);
             
-            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC, $acl);
+            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_BLOB, $acl);
+            
+            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_CONTAINER);
+            $acl = $storageClient->getContainerAcl($containerName);
+            
+            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_CONTAINER, $acl);
+            
+            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE);
+            $acl = $storageClient->getContainerAcl($containerName);
+            
+            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, $acl);
         }
     }
     
@@ -268,6 +278,26 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             $this->assertEquals($containerName2, $result1[1]->Name);
             
             $this->assertEquals(1, count($result2));
+        }
+    }
+    
+    /**
+     * Test list containers with metadata
+     */
+    public function testListContainersWithMetadata()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName, array(
+                'createdby' => 'PHPAzure',
+                'ownedby' => 'PHPAzure',
+            ));
+            
+            $result = $storageClient->listContainers($containerName, null, null, 'metadata');
+            
+            $this->assertEquals('PHPAzure', $result[0]->Metadata['createdby']);
+            $this->assertEquals('PHPAzure', $result[0]->Metadata['ownedby']);
         }
     }
     
@@ -459,6 +489,38 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             
             $result2 = $storageClient->listBlobs($containerName, '', '', 2);
             $this->assertEquals(2, count($result2));
+        }
+    }
+    
+    /**
+     * Test list blobs with all includes
+     */
+    public function testListBlobsWithAllIncludes()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            
+            $storageClient->putBlob($containerName, 'images/WindowsAzure1.gif', self::$path . 'WindowsAzure.gif', array(
+                'createdby' => 'PHPAzure',
+                'ownedby' => 'PHPAzure',
+            ));
+            $storageClient->putBlob($containerName, 'images/WindowsAzure2.gif', self::$path . 'WindowsAzure.gif', array(
+                'createdby' => 'PHPAzure',
+                'ownedby' => 'PHPAzure',
+            ));
+            $storageClient->putBlob($containerName, 'images/WindowsAzure3.gif', self::$path . 'WindowsAzure.gif', array(
+                'createdby' => 'PHPAzure',
+                'ownedby' => 'PHPAzure',
+            ));
+            
+            $result = $storageClient->listBlobs($containerName, '', '', null, null, 'metadata,snapshots,uncommittedblobs');
+            $this->assertEquals(3, count($result));
+            $this->assertEquals('images/WindowsAzure2.gif', $result[1]->Name);
+            
+            $this->assertEquals('PHPAzure', $result[1]->Metadata['createdby']);
+            $this->assertEquals('PHPAzure', $result[1]->Metadata['ownedby']);
         }
     }
     

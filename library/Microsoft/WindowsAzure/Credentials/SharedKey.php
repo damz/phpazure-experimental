@@ -48,6 +48,11 @@ require_once 'Microsoft/WindowsAzure/Storage.php';
 require_once 'Microsoft/Http/Client.php';
 
 /**
+ * @see Microsoft_WindowsAzure_Credentials_Exception
+ */
+require_once 'Microsoft/WindowsAzure/Credentials/Exception.php';
+
+/**
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
  * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
@@ -82,6 +87,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKey
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @param string $resourceType Resource type
 	 * @param string $requiredPermission Required permission
+	 * @param mixed  $rawData Raw post data
 	 * @return array Array of headers
 	 */
 	public function signRequestHeaders(
@@ -91,10 +97,16 @@ class Microsoft_WindowsAzure_Credentials_SharedKey
 		$headers = null,
 		$forTableStorage = false,
 		$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
-		$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ
+		$requiredPermission = Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ,
+		$rawData = null
 	) {
 		// http://github.com/sriramk/winazurestorage/blob/214010a2f8931bac9c96dfeb337d56fe084ca63b/winazurestorage.py
 
+		// Table storage?
+		if ($forTableStorage) {
+			throw new Microsoft_WindowsAzure_Credentials_Exception('The Windows Azure SDK for PHP does not support SharedKey authentication on table storage. Use SharedKeyLite authentication instead.');
+		}
+		
 		// Determine path
 		if ($this->_usePathStyleUri) {
 			$path = substr($path, strpos($path, '/'));
@@ -137,17 +149,38 @@ class Microsoft_WindowsAzure_Credentials_SharedKey
 		}
 		$canonicalizedResource .= $path;
 		if ($queryString !== '') {
-		    $canonicalizedResource .= $queryString;
+		    $queryStringItems = $this->_makeArrayOfQueryString($queryString);
+		    foreach ($queryStringItems as $key => $value) {
+		    	$canonicalizedResource .= "\n" . strtolower($key) . ':' . $value;
+		    }
 		}
-
+		
+		// Content-Length header
+		$contentLength = '';
+		if (strtoupper($httpVerb) != Microsoft_Http_Client::GET
+			 && strtoupper($httpVerb) != Microsoft_Http_Client::DELETE
+			 && strtoupper($httpVerb) != Microsoft_Http_Client::HEAD) {
+			$contentLength = 0;
+			
+			if (!is_null($rawData)) {
+				$contentLength = strlen($rawData);
+			}
+		}
+       
 		// Create string to sign   
 		$stringToSign   = array();
 		$stringToSign[] = strtoupper($httpVerb); 	// VERB
+    	$stringToSign[] = "";						// Content-Encoding
+    	$stringToSign[] = "";						// Content-Language
+    	$stringToSign[] = $contentLength; 			// Content-Length
     	$stringToSign[] = "";						// Content-MD5
     	$stringToSign[] = "";						// Content-Type
-    	$stringToSign[] = "";
-        // Date already in $canonicalizedHeaders
-    	// $stringToSign[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate; // Date
+    	$stringToSign[] = "";						// Date
+    	$stringToSign[] = "";						// If-Modified-Since
+    	$stringToSign[] = "";						// If-Match
+    	$stringToSign[] = "";						// If-None-Match
+    	$stringToSign[] = "";						// If-Unmodified-Since
+    	$stringToSign[] = "";						// Range
     	
     	if (!$forTableStorage && count($canonicalizedHeaders) > 0) {
     		$stringToSign[] = implode("\n", $canonicalizedHeaders); // Canonicalized headers

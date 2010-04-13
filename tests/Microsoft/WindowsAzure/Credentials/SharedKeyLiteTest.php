@@ -34,7 +34,7 @@
  */
 
 if (!defined('PHPUnit_MAIN_METHOD')) {
-    define('PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_SharedKeyLiteCredentialsTest::main');
+    define('PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_Credentials_SharedKeyLiteTest::main');
 }
 
 /**
@@ -74,7 +74,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLiteTest extends PHPUnit_Frame
                               '/',
                               '',
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
-                              false
+                              true
                           );
                           
         $this->assertType('array', $signedHeaders);
@@ -93,7 +93,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLiteTest extends PHPUnit_Frame
                               '/test',
                               '',
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
-                              false
+                              true
                           );
   
         $this->assertType('array', $signedHeaders);
@@ -112,7 +112,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLiteTest extends PHPUnit_Frame
                               '/',
                               '?test=true',
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
-                              false
+                              true
                           );
   
         $this->assertType('array', $signedHeaders);
@@ -131,7 +131,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLiteTest extends PHPUnit_Frame
                               '/',
                               '',
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
-                              false
+                              true
                           );
                           
         $this->assertType('array', $signedHeaders);
@@ -150,7 +150,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLiteTest extends PHPUnit_Frame
                               '/test',
                               '',
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
-                              false
+                              true
                           );
   
         $this->assertType('array', $signedHeaders);
@@ -169,7 +169,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLiteTest extends PHPUnit_Frame
                               '/',
                               '?test=true',
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
-                              false
+                              true
                           );
   
         $this->assertType('array', $signedHeaders);

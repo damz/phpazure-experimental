@@ -34,7 +34,7 @@
  */
 
 if (!defined('PHPUnit_MAIN_METHOD')) {
-    define('PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_SharedAccessSignatureCredentialsTest::main');
+    define('PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_Credentials_SharedAccessSignatureTest::main');
 }
 
 /**

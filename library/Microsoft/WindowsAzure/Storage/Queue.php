@@ -107,7 +107,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
 		
 		// API version
-		$this->_apiVersion = '2009-04-14';
+		$this->_apiVersion = '2009-09-19';
 	}
 	
 	/**
@@ -158,7 +158,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata)); 
 		
 		// Perform request
-		$response = $this->_performRequest($queueName, '', Microsoft_Http_Client::PUT, $headers);			
+		$response = $this->_performRequest($queueName, '', Microsoft_Http_Client::PUT, $headers);	
 		if ($response->isSuccessful()) {
 		    return new Microsoft_WindowsAzure_Storage_QueueInstance(
 		        $queueName,
@@ -283,11 +283,12 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	 * @param string $prefix     Optional. Filters the results to return only queues whose name begins with the specified prefix.
 	 * @param int    $maxResults Optional. Specifies the maximum number of queues to return per call to Azure storage. This does NOT affect list size returned by this function. (maximum: 5000)
 	 * @param string $marker     Optional string value that identifies the portion of the list to be returned with the next list operation.
+	 * @param string $include    Optional. Include this parameter to specify that the queue's metadata be returned as part of the response body. (allowed values: '', 'metadata')
 	 * @param int    $currentResultCount Current result count (internal use)
 	 * @return array
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function listQueues($prefix = null, $maxResults = null, $marker = null, $currentResultCount = 0)
+	public function listQueues($prefix = null, $maxResults = null, $marker = null, $include = null, $currentResultCount = 0)
 	{
 	    // Build query string
 	    $queryString = '?comp=list';
@@ -297,8 +298,11 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	    if (!is_null($maxResults)) {
 	        $queryString .= '&maxresults=' . $maxResults;
 	    }
-	    if (!is_null($marker)) {
+		if (!is_null($marker)) {
 	        $queryString .= '&marker=' . $marker;
+	    }
+	 	if (!is_null($include)) {
+	        $queryString .= '&include=' . $include;
 	    }
 	        
 		// Perform request
@@ -311,14 +315,15 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 			if (!is_null($xmlQueues)) {
 				for ($i = 0; $i < count($xmlQueues); $i++) {
 					$queues[] = new Microsoft_WindowsAzure_Storage_QueueInstance(
-						(string)$xmlQueues[$i]->QueueName
+						(string)$xmlQueues[$i]->Name,
+						$this->_parseMetadataElement($xmlQueues[$i])
 					);
 				}
 			}
 			$currentResultCount = $currentResultCount + count($queues);
 			if (!is_null($maxResults) && $currentResultCount < $maxResults) {
     			if (!is_null($xmlMarker) && $xmlMarker != '') {
-    			    $queues = array_merge($queues, $this->listQueues($prefix, $maxResults, $xmlMarker, $currentResultCount));
+    			    $queues = array_merge($queues, $this->listQueues($prefix, $maxResults, $xmlMarker, $include, $currentResultCount));
     			}
 			}
 			if (!is_null($maxResults) && count($queues) > $maxResults) {

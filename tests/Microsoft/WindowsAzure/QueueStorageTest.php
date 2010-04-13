@@ -119,7 +119,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient = $this->createStorageInstance();
             $storageClient->createQueue($queueName1);
             $storageClient->createQueue($queueName2);
-            
+
             $result = $storageClient->queueExists($queueName1);
             $this->assertTrue($result);
             
@@ -201,6 +201,26 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $this->assertEquals($queueName2, $result1[1]->Name);
             
             $this->assertEquals(1, count($result2));
+        }
+    }
+    
+    /**
+     * Test list queues with metadata
+     */
+    public function testListQueuesWithMetadata()
+    {
+    	if (TESTS_QUEUE_RUNTESTS) {
+            $queueName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createQueue($queueName, array(
+                'createdby' => 'PHPAzure',
+                'ownedby' => 'PHPAzure',
+            ));
+            
+            $result = $storageClient->listQueues($queueName, null, null, 'metadata');
+            
+            $this->assertEquals('PHPAzure', $result[0]->Metadata['createdby']);
+            $this->assertEquals('PHPAzure', $result[0]->Metadata['ownedby']);
         }
     }
     

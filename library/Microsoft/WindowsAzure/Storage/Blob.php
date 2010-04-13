@@ -96,12 +96,24 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	/**
 	 * ACL - Private access
 	 */
-	const ACL_PRIVATE = false;
+	const ACL_PRIVATE = null;
 	
 	/**
-	 * ACL - Public access
+	 * ACL - Public access (read all blobs)
+	 * 
+	 * @deprecated Use ACL_CONTAINER or ACL_BLOB instead.
 	 */
-	const ACL_PUBLIC = true;
+	const ACL_PUBLIC = 'container';
+	
+	/**
+	 * ACL - Container Public access (enumerate and read all blobs)
+	 */
+	const ACL_CONTAINER = 'container';
+	
+	/**
+	 * ACL - Blob Public access (read all blobs)
+	 */
+	const ACL_BLOB = 'blob';
 	
 	/**
 	 * Maximal blob size (in bytes)
@@ -112,6 +124,12 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * Maximal blob transfer size (in bytes)
 	 */
 	const MAX_BLOB_TRANSFER_SIZE = 4194304;
+	
+	/**
+	 * Blob types
+	 */
+	const BLOBTYPE_BLOCK = 'BlockBlob';
+	const BLOBTYPE_PAge  = 'PageBlob';
 	
     /**
      * Stream wrapper clients
@@ -141,7 +159,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		parent::__construct($host, $accountName, $accountKey, $usePathStyleUri, $retryPolicy);
 		
 		// API version
-		$this->_apiVersion = '2009-07-17';
+		$this->_apiVersion = '2009-09-19';
 		
 		// SharedAccessSignature credentials
 		$this->_sharedAccessSignatureCredentials = new Microsoft_WindowsAzure_Credentials_SharedAccessSignature($accountName, $accountKey, $usePathStyleUri);
@@ -228,7 +246,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata));
 		
 		// Perform request
-		$response = $this->_performRequest($containerName, '?restype=container', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);			
+		$response = $this->_performRequest($containerName, '?restype=container', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if ($response->isSuccessful()) {
 		    return new Microsoft_WindowsAzure_Storage_BlobContainer(
 		        $containerName,
@@ -245,8 +263,8 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * Get container ACL
 	 *
 	 * @param string $containerName Container name
-	 * @param bool   $signedIdentifiers Display only public/private or display signed identifiers?
-	 * @return bool Acl, to be compared with Microsoft_WindowsAzure_Storage_Blob::ACL_*
+	 * @param bool   $signedIdentifiers Display only private/blob/container or display signed identifiers?
+	 * @return string Acl, to be compared with Microsoft_WindowsAzure_Storage_Blob::ACL_*
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
 	public function getContainerAcl($containerName = '', $signedIdentifiers = false)
@@ -262,8 +280,12 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$response = $this->_performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 		    if ($signedIdentifiers == false)  {
-		        // Only public/private
-			    return $response->getHeader('x-ms-prop-publicaccess') == 'True';
+		        // Only private/blob/container
+		        $accessType = $response->getHeader(Microsoft_WindowsAzure_Storage::PREFIX_STORAGE_HEADER . 'blob-public-access');
+		        if (strtolower($accessType) == 'true') {
+		        	$accessType = self::ACL_CONTAINER;
+		        }
+			    return $accessType;
 		    } else {
        		    // Parse result
     		    $result = $this->_parseResponse($response);
@@ -315,6 +337,14 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		if (!self::isValidContainerName($containerName)) {
 		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		}
+		
+		// Headers
+		$headers = array();
+
+		// Acl specified?
+		if ($acl != self::ACL_PRIVATE && !is_null($acl) && $acl != '') {
+			$headers[Microsoft_WindowsAzure_Storage::PREFIX_STORAGE_HEADER . 'blob-public-access'] = $acl;
+		}
 
 		// Policies
 		$policies = null;
@@ -339,7 +369,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 		
 		// Perform request
-		$response = $this->_performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Client::PUT, array('x-ms-prop-publicaccess' => $acl), false, $policies, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Client::PUT, $headers, false, $policies, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
 		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -474,12 +504,13 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * @param string $prefix     Optional. Filters the results to return only containers whose name begins with the specified prefix.
 	 * @param int    $maxResults Optional. Specifies the maximum number of containers to return per call to Azure storage. This does NOT affect list size returned by this function. (maximum: 5000)
 	 * @param string $marker     Optional string value that identifies the portion of the list to be returned with the next list operation.
+	 * @param string $include    Optional. Include this parameter to specify that the container's metadata be returned as part of the response body. (allowed values: '', 'metadata')
 	 * @param int    $currentResultCount Current result count (internal use)
 	 * @return array
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function listContainers($prefix = null, $maxResults = null, $marker = null, $currentResultCount = 0)
-	{
+	public function listContainers($prefix = null, $maxResults = null, $marker = null, $include = null, $currentResultCount = 0)
+	{		
 	    // Build query string
 	    $queryString = '?comp=list';
 	    if (!is_null($prefix)) {
@@ -491,9 +522,12 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	    if (!is_null($marker)) {
 	        $queryString .= '&marker=' . $marker;
 	    }
+		if (!is_null($include)) {
+	        $queryString .= '&include=' . $include;
+	    }
 	        
 		// Perform request
-		$response = $this->_performRequest('', $queryString, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_LIST);	
+		$response = $this->_performRequest('', $queryString, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_LIST);
 		if ($response->isSuccessful()) {
 			$xmlContainers = $this->_parseResponse($response)->Containers->Container;
 			$xmlMarker = (string)$this->_parseResponse($response)->NextMarker;
@@ -504,14 +538,15 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 					$containers[] = new Microsoft_WindowsAzure_Storage_BlobContainer(
 						(string)$xmlContainers[$i]->Name,
 						(string)$xmlContainers[$i]->Etag,
-						(string)$xmlContainers[$i]->LastModified
+						(string)$xmlContainers[$i]->LastModified,
+						$this->_parseMetadataElement($xmlContainers[$i])
 					);
 				}
 			}
 			$currentResultCount = $currentResultCount + count($containers);
 			if (!is_null($maxResults) && $currentResultCount < $maxResults) {
     			if (!is_null($xmlMarker) && $xmlMarker != '') {
-    			    $containers = array_merge($containers, $this->listContainers($prefix, $maxResults, $xmlMarker, $currentResultCount));
+    			    $containers = array_merge($containers, $this->listContainers($prefix, $maxResults, $xmlMarker, $include, $currentResultCount));
     			}
 			}
 			if (!is_null($maxResults) && count($containers) > $maxResults) {
@@ -600,11 +635,14 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		    $headers[$key] = $value;
 		}
 		
+		// Specify blob type
+		$headers[Microsoft_WindowsAzure_Storage::PREFIX_STORAGE_HEADER . 'blob-type'] = self::BLOBTYPE_BLOCK;
+		
 		// Resource name
 		$resourceName = self::createResourceName($containerName , $blobName);
 		
 		// Perform request
-		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::PUT, $headers, false, $data, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);	
+		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::PUT, $headers, false, $data, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if ($response->isSuccessful()) {
 			return new Microsoft_WindowsAzure_Storage_BlobInstance(
 				$containerName,
@@ -1059,6 +1097,9 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 				$response->getHeader('Content-Type'),
 				$response->getHeader('Content-Encoding'),
 				$response->getHeader('Content-Language'),
+				$response->getHeader('Cache-Control'),
+				$response->getHeader('x-ms-blob-type'),
+				$response->getHeader('x-ms-lease-status'),
 				false,
 		        $metadata
 			);
@@ -1185,11 +1226,12 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * @param string $delimiter  Optional. Delimiter, i.e. '/', for specifying folder hierarchy
 	 * @param int    $maxResults Optional. Specifies the maximum number of blobs to return per call to Azure storage. This does NOT affect list size returned by this function. (maximum: 5000)
 	 * @param string $marker     Optional string value that identifies the portion of the list to be returned with the next list operation.
+	 * @param string $include    Optional. Specifies that the response should include one or more of the following subsets: '', 'metadata', 'snapshots', 'uncommittedblobs'). Multiple values can be added separated with a comma (,)
 	 * @param int    $currentResultCount Current result count (internal use)
 	 * @return array
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function listBlobs($containerName = '', $prefix = '', $delimiter = '', $maxResults = null, $marker = null, $currentResultCount = 0)
+	public function listBlobs($containerName = '', $prefix = '', $delimiter = '', $maxResults = null, $marker = null, $include = null, $currentResultCount = 0)
 	{
 		if ($containerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
@@ -1212,6 +1254,9 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	    if (!is_null($marker)) {
 	        $queryString .= '&marker=' . $marker;
 	    }
+		if (!is_null($include)) {
+	        $queryString .= '&include=' . $include;
+	    }
 
 	    // Perform request
 		$response = $this->_performRequest($containerName, $queryString, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_LIST);
@@ -1223,17 +1268,23 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			$xmlBlobs = $this->_parseResponse($response)->Blobs->Blob;
 			if (!is_null($xmlBlobs)) {
 				for ($i = 0; $i < count($xmlBlobs); $i++) {
+					$properties = (array)$xmlBlobs[$i]->Properties;
+					
 					$blobs[] = new Microsoft_WindowsAzure_Storage_BlobInstance(
 						$containerName,
 						(string)$xmlBlobs[$i]->Name,
-						(string)$xmlBlobs[$i]->Etag,
-						(string)$xmlBlobs[$i]->LastModified,
+						(string)$properties['Etag'],
+						(string)$properties['Last-Modified'],
 						(string)$xmlBlobs[$i]->Url,
-						(string)$xmlBlobs[$i]->Size,
-						(string)$xmlBlobs[$i]->ContentType,
-						(string)$xmlBlobs[$i]->ContentEncoding,
-						(string)$xmlBlobs[$i]->ContentLanguage,
-						false
+						(string)$properties['Content-Length'],
+						(string)$properties['Content-Type'],
+						(string)$properties['Content-Encoding'],
+						(string)$properties['Content-Language'],
+						(string)$properties['Cache-Control'],
+						(string)$properties['BlobType'],
+						(string)$properties['LeaseStatus'],
+						false,
+						$this->_parseMetadataElement($xmlBlobs[$i])
 					);
 				}
 			}
@@ -1253,7 +1304,11 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 						'',
 						'',
 						'',
-						true
+						'',
+						'',
+						'',
+						true,
+						$this->_parseMetadataElement($xmlBlobs[$i])
 					);
 				}
 			}
@@ -1263,7 +1318,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			$currentResultCount = $currentResultCount + count($blobs);
 			if (!is_null($maxResults) && $currentResultCount < $maxResults) {
     			if (!is_null($xmlMarker) && $xmlMarker != '') {
-    			    $blobs = array_merge($blobs, $this->listBlobs($containerName, $prefix, $delimiter, $maxResults, $marker, $currentResultCount));
+    			    $blobs = array_merge($blobs, $this->listBlobs($containerName, $prefix, $delimiter, $maxResults, $marker, $include, $currentResultCount));
     			}
 			}
 			if (!is_null($maxResults) && count($blobs) > $maxResults) {

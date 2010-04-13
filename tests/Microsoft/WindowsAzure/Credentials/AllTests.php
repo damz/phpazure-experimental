@@ -45,6 +45,7 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 require_once 'Microsoft/WindowsAzure/Credentials/SharedKeyTest.php';
 require_once 'Microsoft/WindowsAzure/Credentials/SharedKeyLiteTest.php';
 require_once 'Microsoft/WindowsAzure/Credentials/SharedAccessSignatureTest.php';
+
 /**
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
