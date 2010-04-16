@@ -20,7 +20,7 @@ require_once 'BlobLocalTest.php';
 /**
  * @category   Microsoft
  * @package    UnitTests
- * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 class AllTests extends PHPUnit_Framework_TestCase {

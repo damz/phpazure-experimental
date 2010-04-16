@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2009, RealDolmen
+ * Copyright (c) 2009 - 2010, RealDolmen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  * @package    Microsoft_WindowsAzure
  * @subpackage UnitTests
  * @version    $Id: BlobStreamTest.php 24354 2009-07-24 08:48:54Z unknown $
- * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 
@@ -52,7 +52,7 @@ require_once 'Microsoft/WindowsAzure/Storage/Blob.php';
  * @package    Microsoft_WindowsAzure
  * @subpackage UnitTests
  * @version    $Id: BlobStreamTest.php 24354 2009-07-24 08:48:54Z unknown $
- * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase

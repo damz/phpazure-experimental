@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2009, RealDolmen
+ * Copyright (c) 2009 - 2010, RealDolmen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  * @package    Microsoft_WindowsAzure
  * @subpackage Exception
  * @version    $Id: Exception.php 28585 2009-09-07 12:12:56Z unknown $
- * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 
@@ -41,7 +41,7 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
 /**
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
- * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_WindowsAzure_Credentials_Exception extends Microsoft_WindowsAzure_Exception

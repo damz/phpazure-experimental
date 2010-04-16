@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2009, RealDolmen
+ * Copyright (c) 2009 - 2010, RealDolmen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
  *
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
- * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  * @version    $Id: SharedKeyCredentials.php 14561 2009-05-07 08:05:12Z unknown $
  */
@@ -45,7 +45,7 @@ require_once 'Microsoft/WindowsAzure/Credentials/Exception.php';
 /**
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
- * @copyright  Copyright (c) 2009, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */ 
 abstract class Microsoft_WindowsAzure_Credentials_CredentialsAbstract
