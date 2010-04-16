@@ -51,6 +51,7 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
  * @property string $ExpirationTime    Expiration time
  * @property string $PopReceipt  	   Receipt verification for deleting the message from queue.
  * @property string $TimeNextVisible   Next time the message is visible in the queue
+ * @property int    $DequeueCount      Number of times the message has been dequeued. This value is incremented each time the message is subsequently dequeued.
  * @property string $MessageText       Message text
  */
 class Microsoft_WindowsAzure_Storage_QueueMessage
@@ -70,9 +71,10 @@ class Microsoft_WindowsAzure_Storage_QueueMessage
      * @param string $expirationTime    Expiration time
      * @param string $popReceipt  	    Receipt verification for deleting the message from queue.
      * @param string $timeNextVisible   Next time the message is visible in the queue
+     * @param int    $dequeueCount      Number of times the message has been dequeued. This value is incremented each time the message is subsequently dequeued.
      * @param string $messageText       Message text
      */
-    public function __construct($messageId, $insertionTime, $expirationTime, $popReceipt, $timeNextVisible, $messageText) 
+    public function __construct($messageId, $insertionTime, $expirationTime, $popReceipt, $timeNextVisible, $dequeueCount, $messageText) 
     {
         $this->_data = array(
             'messageid'       => $messageId,
@@ -80,6 +82,7 @@ class Microsoft_WindowsAzure_Storage_QueueMessage
             'expirationtime'  => $expirationTime,
             'popreceipt'      => $popReceipt,
             'timenextvisible' => $timeNextVisible,
+        	'dequeuecount'    => $dequeueCount,
             'messagetext'     => $messageText
         );
     }

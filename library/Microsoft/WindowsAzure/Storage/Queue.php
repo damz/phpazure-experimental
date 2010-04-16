@@ -444,6 +444,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 					(string)$xmlMessages[$i]->ExpirationTime,
 					($peek ? '' : (string)$xmlMessages[$i]->PopReceipt),
 					($peek ? '' : (string)$xmlMessages[$i]->TimeNextVisible),
+					(string)$xmlMessages[$i]->DequeueCount,
 					base64_decode((string)$xmlMessages[$i]->MessageText)
 			    );
 			}

@@ -235,7 +235,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->createQueue($queueName);
             $storageClient->putMessage($queueName, 'Test message', 120);
             
-            sleep(45); // wait for the message to appear in the queue...
+            sleep(5); // wait for the message to appear in the queue...
             
             $messages = $storageClient->getMessages($queueName);
             $this->assertEquals(1, count($messages));
@@ -257,7 +257,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->putMessage($queueName, 'Test message 3', 120);
             $storageClient->putMessage($queueName, 'Test message 4', 120);
             
-            sleep(45); // wait for the messages to appear in the queue...
+            sleep(5); // wait for the messages to appear in the queue...
             
             $messages1 = $storageClient->getMessages($queueName, 2);
             $messages2 = $storageClient->getMessages($queueName, 2);
@@ -283,13 +283,38 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->putMessage($queueName, 'Test message 3', 120);
             $storageClient->putMessage($queueName, 'Test message 4', 120);
             
-            sleep(45); // wait for the messages to appear in the queue...
+            sleep(5); // wait for the messages to appear in the queue...
             
             $messages1 = $storageClient->peekMessages($queueName, 4);
             $messages2 = $storageClient->getMessages($queueName, 4);
             
             $this->assertEquals(4, count($messages1));
             $this->assertEquals(4, count($messages2));
+        }
+    }
+    
+    /**
+     * Test dequeuecount
+     */
+    public function testDequeueCount()
+    {
+        if (TESTS_QUEUE_RUNTESTS) {
+            $queueName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createQueue($queueName);
+            $storageClient->putMessage($queueName, 'Test message 1', 120);
+            
+            sleep(5); // wait for the message to appear in the queue...
+            
+            $expectedDequeueCount = 3;
+            for ($i = 0; $i < $expectedDequeueCount - 1; $i++) {
+	            $storageClient->getMessages($queueName, 1, 1);
+	            sleep(3);
+            }
+            
+            $messages = $storageClient->getMessages($queueName, 1);
+            
+            $this->assertEquals($expectedDequeueCount, $messages[0]->DequeueCount);
         }
     }
     
@@ -307,12 +332,12 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->putMessage($queueName, 'Test message 3', 120);
             $storageClient->putMessage($queueName, 'Test message 4', 120);
             
-            sleep(45); // wait for the messages to appear in the queue...
+            sleep(5); // wait for the messages to appear in the queue...
             
             $messages1 = $storageClient->peekMessages($queueName, 4);
             $storageClient->clearMessages($queueName);
             
-            sleep(45); // wait for the GC...
+            sleep(5); // wait for the GC...
             
             $messages2 = $storageClient->peekMessages($queueName, 4);
             
@@ -335,7 +360,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->putMessage($queueName, 'Test message 3', 120);
             $storageClient->putMessage($queueName, 'Test message 4', 120);
             
-            sleep(45); // wait for the messages to appear in the queue...
+            sleep(5); // wait for the messages to appear in the queue...
             
             $messages1 = $storageClient->getMessages($queueName, 2, 10);
             foreach ($messages1 as $message)
@@ -343,7 +368,7 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
                 $storageClient->deleteMessage($queueName, $message);
             }
             
-            sleep(45); // wait for the GC...
+            sleep(5); // wait for the GC...
             
             $messages2 = $storageClient->getMessages($queueName, 4);
             
