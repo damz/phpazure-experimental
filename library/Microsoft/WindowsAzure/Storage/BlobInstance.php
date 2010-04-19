@@ -48,6 +48,7 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
  * 
  * @property string  $Container       Container name
  * @property string  $Name            Name
+ * @property string  $SnapshotId      Snapshot id
  * @property string  $Etag            Etag
  * @property string  $LastModified    Last modified date
  * @property string  $Url             Url
@@ -75,6 +76,7 @@ class Microsoft_WindowsAzure_Storage_BlobInstance
      * 
      * @param string  $containerName   Container name
      * @param string  $name            Name
+     * @param string  $snapshotId      Snapshot id
      * @param string  $etag            Etag
      * @param string  $lastModified    Last modified date
      * @param string  $url             Url
@@ -88,11 +90,12 @@ class Microsoft_WindowsAzure_Storage_BlobInstance
      * @param boolean $isPrefix        Is Prefix?
      * @param array   $metadata        Key/value pairs of meta data
      */
-    public function __construct($containerName, $name, $etag, $lastModified, $url = '', $size = 0, $contentType = '', $contentEncoding = '', $contentLanguage = '', $cacheControl = '', $blobType = '', $leaseStatus = '', $isPrefix = false, $metadata = array()) 
+    public function __construct($containerName, $name, $snapshotId, $etag, $lastModified, $url = '', $size = 0, $contentType = '', $contentEncoding = '', $contentLanguage = '', $cacheControl = '', $blobType = '', $leaseStatus = '', $isPrefix = false, $metadata = array()) 
     {	        
         $this->_data = array(
             'container'        => $containerName,
             'name'             => $name,
+        	'snapshotid'	   => $snapshotId,
             'etag'             => $etag,
             'lastmodified'     => $lastModified,
             'url'              => $url,

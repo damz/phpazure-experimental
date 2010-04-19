@@ -648,6 +648,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			return new Microsoft_WindowsAzure_Storage_BlobInstance(
 				$containerName,
 				$blobName,
+				null,
 				$response->getHeader('Etag'),
 				$response->getHeader('Last-modified'),
 				$this->getBaseUrl() . '/' . $containerName . '/' . $blobName,
@@ -979,6 +980,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			return new Microsoft_WindowsAzure_Storage_BlobInstance(
 				$destinationContainerName,
 				$destinationBlobName,
+				null,
 				$response->getHeader('Etag'),
 				$response->getHeader('Last-modified'),
 				$this->getBaseUrl() . '/' . $destinationContainerName . '/' . $destinationBlobName,
@@ -1073,7 +1075,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	}
 	
 	/**
-	 * Get container
+	 * Get blob instance
 	 * 
 	 * @param string $containerName      Container name
 	 * @param string $blobName           Blob name
@@ -1124,6 +1126,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			return new Microsoft_WindowsAzure_Storage_BlobInstance(
 				$containerName,
 				$blobName,
+				$snapshotId,
 				$response->getHeader('Etag'),
 				$response->getHeader('Last-modified'),
 				$this->getBaseUrl() . '/' . $containerName . '/' . $blobName,
@@ -1213,6 +1216,83 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		if (!$response->isSuccessful()) {
 		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
+	}
+	
+	/**
+	 * Set blob properties
+	 * 
+	 * All available properties are listed at http://msdn.microsoft.com/en-us/library/ee691966.aspx and should be provided in the $additionalHeaders parameter.
+	 *
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param string $leaseId            Lease identifier
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function setBlobProperties($containerName = '', $blobName = '', $leaseId = null, $additionalHeaders = array())
+	{
+		if ($containerName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
+		}
+		if (!self::isValidContainerName($containerName)) {
+		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+		if ($blobName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
+		}
+		if ($containerName === '$root' && strpos($blobName, '/') !== false) {
+		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
+		if (count($additionalHeaders) == 0) {
+			throw new Microsoft_WindowsAzure_Exception('No additional headers are specified.');
+		}
+		    
+		// Create headers
+		$headers = array();
+		
+		// Lease set?
+		if (!is_null($leaseId)) {
+			// TODO
+		}
+		
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value) {
+		    $headers[$key] = $value;
+		}
+		
+		// Perform request
+		$response = $this->_performRequest($containerName . '/' . $blobName, '?comp=properties', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		if (!$response->isSuccessful()) {
+		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+	}
+	
+	/**
+	 * Get blob properties
+	 * 
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param string $snapshotId         Snapshot identifier
+	 * @param string $leaseId            Lease identifier
+	 * @return Microsoft_WindowsAzure_Storage_BlobInstance
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function getBlobProperties($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null)
+	{
+		if ($containerName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
+		}
+		if (!self::isValidContainerName($containerName)) {
+		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+		if ($blobName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
+		}
+		if ($containerName === '$root' && strpos($blobName, '/') !== false) {
+		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
+		
+	    return $this->getBlobInstance($containerName, $blobName, $snapshotId, $leaseId);
 	}
 	
 	/**
@@ -1362,6 +1442,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 					$blobs[] = new Microsoft_WindowsAzure_Storage_BlobInstance(
 						$containerName,
 						(string)$xmlBlobs[$i]->Name,
+						(string)$xmlBlobs[$i]->Snapshot,
 						(string)$properties['Etag'],
 						(string)$properties['Last-Modified'],
 						(string)$xmlBlobs[$i]->Url,
@@ -1386,6 +1467,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 					$blobs[] = new Microsoft_WindowsAzure_Storage_BlobInstance(
 						$containerName,
 						(string)$xmlBlobs[$i]->Name,
+						null,
 						'',
 						'',
 						'',

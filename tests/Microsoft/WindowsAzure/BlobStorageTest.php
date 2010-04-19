@@ -436,6 +436,29 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test set blob properties
+     */
+    public function testSetBlobProperties()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            $storageClient->putBlob($containerName, 'images/WindowsAzure.gif', self::$path . 'WindowsAzure.gif');
+            
+            $storageClient->setBlobProperties($containerName, 'images/WindowsAzure.gif', null, array(
+                'x-ms-blob-content-language' => 'nl-BE',
+            	'x-ms-blob-content-type' => 'image/gif'
+            ));
+            
+            $blobInstance = $storageClient->getBlobInstance($containerName, 'images/WindowsAzure.gif');
+
+            $this->assertEquals('nl-BE', $blobInstance->ContentLanguage);
+            $this->assertEquals('image/gif', $blobInstance->ContentType);
+        }
+    }
+    
+    /**
      * Test set blob metadata
      */
     public function testSetBlobMetadata()
