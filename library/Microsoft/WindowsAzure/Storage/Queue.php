@@ -291,19 +291,20 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	public function listQueues($prefix = null, $maxResults = null, $marker = null, $include = null, $currentResultCount = 0)
 	{
 	    // Build query string
-	    $queryString = '?comp=list';
-	    if (!is_null($prefix)) {
-	        $queryString .= '&prefix=' . $prefix;
-	    }
+		$queryString = array('comp=list');
+        if (!is_null($prefix)) {
+	        $queryString[] = 'prefix=' . $prefix;
+        }
 	    if (!is_null($maxResults)) {
-	        $queryString .= '&maxresults=' . $maxResults;
+	        $queryString[] = 'maxresults=' . $maxResults;
 	    }
-		if (!is_null($marker)) {
-	        $queryString .= '&marker=' . $marker;
+	    if (!is_null($marker)) {
+	        $queryString[] = 'marker=' . $marker;
 	    }
-	 	if (!is_null($include)) {
-	        $queryString .= '&include=' . $include;
+		if (!is_null($include)) {
+	        $queryString[] = 'include=' . $include;
 	    }
+	    $queryString = self::createQueryStringFromArray($queryString);
 	        
 		// Perform request
 		$response = $this->_performRequest('', $queryString, Microsoft_Http_Client::GET);	
@@ -363,10 +364,11 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		}
 		    
 	    // Build query string
-	    $queryString = '';
-	    if (!is_null($ttl)) {
-	        $queryString .= '?messagettl=' . $ttl;
-	    }
+		$queryString = array();
+        if (!is_null($ttl)) {
+	        $queryString[] = 'messagettl=' . $ttl;
+        }
+	    $queryString = self::createQueryStringFromArray($queryString);
 	        
 	    // Build body
 	    $rawData = '';
@@ -408,17 +410,17 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		}
 		    
 	    // Build query string
-	    $query = array();
+		$queryString = array();
     	if ($peek) {
-    	    $query[] = 'peekonly=true';
+    	    $queryString[] = 'peekonly=true';
     	}
     	if ($numOfMessages > 1) {
-	        $query[] = 'numofmessages=' . $numOfMessages;
+	        $queryString[] = 'numofmessages=' . $numOfMessages;
     	}
     	if (!$peek && !is_null($visibilityTimeout)) {
-	        $query[] = 'visibilitytimeout=' . $visibilityTimeout;
+	        $queryString[] = 'visibilitytimeout=' . $visibilityTimeout;
     	}   
-    	$queryString = '?' . implode('&', $query);
+	    $queryString = self::createQueryStringFromArray($queryString);
 	        
 		// Perform request
 		$response = $this->_performRequest($queueName . '/messages', $queryString, Microsoft_Http_Client::GET);	

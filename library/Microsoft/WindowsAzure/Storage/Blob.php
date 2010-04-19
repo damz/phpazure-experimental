@@ -170,9 +170,10 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * 
 	 * @param string $containerName Container name
 	 * @param string $blobName      Blob name
+	 * @param string $snapshotId    Snapshot identifier
 	 * @return boolean
 	 */
-	public function blobExists($containerName = '', $blobName = '')
+	public function blobExists($containerName = '', $blobName = '', $snapshotId = null)
 	{
 		if ($containerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
@@ -184,15 +185,14 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
 		}
 		
-		// List blobs
-        $blobs = $this->listBlobs($containerName, $blobName, '', 1);
-        foreach ($blobs as $blob) {
-            if ($blob->Name == $blobName) {
-                return true;
-            }
-        }
-        
-        return false;
+		// Get blob instance
+		try {
+			$this->getBlobInstance($containerName, $blobName, $snapshotId);
+		} catch (Microsoft_WindowsAzure_Exception $e) {
+			return false;
+		}
+
+        return true;
 	}
 	
 	/**
@@ -511,20 +511,21 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 */
 	public function listContainers($prefix = null, $maxResults = null, $marker = null, $include = null, $currentResultCount = 0)
 	{		
-	    // Build query string
-	    $queryString = '?comp=list';
+		// Build query string
+		$queryString = array('comp=list');
 	    if (!is_null($prefix)) {
-	        $queryString .= '&prefix=' . $prefix;
+	        $queryString[] = 'prefix=' . $prefix;
 	    }
 	    if (!is_null($maxResults)) {
-	        $queryString .= '&maxresults=' . $maxResults;
+	        $queryString[] = 'maxresults=' . $maxResults;
 	    }
 	    if (!is_null($marker)) {
-	        $queryString .= '&marker=' . $marker;
+	        $queryString[] = 'marker=' . $marker;
 	    }
 		if (!is_null($include)) {
-	        $queryString .= '&include=' . $include;
+	        $queryString[] = 'include=' . $include;
 	    }
+	    $queryString = self::createQueryStringFromArray($queryString);
 	        
 		// Perform request
 		$response = $this->_performRequest('', $queryString, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_LIST);
@@ -842,11 +843,13 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 *
 	 * @param string $containerName Container name
 	 * @param string $blobName      Blob name
+	 * @param string $snapshotId    Snapshot identifier
+	 * @param string $leaseId       Lease identifier
 	 * @param integer $type         Type of block list to retrieve. 0 = all, 1 = committed, 2 = uncommitted
 	 * @return array
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function getBlockList($containerName = '', $blobName = '', $type = 0)
+	public function getBlockList($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null, $type = 0)
 	{
 		if ($containerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
@@ -860,7 +863,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		if ($type < 0 || $type > 2) {
 			throw new Microsoft_WindowsAzure_Exception('Invalid type of block list to retrieve.');
 		}
-			
+		
 		// Set $blockListType
 		$blockListType = 'all';
 		if ($type == 1) {
@@ -869,12 +872,19 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		if ($type == 2) {
 		    $blockListType = 'uncommitted';
 		}
+		
+		// Build query string
+		$queryString = array('comp=blocklist', 'blocklisttype=' . $blockListType);
+	    if (!is_null($snapshotId)) {
+	        $queryString[] = 'snapshot=' . $snapshotId;
+	    }
+	    $queryString = self::createQueryStringFromArray($queryString);
 		    
 		// Resource name
 		$resourceName = self::createResourceName($containerName , $blobName);
 			
 		// Perform request
-		$response = $this->_performRequest($resourceName, '?comp=blocklist&blocklisttype=' . $blockListType, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
+		$response = $this->_performRequest($resourceName, $queryString, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 		    // Parse response
 		    $blockList = $this->_parseResponse($response);
@@ -912,11 +922,12 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * @param string $destinationContainerName  Destination container name
 	 * @param string $destinationBlobName       Destination blob name
 	 * @param array  $metadata                  Key/value pairs of meta data
+	 * @param string $sourceSnapshotId          Source snapshot identifier
 	 * @param array  $additionalHeaders         Additional headers. See http://msdn.microsoft.com/en-us/library/dd894037.aspx for more information.
 	 * @return object Partial blob properties
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function copyBlob($sourceContainerName = '', $sourceBlobName = '', $destinationContainerName = '', $destinationBlobName = '', $metadata = array(), $additionalHeaders = array())
+	public function copyBlob($sourceContainerName = '', $sourceBlobName = '', $destinationContainerName = '', $destinationBlobName = '', $metadata = array(), $sourceSnapshotId = null, $additionalHeaders = array())
 	{
 		if ($sourceContainerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Source container name is not specified.');
@@ -954,6 +965,9 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		
 		// Resource names
 		$sourceResourceName = self::createResourceName($sourceContainerName, $sourceBlobName);
+		if (!is_null($sourceSnapshotId)) {
+			$sourceResourceName .= '?snapshot=' . $sourceSnapshotId;
+		}
 		$destinationResourceName = self::createResourceName($destinationContainerName, $destinationBlobName);
 		
 		// Set source blob
@@ -986,10 +1000,12 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * @param string $containerName      Container name
 	 * @param string $blobName           Blob name
 	 * @param string $localFileName      Local file name to store downloaded blob
+	 * @param string $snapshotId         Snapshot identifier
+	 * @param string $leaseId            Lease identifier
 	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function getBlob($containerName = '', $blobName = '', $localFileName = '', $additionalHeaders = array())
+	public function getBlob($containerName = '', $blobName = '', $localFileName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = array())
 	{
 		if ($containerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
@@ -1005,7 +1021,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 		
 		// Fetch data
-		file_put_contents($localFileName, $this->getBlobData($containerName, $blobName, $additionalHeaders));
+		file_put_contents($localFileName, $this->getBlobData($containerName, $blobName, $snapshotId, $leaseId, $additionalHeaders));
 	}
 	
 	/**
@@ -1013,11 +1029,13 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 *
 	 * @param string $containerName      Container name
 	 * @param string $blobName           Blob name
+	 * @param string $snapshotId         Snapshot identifier
+	 * @param string $leaseId            Lease identifier
 	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @return mixed Blob contents
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function getBlobData($containerName = '', $blobName = '', $additionalHeaders = array())
+	public function getBlobData($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = array())
 	{
 		if ($containerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
@@ -1028,7 +1046,14 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		if ($blobName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
 		}
-			
+
+		// Build query string
+		$queryString = array();
+	    if (!is_null($snapshotId)) {
+	        $queryString[] = 'snapshot=' . $snapshotId;
+	    }
+	    $queryString = self::createQueryStringFromArray($queryString);
+
 		// Additional headers?
 		$headers = array();
 		foreach ($additionalHeaders as $key => $value) {
@@ -1039,7 +1064,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 		
 		// Perform request
-		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
+		$response = $this->_performRequest($resourceName, $queryString, Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 			return $response->getBody();
 		} else {
@@ -1052,11 +1077,13 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * 
 	 * @param string $containerName      Container name
 	 * @param string $blobName           Blob name
+	 * @param string $snapshotId         Snapshot identifier
+	 * @param string $leaseId            Lease identifier
 	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @return Microsoft_WindowsAzure_Storage_BlobInstance
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function getBlobInstance($containerName = '', $blobName = '', $additionalHeaders = array())
+	public function getBlobInstance($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = array())
 	{
 		if ($containerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
@@ -1070,6 +1097,13 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		if ($containerName === '$root' && strpos($blobName, '/') !== false) {
 		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 		}
+		
+		// Build query string
+		$queryString = array();
+	    if (!is_null($snapshotId)) {
+	        $queryString[] = 'snapshot=' . $snapshotId;
+	    }
+	    $queryString = self::createQueryStringFromArray($queryString);
 	        
 		// Additional headers?
 		$headers = array();
@@ -1081,7 +1115,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 		    
 		// Perform request
-		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::HEAD, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
+		$response = $this->_performRequest($resourceName, $queryString, Microsoft_Http_Client::HEAD, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 		    // Parse metadata
 		    $metadata = $this->_parseMetadataHeaders($response->getHeaders());
@@ -1112,11 +1146,13 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * Get blob metadata
 	 * 
 	 * @param string $containerName  Container name
-	 * @param string $blobName Blob name
+	 * @param string $blobName       Blob name
+	 * @param string $snapshotId     Snapshot identifier
+	 * @param string $leaseId        Lease identifier
 	 * @return array Key/value pairs of meta data
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function getBlobMetadata($containerName = '', $blobName = '')
+	public function getBlobMetadata($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null)
 	{
 		if ($containerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
@@ -1131,7 +1167,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 		}
 		
-	    return $this->getBlobInstance($containerName, $blobName)->Metadata;
+	    return $this->getBlobInstance($containerName, $blobName, $snapshotId, $leaseId)->Metadata;
 	}
 	
 	/**
@@ -1184,10 +1220,12 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 *
 	 * @param string $containerName      Container name
 	 * @param string $blobName           Blob name
+	 * @param string $snapshotId         Snapshot identifier
+	 * @param string $leaseId            Lease identifier
 	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function deleteBlob($containerName = '', $blobName = '', $additionalHeaders = array())
+	public function deleteBlob($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = array())
 	{
 		if ($containerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
@@ -1201,6 +1239,13 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		if ($containerName === '$root' && strpos($blobName, '/') !== false) {
 		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 		}
+		
+		// Build query string
+		$queryString = array();
+	    if (!is_null($snapshotId)) {
+	        $queryString[] = 'snapshot=' . $snapshotId;
+	    }
+	    $queryString = self::createQueryStringFromArray($queryString);
 			
 		// Additional headers?
 		$headers = array();
@@ -1212,8 +1257,51 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 		
 		// Perform request
-		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::DELETE, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($resourceName, $queryString, Microsoft_Http_Client::DELETE, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
+		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+	}
+	
+	/**
+	 * Snapshot blob
+	 *
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param array  $metadata           Key/value pairs of meta data
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 * @return string Date/Time value representing the snapshot identifier.
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function snapshotBlob($containerName = '', $blobName = '', $metadata = array(), $additionalHeaders = array())
+	{
+		if ($containerName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
+		}
+		if (!self::isValidContainerName($containerName)) {
+		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+		if ($blobName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
+		}
+		if ($containerName === '$root' && strpos($blobName, '/') !== false) {
+		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
+
+		// Additional headers?
+		$headers = array();
+		foreach ($additionalHeaders as $key => $value) {
+		    $headers[$key] = $value;
+		}
+		
+        // Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		    
+		// Perform request
+		$response = $this->_performRequest($resourceName, '?comp=snapshot', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		if ($response->isSuccessful()) {
+		    return $response->getHeader('x-ms-snapshot');
+		} else {
 		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
@@ -1240,23 +1328,24 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		}
 			
-	    // Build query string
-	    $queryString = '?restype=container&comp=list';
+		// Build query string
+		$queryString = array('restype=container', 'comp=list');
         if (!is_null($prefix)) {
-	        $queryString .= '&prefix=' . $prefix;
+	        $queryString[] = 'prefix=' . $prefix;
         }
 		if ($delimiter !== '') {
-			$queryString .= '&delimiter=' . $delimiter;
+			$queryString[] = 'delimiter=' . $delimiter;
 		}
 	    if (!is_null($maxResults)) {
-	        $queryString .= '&maxresults=' . $maxResults;
+	        $queryString[] = 'maxresults=' . $maxResults;
 	    }
 	    if (!is_null($marker)) {
-	        $queryString .= '&marker=' . $marker;
+	        $queryString[] = 'marker=' . $marker;
 	    }
 		if (!is_null($include)) {
-	        $queryString .= '&include=' . $include;
+	        $queryString[] = 'include=' . $include;
 	    }
+	    $queryString = self::createQueryStringFromArray($queryString);
 
 	    // Perform request
 		$response = $this->_performRequest($containerName, $queryString, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_LIST);

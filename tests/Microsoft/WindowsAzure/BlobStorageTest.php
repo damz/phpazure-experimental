@@ -404,6 +404,36 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             );
         }
     }
+
+    /**
+     * Test snapshot blob
+     */
+    public function testSnapshotBlob()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            $result = $storageClient->putBlob($containerName, 'images/WindowsAzure.gif', self::$path . 'WindowsAzure.gif');
+    
+            $this->assertEquals($containerName, $result->Container);
+            $this->assertEquals('images/WindowsAzure.gif', $result->Name);
+            
+            $snapshotId = $storageClient->snapshotBlob($containerName, 'images/WindowsAzure.gif');
+           
+            $fileName = tempnam('', 'tst');
+            $storageClient->getBlob($containerName, 'images/WindowsAzure.gif', $fileName, $snapshotId);
+    
+            $this->assertTrue(file_exists($fileName));
+            $this->assertEquals(
+                file_get_contents(self::$path . 'WindowsAzure.gif'),
+                file_get_contents($fileName)
+            );
+            
+            // Remove file
+            unlink($fileName);
+        }
+    }
     
     /**
      * Test set blob metadata
@@ -542,6 +572,12 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
     
             $this->assertEquals($containerName, $destination->Container);
             $this->assertEquals('images/WindowsAzureCopy.gif', $destination->Name);
+            
+            $snapshotId = $storageClient->snapshotBlob($containerName, 'images/WindowsAzure.gif');
+            $destination = $storageClient->copyBlob($containerName, 'images/WindowsAzure.gif', $containerName, 'images/WindowsAzureCopy2.gif', array(), $snapshotId);
+    
+            $this->assertEquals($containerName, $destination->Container);
+            $this->assertEquals('images/WindowsAzureCopy2.gif', $destination->Name);
         }
     }
     

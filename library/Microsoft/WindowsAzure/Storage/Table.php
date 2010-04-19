@@ -162,10 +162,11 @@ class Microsoft_WindowsAzure_Storage_Table
 	public function listTables($nextTableName = '')
 	{
 	    // Build query string
-	    $queryString = '';
+		$queryString = array();
 	    if ($nextTableName != '') {
-	        $queryString = '?NextTableName=' . $nextTableName;
+	        $queryString[] = 'NextTableName=' . $nextTableName;
 	    }
+	    $queryString = self::createQueryStringFromArray($queryString);
 	    
 		// Perform request
 		$response = $this->_performRequest('Tables', $queryString, Microsoft_Http_Client::GET, null, true);

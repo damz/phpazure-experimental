@@ -562,4 +562,15 @@ class Microsoft_WindowsAzure_Storage
 
         return true;
     }
+    
+    /**
+     * Builds a query string from an array of elements
+     * 
+     * @param array     Array of elements
+     * @return string   Assembled query string
+     */
+    public static function createQueryStringFromArray($queryString)
+    {
+    	return count($queryString) > 0 ? '?' . implode('&', $queryString) : '';
+    }	
 }
