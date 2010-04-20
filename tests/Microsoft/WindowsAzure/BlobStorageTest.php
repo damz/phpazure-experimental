@@ -117,6 +117,7 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
         return TESTS_BLOB_CONTAINER_PREFIX . self::$uniqId;
     }
     
+
     /**
      * Test container exists
      */
@@ -432,6 +433,51 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             
             // Remove file
             unlink($fileName);
+        }
+    }
+
+    /**
+     * Test lease blob
+     */
+    public function testLeaseBlob()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            $storageClient->putBlobData($containerName, 'test.txt', 'Hello World!');
+            
+            // Acquire a lease
+            $lease = $storageClient->leaseBlob($containerName, 'test.txt', Microsoft_WindowsAzure_Storage_Blob::LEASE_ACQUIRE);
+            $this->assertNotEquals('', $lease->LeaseId);
+
+            // Second lease should not be possible
+            $exceptionThrown = false;
+            try {
+            	$storageClient->leaseBlob($containerName, 'test.txt', Microsoft_WindowsAzure_Storage_Blob::LEASE_ACQUIRE);
+            } catch (Exception $e) {
+            	$exceptionThrown = true;
+            }
+            $this->assertTrue($exceptionThrown);
+			
+            // Delete should not be possible
+            $exceptionThrown = false;
+            try {
+            	$storageClient->deleteBlob($containerName, 'test.txt');
+            } catch (Exception $e) {
+            	$exceptionThrown = true;
+            }
+            $this->markTestIncomplete('Test inconclusive. Verify http://social.msdn.microsoft.com/Forums/en/windowsazure/thread/9ae25614-b1da-43ab-abca-644abc034eb3 for info.');
+            $this->assertTrue($exceptionThrown);
+            
+            // But should work when a lease id is supplied
+            $exceptionThrown = false;
+            try {
+            	$storageClient->putBlobData($containerName, 'test.txt', 'Hello!');
+            } catch (Exception $e) {
+            	$exceptionThrown = true;
+            }
+            $this->assertFalse($exceptionThrown);
         }
     }
     
