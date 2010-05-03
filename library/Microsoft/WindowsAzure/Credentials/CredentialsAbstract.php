@@ -241,4 +241,17 @@ abstract class Microsoft_WindowsAzure_Credentials_CredentialsAbstract
     	// Return
 		return $returnValue;
 	}
+	
+	/**
+	 * Returns an array value if the key is set, otherwide returns $valueIfNotSet
+	 * 
+	 * @param array $array
+	 * @param mixed $key
+	 * @param mixed $valueIfNotSet
+	 * @return mixed
+	 */
+	protected function _issetOr($array, $key, $valueIfNotSet)
+	{
+		return isset($array[$key]) ? $array[$key] : $valueIfNotSet;
+	}
 }

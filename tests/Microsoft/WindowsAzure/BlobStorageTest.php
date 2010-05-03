@@ -116,7 +116,6 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
         self::$uniqId++;
         return TESTS_BLOB_CONTAINER_PREFIX . self::$uniqId;
     }
-    
 
     /**
      * Test container exists
@@ -715,6 +714,67 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             
             $result = $storageClient->listBlobs($containerName);
             $this->assertEquals(0, count($result));
+        }
+    }
+
+    /**
+     * Test page blob
+     */
+    public function testPageBlob()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            
+            // Data to store
+            $data1 = "Hello, World!" . str_repeat(' ', 1024 - 13);
+            $data2 = "Hello, World!" . str_repeat(' ', 512 - 13);
+            
+            // 1. Create the empty page blob
+            $storageClient->createPageBlob($containerName, 'test.txt', 1024);
+           
+            // 2. Upload all data
+            $storageClient->putPage($containerName, 'test.txt', 0, 1023, $data1);
+
+            // Verify contents
+            $this->assertEquals($data1, $storageClient->getBlobData($containerName, 'test.txt'));
+
+            // 3. Clear the page blob
+            $storageClient->putPage($containerName, 'test.txt', 0, 1023, '', Microsoft_WindowsAzure_Storage_Blob::PAGE_WRITE_CLEAR);
+            
+            // 4. Upload some other data in 2 pages
+            $storageClient->putPage($containerName, 'test.txt', 0, 511, $data2);
+            $storageClient->putPage($containerName, 'test.txt', 512, 1023, $data2);
+            
+            // Verify other data
+            $this->assertEquals($data2 . $data2, $storageClient->getBlobData($containerName, 'test.txt'));
+        }
+    }
+    
+    /**
+     * Test get page regions
+     */
+    public function testGetPageRegions()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            
+            // Data to store
+            $data = "Hello, World!" . str_repeat(' ', 512 - 13);
+            
+            // Upload contents in 2 parts
+            $storageClient->createPageBlob($containerName, 'test2.txt', 1024 * 1024 * 1024);
+            $storageClient->putPage($containerName, 'test2.txt', 0, 511, $data);
+            $storageClient->putPage($containerName, 'test2.txt', 1048576, 1049087, $data);
+
+            // Get page regions
+            $pageRegions = $storageClient->getPageRegions($containerName, 'test2.txt');
+            
+            // Verify
+            $this->assertEquals(2, count($pageRegions));
         }
     }
     

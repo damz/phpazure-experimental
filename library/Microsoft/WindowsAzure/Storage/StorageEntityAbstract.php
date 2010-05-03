@@ -38,10 +38,6 @@
  */
 require_once 'Microsoft/WindowsAzure/Exception.php';
 
-/**
- * @see Microsoft_WindowsAzure_Storage_StorageEntityAbstract
- */
-require_once 'Microsoft/WindowsAzure/Storage/StorageEntityAbstract.php';
 
 /**
  * @category   Microsoft
@@ -50,29 +46,41 @@ require_once 'Microsoft/WindowsAzure/Storage/StorageEntityAbstract.php';
  * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  * 
- * @property string  $Container       Container name
- * @property string  $Name            Name
- * @property string  $LeaseId         Lease id
- * @property string  $LeaseTime       Time remaining in the lease period, in seconds. This header is returned only for a successful request to break the lease. It provides an approximation as to when the lease period will expire.
  */
-class Microsoft_WindowsAzure_Storage_LeaseInstance
-	extends Microsoft_WindowsAzure_Storage_StorageEntityAbstract
+abstract class Microsoft_WindowsAzure_Storage_StorageEntityAbstract
 {
     /**
-     * Constructor
+     * Data
      * 
-     * @param string  $containerName   Container name
-     * @param string  $name            Name
-     * @param string  $leaseId         Lease id
-     * @param string  $leaseTime       Time remaining in the lease period, in seconds. This header is returned only for a successful request to break the lease. It provides an approximation as to when the lease period will expire.
+     * @var array
      */
-    public function __construct($containerName, $name, $leaseId, $leaseTime) 
-    {	        
-        $this->_data = array(
-            'container'        => $containerName,
-            'name'             => $name,
-        	'leaseid'          => $leaseId,
-            'leasetime'        => $leaseTime
-        );
+    protected $_data = null;
+    
+    /**
+     * Magic overload for setting properties
+     * 
+     * @param string $name     Name of the property
+     * @param string $value    Value to set
+     */
+    public function __set($name, $value) {
+        if (array_key_exists(strtolower($name), $this->_data)) {
+            $this->_data[strtolower($name)] = $value;
+            return;
+        }
+
+        throw new Exception("Unknown property: " . $name);
+    }
+
+    /**
+     * Magic overload for getting properties
+     * 
+     * @param string $name     Name of the property
+     */
+    public function __get($name) {
+        if (array_key_exists(strtolower($name), $this->_data)) {
+            return $this->_data[strtolower($name)];
+        }
+
+        throw new Exception("Unknown property: " . $name);
     }
 }

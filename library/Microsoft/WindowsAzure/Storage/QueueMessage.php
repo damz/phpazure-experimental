@@ -38,6 +38,10 @@
  */
 require_once 'Microsoft/WindowsAzure/Exception.php';
 
+/**
+ * @see Microsoft_WindowsAzure_Storage_StorageEntityAbstract
+ */
+require_once 'Microsoft/WindowsAzure/Storage/StorageEntityAbstract.php';
 
 /**
  * @category   Microsoft
@@ -55,14 +59,8 @@ require_once 'Microsoft/WindowsAzure/Exception.php';
  * @property string $MessageText       Message text
  */
 class Microsoft_WindowsAzure_Storage_QueueMessage
+	extends Microsoft_WindowsAzure_Storage_StorageEntityAbstract
 {
-    /**
-     * Data
-     * 
-     * @var array
-     */
-    protected $_data = null;
-    
     /**
      * Constructor
      * 
@@ -85,33 +83,5 @@ class Microsoft_WindowsAzure_Storage_QueueMessage
         	'dequeuecount'    => $dequeueCount,
             'messagetext'     => $messageText
         );
-    }
-    
-    /**
-     * Magic overload for setting properties
-     * 
-     * @param string $name     Name of the property
-     * @param string $value    Value to set
-     */
-    public function __set($name, $value) {
-        if (array_key_exists(strtolower($name), $this->_data)) {
-            $this->_data[strtolower($name)] = $value;
-            return;
-        }
-
-        throw new Exception("Unknown property: " . $name);
-    }
-
-    /**
-     * Magic overload for getting properties
-     * 
-     * @param string $name     Name of the property
-     */
-    public function __get($name) {
-        if (array_key_exists(strtolower($name), $this->_data)) {
-            return $this->_data[strtolower($name)];
-        }
-
-        throw new Exception("Unknown property: " . $name);
     }
 }

@@ -74,6 +74,11 @@ require_once 'Microsoft/WindowsAzure/Storage/BlobContainer.php';
 require_once 'Microsoft/WindowsAzure/Storage/BlobInstance.php';
 
 /**
+ * @see Microsoft_WindowsAzure_Storage_PageRegionInstance
+ */
+require_once 'Microsoft/WindowsAzure/Storage/PageRegionInstance.php';
+
+/**
  * @see Microsoft_WindowsAzure_Storage_LeaseInstance
  */
 require_once 'Microsoft/WindowsAzure/Storage/LeaseInstance.php';
@@ -142,7 +147,13 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * Blob types
 	 */
 	const BLOBTYPE_BLOCK = 'BlockBlob';
-	const BLOBTYPE_PAge  = 'PageBlob';
+	const BLOBTYPE_PAGE  = 'PageBlob';
+	
+	/**
+	 * Put page write options
+	 */
+	const PAGE_WRITE_UPDATE = 'update';
+	const PAGE_WRITE_CLEAR  = 'clear';
 	
     /**
      * Stream wrapper clients
@@ -946,6 +957,216 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		    }
 		    
 		    return $returnValue;
+		} else {
+		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+	}
+	
+	/**
+	 * Create page blob
+	 *
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param int    $size      		 Size of the page blob in bytes
+	 * @param array  $metadata           Key/value pairs of meta data
+	 * @param string $leaseId            Lease identifier
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 * @return object Partial blob properties
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function createPageBlob($containerName = '', $blobName = '', $size = 0, $metadata = array(), $leaseId = null, $additionalHeaders = array())
+	{
+		if ($containerName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
+		}
+		if (!self::isValidContainerName($containerName)) {
+		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+		if ($blobName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
+		}
+		if ($containerName === '$root' && strpos($blobName, '/') !== false) {
+		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
+		if ($size <= 0) {
+		    throw new Microsoft_WindowsAzure_Exception('Page blob size must be specified.');
+		}
+
+		// Create metadata headers
+		$headers = array();
+		if (!is_null($leaseId)) {
+			$headers['x-ms-lease-id'] = $leaseId;
+		}
+		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata)); 
+		
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value) {
+		    $headers[$key] = $value;
+		}
+		
+		// Specify blob type & blob length
+		$headers[Microsoft_WindowsAzure_Storage::PREFIX_STORAGE_HEADER . 'blob-type'] = self::BLOBTYPE_PAGE;
+		$headers[Microsoft_WindowsAzure_Storage::PREFIX_STORAGE_HEADER . 'blob-content-length'] = $size;
+		$headers['Content-Length'] = 0;
+		
+		// Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		
+		// Perform request
+		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::PUT, $headers, false, '', Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		if ($response->isSuccessful()) {
+			return new Microsoft_WindowsAzure_Storage_BlobInstance(
+				$containerName,
+				$blobName,
+				null,
+				$response->getHeader('Etag'),
+				$response->getHeader('Last-modified'),
+				$this->getBaseUrl() . '/' . $containerName . '/' . $blobName,
+				$size,
+				'',
+				'',
+				'',
+				false,
+		        $metadata
+			);
+		} else {
+		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+	}
+	
+	/**
+	 * Put page in page blob
+	 *
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param int    $startByteOffset    Start byte offset
+	 * @param int    $endByteOffset      End byte offset
+	 * @param mixed  $contents			 Page contents
+	 * @param string $writeMethod        Write method (Microsoft_WindowsAzure_Storage_Blob::PAGE_WRITE_*)
+	 * @param string $leaseId            Lease identifier
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function putPage($containerName = '', $blobName = '', $startByteOffset = 0, $endByteOffset = 0, $contents = '', $writeMethod = self::PAGE_WRITE_UPDATE, $leaseId = null, $additionalHeaders = array())
+	{
+		if ($containerName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
+		}
+		if (!self::isValidContainerName($containerName)) {
+		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+		if ($blobName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
+		}
+		if ($containerName === '$root' && strpos($blobName, '/') !== false) {
+		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
+		if ($startByteOffset % 512 != 0) {
+			throw new Microsoft_WindowsAzure_Exception('Start byte offset must be a modulus of 512.');
+		}
+		if (($endByteOffset + 1) % 512 != 0) {
+			throw new Microsoft_WindowsAzure_Exception('End byte offset must be a modulus of 512 minus 1.');
+		}
+		
+		// Determine size
+		$size = strlen($contents);
+		if ($size >= self::MAX_BLOB_TRANSFER_SIZE) {
+		    throw new Microsoft_WindowsAzure_Exception('Page blob size must not be larger than ' + self::MAX_BLOB_TRANSFER_SIZE . ' bytes.');
+		}
+
+		// Create metadata headers
+		$headers = array();
+		if (!is_null($leaseId)) {
+			$headers['x-ms-lease-id'] = $leaseId;
+		}
+		
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value) {
+		    $headers[$key] = $value;
+		}
+		
+		// Specify range
+		$headers['Range'] = 'bytes=' . $startByteOffset . '-' . $endByteOffset;
+		
+		// Write method
+		$headers[Microsoft_WindowsAzure_Storage::PREFIX_STORAGE_HEADER . 'page-write'] = $writeMethod;
+		
+		// Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		
+		// Perform request
+		$response = $this->_performRequest($resourceName, '?comp=page', Microsoft_Http_Client::PUT, $headers, false, $contents, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		if (!$response->isSuccessful()) {
+		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+	}
+	
+	/**
+	 * Put page in page blob
+	 *
+	 * @param string $containerName      Container name
+	 * @param string $blobName           Blob name
+	 * @param int    $startByteOffset    Start byte offset
+	 * @param int    $endByteOffset      End byte offset
+	 * @param string $leaseId            Lease identifier
+	 * @return array Array of page ranges
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function getPageRegions($containerName = '', $blobName = '', $startByteOffset = 0, $endByteOffset = 0, $leaseId = null)
+	{
+		if ($containerName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
+		}
+		if (!self::isValidContainerName($containerName)) {
+		    throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+		if ($blobName === '') {
+			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
+		}
+		if ($containerName === '$root' && strpos($blobName, '/') !== false) {
+		    throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
+		if ($startByteOffset % 512 != 0) {
+			throw new Microsoft_WindowsAzure_Exception('Start byte offset must be a modulus of 512.');
+		}
+		if ($endByteOffset > 0 && ($endByteOffset + 1) % 512 != 0) {
+			throw new Microsoft_WindowsAzure_Exception('End byte offset must be a modulus of 512 minus 1.');
+		}
+		
+		// Create metadata headers
+		$headers = array();
+		if (!is_null($leaseId)) {
+			$headers['x-ms-lease-id'] = $leaseId;
+		}
+		
+		// Specify range?
+		if ($endByteOffset > 0) {
+			$headers['Range'] = 'bytes=' . $startByteOffset . '-' . $endByteOffset;
+		}
+		
+		// Resource name
+		$resourceName = self::createResourceName($containerName , $blobName);
+		
+		// Perform request
+		$response = $this->_performRequest($resourceName, '?comp=pagelist', Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+			$xmlRanges = null;
+		    if (count($result->PageRange) > 1) {
+    		    $xmlRanges = $result->PageRange;
+    		} else {
+    		    $xmlRanges = array($result->PageRange);
+    		}
+
+			$ranges = array();
+			for ($i = 0; $i < count($xmlRanges); $i++) {
+				$ranges[] = new Microsoft_WindowsAzure_Storage_PageRegionInstance(
+					(int)$xmlRanges[$i]->Start,
+					(int)$xmlRanges[$i]->End
+			    );
+			}
+			    
+			return $ranges;
 		} else {
 		    throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}

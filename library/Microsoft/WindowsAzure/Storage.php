@@ -405,7 +405,7 @@ class Microsoft_WindowsAzure_Storage
 		$this->_httpClientChannel->setUri($requestUrl);
 		$this->_httpClientChannel->setHeaders($requestHeaders);
 		$this->_httpClientChannel->setRawData($rawData);
-		
+				
 		// Execute request
 		$response = $this->_retryPolicy->execute(
 		    array($this->_httpClientChannel, 'request'),

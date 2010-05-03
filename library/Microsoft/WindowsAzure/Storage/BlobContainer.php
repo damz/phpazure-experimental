@@ -38,6 +38,10 @@
  */
 require_once 'Microsoft/WindowsAzure/Exception.php';
 
+/**
+ * @see Microsoft_WindowsAzure_Storage_StorageEntityAbstract
+ */
+require_once 'Microsoft/WindowsAzure/Storage/StorageEntityAbstract.php';
 
 /**
  * @category   Microsoft
