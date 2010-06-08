@@ -90,6 +90,13 @@ define('TESTS_SESSIONHANDLER_RUNONPROD',        false);
 define('TESTS_SESSIONHANDLER_TABLENAME_PREFIX', 'phpazuretestsession');
 
 /**
+ * Diagnostics tests
+ */
+define('TESTS_DIAGNOSTICS_RUNTESTS',            true);
+define('TESTS_DIAGNOSTICS_RUNONPROD',           false);
+define('TESTS_DIAGNOSTICS_CONTAINER_PREFIX',    'phpazuretestdiag');
+
+/**
  * PHPUnit Code Coverage / Test Report
  */
 define('TESTS_GENERATE_REPORT',                 true);

@@ -43,6 +43,7 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 }
 
 require_once 'Microsoft/WindowsAzure/Credentials/AllTests.php';
+require_once 'Microsoft/WindowsAzure/Diagnostics/AllTests.php';
 require_once 'Microsoft/WindowsAzure/RetryPolicyTest.php';
 require_once 'Microsoft/WindowsAzure/StorageTest.php';
 require_once 'Microsoft/WindowsAzure/BlobStorageTest.php';
@@ -75,6 +76,7 @@ class Microsoft_WindowsAzure_AllTests
         $suite = new PHPUnit_Framework_TestSuite(__CLASS__);
 
         $suite->addTest(Microsoft_WindowsAzure_Credentials_AllTests::suite());
+        $suite->addTest(Microsoft_WindowsAzure_Diagnostics_AllTests::suite());
         
         $suite->addTestSuite('Microsoft_WindowsAzure_RetryPolicyTest');
         $suite->addTestSuite('Microsoft_WindowsAzure_StorageTest');
