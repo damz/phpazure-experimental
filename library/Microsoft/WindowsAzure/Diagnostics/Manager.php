@@ -106,6 +106,37 @@ class Microsoft_WindowsAzure_Diagnostics_Manager
 	}
 	
 	/**
+	 * Checks if a configuration for a specific role instance exists.
+	 * 
+	 * @param string $roleInstance Role instance name, can be found in $_SERVER['RdRoleId'] when hosted on Windows Azure.
+	 * @return boolean
+	 * @throws Microsoft_WindowsAzure_Diagnostics_Exception
+	 */
+	public function configurationForRoleInstanceExists($roleInstance = null)
+	{
+		if (is_null($roleInstance)) {
+			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Role instance should be specified. Try reading $_SERVER[\'RdRoleId\'] for this information if the application is hosted on Windows Azure Fabric or Development Fabric.');
+		}
+
+		return $this->_blobStorageClient->blobExists($this->_controlContainer, $roleInstance);
+	}
+	
+	/**
+	 * Checks if a configuration for current role instance exists. Only works on Development Fabric or Windows Azure Fabric.
+	 * 
+	 * @return boolean
+	 * @throws Microsoft_WindowsAzure_Diagnostics_Exception
+	 */
+	public function configurationForCurrentRoleInstanceExists()
+	{
+		if (!isset($_SERVER['RdRoleId'])) {
+			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \'RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
+		}
+
+		return $this->_blobStorageClient->blobExists($this->_controlContainer, $_SERVER['RdRoleId']);
+	}
+	
+	/**
 	 * Get configuration for current role instance. Only works on Development Fabric or Windows Azure Fabric.
 	 * 
 	 * @return Microsoft_WindowsAzure_Diagnostics_ConfigurationInstance
@@ -114,7 +145,7 @@ class Microsoft_WindowsAzure_Diagnostics_Manager
 	public function getConfigurationForCurrentRoleInstance()
 	{
 		if (!isset($_SERVER['RdRoleId'])) {
-			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
+			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \'RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
 		}
 		return $this->getConfigurationForRoleInstance($_SERVER['RdRoleId']);
 	}
@@ -128,7 +159,7 @@ class Microsoft_WindowsAzure_Diagnostics_Manager
 	public function setConfigurationForCurrentRoleInstance(Microsoft_WindowsAzure_Diagnostics_ConfigurationInstance $configuration)
 	{
 		if (!isset($_SERVER['RdRoleId'])) {
-			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
+			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \'RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
 		}
 		$this->setConfigurationForRoleInstance($_SERVER['RdRoleId'], $configuration);
 	}

@@ -171,6 +171,28 @@ class Microsoft_WindowsAzure_Diagnostics_ManagerTest extends PHPUnit_Framework_T
             $this->assertEquals(2, count($result->DataSources->WindowsEventLog->Subscriptions));
     	}
     }
+    
+	/**
+     * Test manager configuration exists
+     */
+    public function testManagerConfigurationExists()
+    {
+    	if (TESTS_DIAGNOSTICS_RUNTESTS) {
+    		$controlContainer = $this->generateName();
+    		
+    		$storageClient = $this->createStorageInstance();
+            $manager = new Microsoft_WindowsAzure_Diagnostics_Manager($storageClient, $controlContainer);
+            
+            $result = $manager->configurationForRoleInstanceExists('test');
+            $this->assertFalse($result);
+            
+            $configuration = $manager->getDefaultConfiguration();
+            $manager->setConfigurationForRoleInstance('test', $configuration);
+            
+            $result = $manager->configurationForRoleInstanceExists('test');
+            $this->assertTrue($result);
+    	}
+    }
 }
 
 // Call Microsoft_WindowsAzure_Credentials_SharedKeyTest::main() if this source file is executed directly.
