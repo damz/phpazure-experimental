@@ -194,15 +194,15 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             $storageClient = $this->createStorageInstance();
             $storageClient->createContainer($containerName);
             
-            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_BLOB);
+            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC_BLOB);
             $acl = $storageClient->getContainerAcl($containerName);
             
-            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_BLOB, $acl);
+            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC_BLOB, $acl);
             
-            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_CONTAINER);
+            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC_CONTAINER);
             $acl = $storageClient->getContainerAcl($containerName);
             
-            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_CONTAINER, $acl);
+            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC_CONTAINER, $acl);
             
             $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE);
             $acl = $storageClient->getContainerAcl($containerName);
@@ -661,10 +661,10 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             $this->assertEquals($containerName, $result->Name);
             
             // ACL
-            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC);
+            $storageClient->setContainerAcl($containerName, Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC_CONTAINER);
             $acl = $storageClient->getContainerAcl($containerName);
             
-            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC, $acl);
+            $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC_CONTAINER, $acl);
             
             // Metadata
             $storageClient->setContainerMetadata($containerName, array(

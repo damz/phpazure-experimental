@@ -157,8 +157,8 @@ $storageClient->getBlob(
                 <programlisting language="php"><![CDATA[
 $storageClient = new Microsoft_WindowsAzure_Storage_Blob();
 
-// make container publicly available
-$storageClient->setContainerAcl('testcontainer', Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC);
+// make container publicly available (enumerate all blobs and read blob data)
+$storageClient->setContainerAcl('testcontainer', Microsoft_WindowsAzure_Storage_Blob::ACL_PUBLIC_CONTAINER);
 ]]></programlisting>
             </example>
         </sect3>
