@@ -139,12 +139,14 @@
           <regexp pattern="microsoft.windowsazure" replace="zend.service.windowsazure" ignoreCase="true" />
 
           <regexp pattern="\@category   Microsoft" replace="@category   Zend" ignoreCase="true" />
-          <regexp pattern="\@copyright  Copyright \(c\) 2009, RealDolmen \(http\:\/\/www.realdolmen.com\)" replace="@copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)" ignoreCase="true" />
+          <regexp pattern="\@copyright  Copyright \(c\) 2009 - 2010, RealDolmen \(http\:\/\/www.realdolmen.com\)" replace="@copyright  Copyright (c) 2005-2010 Zend Technologies USA Inc. (http://www.zend.com)" ignoreCase="true" />
           <regexp pattern="\@license    http\:\/\/phpazure\.codeplex\.com\/license" replace="@license    http://framework.zend.com/license/new-bsd     New BSD License" ignoreCase="true" />
+          <regexp pattern="\@version.*" replace="@version    $Id$" ignoreCase="true" />
 
           <regexp pattern="\@category   Microsoft" replace="@category   Zend" ignoreCase="true" />
-          <regexp pattern="\@copyright  Copyright \(c\) 2009, RealDolmen \(http\:\/\/www.realdolmen.com\)" replace="@copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)" ignoreCase="true" />
+          <regexp pattern="\@copyright  Copyright \(c\) 2009 - 2010, RealDolmen \(http\:\/\/www.realdolmen.com\)" replace="@copyright  Copyright (c) 2005-2010 Zend Technologies USA Inc. (http://www.zend.com)" ignoreCase="true" />
           <regexp pattern="\@license    http\:\/\/phpazure\.codeplex\.com\/license" replace="@license    http://framework.zend.com/license/new-bsd     New BSD License" ignoreCase="true" />
+          <regexp pattern="\@version.*" replace="@version    $Id$" ignoreCase="true" />
         </replaceregexp>
       </filterchain>
     </reflexive>
