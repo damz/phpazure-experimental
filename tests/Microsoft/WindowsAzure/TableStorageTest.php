@@ -303,6 +303,29 @@ class Microsoft_WindowsAzure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test retrieve entity by id, havind less properties than the original entity.
+     * Related to issue: http://phpazure.codeplex.com/workitem/5021
+     */
+    public function testRetrieveEntityById_DifferentProperties()
+    {
+        if (TESTS_TABLE_RUNTESTS)  {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
+            
+            $storageClient->insertEntity($tableName, $entity);
+            
+            $storageClient->setThrowExceptionOnMissingData(false);
+            
+            $result = $storageClient->retrieveEntityById($tableName, $entity->getPartitionKey(), $entity->getRowKey(), 'TSTest_TestEntity2');
+            $this->assertEquals($entity->FullName, $result->FullName);
+        }
+    }
+    
+    /**
      * Test retrieve entity by id (> 256 key characters)
      */
     public function testRetrieveEntityById_Large()
@@ -817,6 +840,17 @@ class TSTest_TestEntity extends Microsoft_WindowsAzure_Storage_TableEntity
      * @azure Visible Edm.Boolean
      */
     public $Visible = false;
+}
+
+/**
+ * Test Microsoft_WindowsAzure_Storage_TableEntity class
+ */
+class TSTest_TestEntity2 extends Microsoft_WindowsAzure_Storage_TableEntity
+{
+    /**
+     * @azure Name
+     */
+    public $FullName;
 }
 
 // Call Microsoft_WindowsAzure_TableStorageTest::main() if this source file is executed directly.

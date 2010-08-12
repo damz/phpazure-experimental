@@ -110,6 +110,33 @@ class Microsoft_WindowsAzure_Storage_Table
     extends Microsoft_WindowsAzure_Storage_BatchStorageAbstract
 {
 	/**
+	 * Throw Microsoft_WindowsAzure_Exception when a property is not specified in Windows Azure?
+	 * Defaults to true, making behaviour similar to Windows Azure StorageClient in .NET.
+	 * 
+	 * @var boolean
+	 */
+	protected $_throwExceptionOnMissingData = true;
+	
+	/**
+	 * Throw Microsoft_WindowsAzure_Exception when a property is not specified in Windows Azure?
+	 * Defaults to true, making behaviour similar to Windows Azure StorageClient in .NET.
+	 * 
+	 * @param boolean $value
+	 */
+	public function setThrowExceptionOnMissingData($value = true)
+	{
+		$this->_throwExceptionOnMissingData = $value;
+	}
+	
+	/**
+	 * Throw Microsoft_WindowsAzure_Exception when a property is not specified in Windows Azure?
+	 */
+	public function getThrowExceptionOnMissingData()
+	{
+		return $this->_throwExceptionOnMissingData;
+	}
+	
+	/**
 	 * Creates a new Microsoft_WindowsAzure_Storage_Table instance
 	 *
 	 * @param string $host Storage host name
@@ -593,7 +620,7 @@ class Microsoft_WindowsAzure_Storage_Table
     		    
     		    // Create entity
     		    $entity = new $entityClass('', '');
-    		    $entity->setAzureValues((array)$properties, true);
+    		    $entity->setAzureValues((array)$properties, $this->_throwExceptionOnMissingData);
     		    
     		    // If we have a Microsoft_WindowsAzure_Storage_DynamicTableEntity, make sure all property types are OK
     		    if ($entity instanceof Microsoft_WindowsAzure_Storage_DynamicTableEntity) {
