@@ -76,21 +76,21 @@
   <target name="buildLibrary" depends="prepare">
     <echo msg="Creating library source files in build directory..." />
     <copy todir="./build/library/Zend/Service/WindowsAzure" overwrite="true">
-      <fileset dir="./library/Microsoft/WindowsAzure">
+      <fileset dir="../library/Microsoft/WindowsAzure">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
     </copy>
     <copy todir="./build/documentation/manual/en/module_specs" overwrite="true">
       <mapper type="regexp" from="^(.*)_(.*)_(.*)\.xml" to="Zend_Service_WindowsAzure_\3.xml"/>
-      <fileset dir="./documentation/manual/en/module_specs">
+      <fileset dir="../documentation/manual/en/module_specs">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
     </copy>
     <copy todir="./build/documentation/manual/en/module_specs" overwrite="true">
       <mapper type="regexp" from="^(.*)_WindowsAzure\.xml" to="Zend_Service_WindowsAzure.xml"/>
-      <fileset dir="./documentation/manual/en/module_specs">
+      <fileset dir="../documentation/manual/en/module_specs">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
@@ -100,7 +100,7 @@
   <target name="buildTests" depends="buildLibrary">
     <echo msg="Creating tests source files in build directory..." />
     <copy todir="./build/tests/Zend/Service/WindowsAzure" overwrite="true">
-      <fileset dir="./tests/Microsoft/WindowsAzure">
+      <fileset dir="../tests/Microsoft/WindowsAzure">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
@@ -109,8 +109,8 @@
   
   <target name="configureTests" depends="buildTests">
     <echo msg="Configuring tests (TestConfiguration.php.dist)..." />
-  	<copy file="./tests/TestConfiguration.php" tofile="./build/tests/TestConfiguration.php.dist" overwrite="true" />
-  	<copy file="./tests/TestHelper.php" tofile="./build/tests/TestHelper.php" overwrite="true" />
+  	<copy file="../tests/TestConfiguration.php" tofile="./build/tests/TestConfiguration.php.dist" overwrite="true" />
+  	<copy file="../tests/TestHelper.php" tofile="./build/tests/TestHelper.php" overwrite="true" />
   </target>
 
   <target name="rebranding" depends="configureTests">
