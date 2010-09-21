@@ -162,8 +162,12 @@ class Microsoft_WindowsAzure_Diagnostics_Manager
 			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \'RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
 		}
 		
-		$roleIdParts = explode('.', $_SERVER['RdRoleId']);
-		return $roleIdParts[0] . '/' . $roleIdParts[2] . '/' . $_SERVER['RdRoleId'];
+		if (strpos($_SERVER['RdRoleId'], 'deployment(') === false) {
+			return $_SERVER['RdRoleId'];
+		} else {
+			$roleIdParts = explode('.', $_SERVER['RdRoleId']);
+			return $roleIdParts[0] . '/' . $roleIdParts[2] . '/' . $_SERVER['RdRoleId'];
+		}
 	}
 	
 	/**
