@@ -133,7 +133,7 @@ class Microsoft_WindowsAzure_Diagnostics_Manager
 			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \'RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
 		}
 
-		return $this->_blobStorageClient->blobExists($this->_controlContainer, $_SERVER['RdRoleId']);
+		return $this->_blobStorageClient->blobExists($this->_controlContainer, $this->_getCurrentRoleInstanceId());
 	}
 	
 	/**
@@ -147,7 +147,23 @@ class Microsoft_WindowsAzure_Diagnostics_Manager
 		if (!isset($_SERVER['RdRoleId'])) {
 			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \'RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
 		}
-		return $this->getConfigurationForRoleInstance($_SERVER['RdRoleId']);
+		return $this->getConfigurationForRoleInstance($this->_getCurrentRoleInstanceId());
+	}
+	
+	/**
+	 * Get the current role instance ID. Only works on Development Fabric or Windows Azure Fabric.
+	 * 
+	 * @return string
+	 * @throws Microsoft_WindowsAzure_Diagnostics_Exception
+	 */
+	protected function _getCurrentRoleInstanceId()
+	{
+		if (!isset($_SERVER['RdRoleId'])) {
+			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \'RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
+		}
+		
+		$roleIdParts = explode('.', $_SERVER['RdRoleId']);
+		return $roleIdParts[0] . '/' . $roleIdParts[2] . '/' . $_SERVER['RdRoleId'];
 	}
 	
 	/**
@@ -161,7 +177,8 @@ class Microsoft_WindowsAzure_Diagnostics_Manager
 		if (!isset($_SERVER['RdRoleId'])) {
 			throw new Microsoft_WindowsAzure_Diagnostics_Exception('Server variable \'RdRoleId\' is unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
 		}
-		$this->setConfigurationForRoleInstance($_SERVER['RdRoleId'], $configuration);
+		
+		$this->setConfigurationForRoleInstance($this->_getCurrentRoleInstanceId(), $configuration);
 	}
 	
 	/**
