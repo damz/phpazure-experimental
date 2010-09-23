@@ -162,6 +162,9 @@ class Microsoft_WindowsAzure_Diagnostics_ManagerTest extends PHPUnit_Framework_T
 			$configuration->DataSources->PerformanceCounters->addSubscription('\Processor(*)\% Processor Time', 1);
 			$configuration->DataSources->WindowsEventLog->addSubscription('System!*');
 			$configuration->DataSources->WindowsEventLog->addSubscription('Application!*');
+			$configuration->DataSources->Directories->addSubscription('X:\\', 'x', 10);
+			$configuration->DataSources->Directories->addSubscription('Y:\\', 'y', 10);
+			$configuration->DataSources->Directories->addSubscription('Z:\\', 'z', 10);
             $manager->setConfigurationForRoleInstance('test', $configuration);
             
             $result = $manager->getConfigurationForRoleInstance('test');
@@ -169,6 +172,7 @@ class Microsoft_WindowsAzure_Diagnostics_ManagerTest extends PHPUnit_Framework_T
             $this->assertEquals($configuration->toXml(), $result->toXml());
             $this->assertEquals(1, count($result->DataSources->PerformanceCounters->Subscriptions));
             $this->assertEquals(2, count($result->DataSources->WindowsEventLog->Subscriptions));
+            $this->assertEquals(3, count($result->DataSources->Directories->Subscriptions));
     	}
     }
     

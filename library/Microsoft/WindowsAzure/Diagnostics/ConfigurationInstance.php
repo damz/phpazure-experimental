@@ -129,9 +129,10 @@ class Microsoft_WindowsAzure_Diagnostics_ConfigurationInstance
 		// Assign Directories settings
 		$this->DataSources->Directories->BufferQuotaInMB = (int)$configurationXml->DataSources->Directories->BufferQuotaInMB;
 		$this->DataSources->Directories->ScheduledTransferPeriodInMinutes = (int)$configurationXml->DataSources->Directories->ScheduledTransferPeriodInMinutes;
+
 		if ($configurationXml->DataSources->Directories->Subscriptions
 			&& $configurationXml->DataSources->Directories->Subscriptions->DirectoryConfiguration) {
-			$subscriptions = $configurationXml->DataSources->WindowsEventLog->Subscriptions;
+			$subscriptions = $configurationXml->DataSources->Directories->Subscriptions;
 			if (count($subscriptions->DirectoryConfiguration) > 1) {
 				$subscriptions = $subscriptions->DirectoryConfiguration;
 			} else {
