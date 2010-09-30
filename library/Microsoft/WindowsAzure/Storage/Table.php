@@ -696,6 +696,9 @@ class Microsoft_WindowsAzure_Storage_Table
 			$mergeEntity = $entity;
 		}
 		
+		// Ensure entity timestamp matches updated timestamp 
+        $entity->setTimestamp($this->isoDate());
+        
 	    return $this->_changeEntity(Microsoft_Http_Client::MERGE, $tableName, $mergeEntity, $verifyEtag);
 	}
 	
@@ -760,8 +763,14 @@ class Microsoft_WindowsAzure_Storage_Table
                           </content>
                         </entry>';
 		
+		// Attempt to get timestamp from entity
+        $timestamp = $entity->getTimestamp();
+        if ($timestamp == Microsoft_WindowsAzure_Storage_TableEntity::DEFAULT_TIMESTAMP) {
+            $timestamp = $this->isoDate();
+        }
+        
         $requestBody = $this->_fillTemplate($requestBody, array(
-        	'Updated'    => $this->isoDate(),
+        	'Updated'    => $timestamp,
             'Properties' => $this->_generateAzureRepresentation($entity)
         ));
 
