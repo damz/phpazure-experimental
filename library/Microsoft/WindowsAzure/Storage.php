@@ -252,6 +252,16 @@ class Microsoft_WindowsAzure_Storage
 		$this->_httpClientChannel->setAdapter($adapterInstance);
 	}
 	
+    /**
+     * Retrieve HTTP client channel
+     * 
+     * @return Microsoft_Http_Client_Adapter_Interface
+     */
+    public function getHttpClientChannel()
+    {
+        return $this->_httpClientChannel;
+    }
+	
 	/**
 	 * Set retry policy to use when making requests
 	 *
@@ -400,7 +410,7 @@ class Microsoft_WindowsAzure_Storage
 		$requestHeaders = $this->_credentials
 						  ->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission, $rawData);
 
-		// Prepare request
+		// Prepare request 
 		$this->_httpClientChannel->resetParameters(true);
 		$this->_httpClientChannel->setUri($requestUrl);
 		$this->_httpClientChannel->setHeaders($requestHeaders);
