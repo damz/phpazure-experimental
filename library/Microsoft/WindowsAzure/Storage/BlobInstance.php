@@ -50,20 +50,20 @@ require_once 'Microsoft/WindowsAzure/Storage/StorageEntityAbstract.php';
  * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  * 
- * @property string  $Container       Container name
- * @property string  $Name            Name
- * @property string  $SnapshotId      Snapshot id
- * @property string  $Etag            Etag
- * @property string  $LastModified    Last modified date
- * @property string  $Url             Url
- * @property int     $Size            Size
- * @property string  $ContentType     Content Type
- * @property string  $ContentEncoding Content Encoding
- * @property string  $ContentLanguage Content Language
- * @property string  $CacheControl    Cache control
- * @property string  $BlobType        Blob type
- * @property string  $LeaseStatus     Lease status
- * @property boolean $IsPrefix        Is Prefix?
+ * @property string  $Container       The name of the blob container in which the blob is stored.
+ * @property string  $Name            The name of the blob.
+ * @property string  $SnapshotId      The blob snapshot ID if it is a snapshot blob (= a backup copy of a blob).
+ * @property string  $Etag            The entity tag, used for versioning and concurrency.
+ * @property string  $LastModified    Timestamp when the blob was last modified.
+ * @property string  $Url             The full URL where the blob can be downloaded.
+ * @property int     $Size            The blob size in bytes.
+ * @property string  $ContentType     The blob content type header.
+ * @property string  $ContentEncoding The blob content encoding header.
+ * @property string  $ContentLanguage The blob content language header.
+ * @property string  $CacheControl    The blob cache control header.
+ * @property string  $BlobType        The blob type (block blob / page blob).
+ * @property string  $LeaseStatus     The blob lease status.
+ * @property boolean $IsPrefix        Is it a blob or a directory prefix?
  * @property array   $Metadata        Key/value pairs of meta data
  */
 class Microsoft_WindowsAzure_Storage_BlobInstance
