@@ -303,6 +303,19 @@ class Microsoft_WindowsAzure_Storage_Table
 	}
 	
 	/**
+	 * Create table if it does not exist
+	 *
+	 * @param string $tableName Table name
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function createTableIfNotExists($tableName = '')
+	{
+		if (!$this->tableExists($tableName)) {
+			$this->createTable($tableName);
+		}
+	}
+	
+	/**
 	 * Delete table
 	 *
 	 * @param string $tableName Table name

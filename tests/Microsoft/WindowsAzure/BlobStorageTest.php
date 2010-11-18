@@ -116,7 +116,7 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
         self::$uniqId++;
         return TESTS_BLOB_CONTAINER_PREFIX . self::$uniqId;
     }
-
+    
     /**
      * Test container exists
      */
@@ -181,6 +181,27 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             $storageClient->createContainer($containerName);
             $acl = $storageClient->getContainerAcl($containerName);
             $this->assertEquals(Microsoft_WindowsAzure_Storage_Blob::ACL_PRIVATE, $acl);        
+        }
+    }
+    
+    /**
+     * Test create container if not exists
+     */
+    public function testCreateContainerIfNotExists()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            
+            $result = $storageClient->containerExists($containerName);
+            $this->assertFalse($result);
+            
+            $storageClient->createContainerIfNotExists($containerName);
+            
+            $result = $storageClient->containerExists($containerName);
+            $this->assertTrue($result);
+            
+            $storageClient->createContainerIfNotExists($containerName);
         }
     }
     
@@ -775,6 +796,49 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
             
             // Verify
             $this->assertEquals(2, count($pageRegions));
+        }
+    }
+
+    /**
+     * Test put blob with x-ms-blob-cache-control header
+     */
+    public function testPutBlobWithCacheControlHeader()
+    {
+    	if (TESTS_BLOB_RUNTESTS) {
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            $headers = array("x-ms-blob-cache-control" => "public, max-age=7200");
+            $result = $storageClient->putBlob($containerName, 'images/WindowsAzure.gif', self::$path . 'WindowsAzure.gif', array(), null, $headers);
+    
+            $blobInstance = $storageClient->getBlobInstance($containerName, 'images/WindowsAzure.gif');
+            
+            $this->assertEquals($headers["x-ms-blob-cache-control"], $blobInstance->CacheControl);
+        }
+    }
+    
+    /**
+     * Test put large blob with x-ms-blob-cache-control header
+     */
+    public function testPutLargeBlobWithCacheControlHeader()
+    {
+        if (TESTS_BLOB_RUNTESTS && TESTS_BLOB_RUNLARGEBLOB) {
+            // Create a file > Microsoft_WindowsAzure_Storage_Blob::MAX_BLOB_SIZE
+            $fileName = $this->_createLargeFile();
+            
+            // Execute test
+            $containerName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createContainer($containerName);
+            $headers = array("x-ms-blob-cache-control" => "public, max-age=7200");
+            $storageClient->putLargeBlob($containerName, 'LargeFile.txt', $fileName, array(), null, array("x-ms-blob-cache-control" => "public, max-age=7200"));
+    
+            $blobInstance = $storageClient->getBlobInstance($containerName, 'LargeFile.txt');
+            
+            $this->assertEquals($headers["x-ms-blob-cache-control"], $blobInstance->CacheControl);
+            
+            // Remove file
+            unlink($fileName);
         }
     }
     

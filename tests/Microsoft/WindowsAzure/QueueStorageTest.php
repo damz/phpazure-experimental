@@ -142,6 +142,27 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test create queue if not exists
+     */
+    public function testCreateQueueIfNotExists()
+    {
+    	if (TESTS_QUEUE_RUNTESTS) {
+            $queueName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            
+            $result = $storageClient->queueExists($queueName);
+            $this->assertFalse($result);
+            
+            $storageClient->createQueueIfNotExists($queueName);
+            
+            $result = $storageClient->queueExists($queueName);
+            $this->assertTrue($result);
+            
+            $storageClient->createQueueIfNotExists($queueName);
+        }
+    }
+    
+    /**
      * Test set queue metadata
      */
     public function testSetQueueMetadata()

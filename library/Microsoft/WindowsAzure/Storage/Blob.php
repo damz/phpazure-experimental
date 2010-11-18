@@ -282,6 +282,20 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
 	}
+	
+	/**
+	 * Create container if it does not exist
+	 *
+	 * @param string $containerName Container name
+	 * @param array  $metadata      Key/value pairs of meta data
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function createContainerIfNotExists($containerName = '', $metadata = array())
+	{
+		if (!$this->containerExists($containerName)) {
+			$this->createContainer($containerName, $metadata);
+		}
+	}
 
 	/**
 	 * Get container ACL
@@ -619,7 +633,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			
 		// Check file size
 		if (filesize($localFileName) >= self::MAX_BLOB_SIZE) {
-			return $this->putLargeBlob($containerName, $blobName, $localFileName, $metadata, $leaseId);
+			return $this->putLargeBlob($containerName, $blobName, $localFileName, $metadata, $leaseId, $additionalHeaders);
 		}
 
 		// Put the data to Windows Azure Storage
@@ -701,10 +715,11 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 * @param string $localFileName Local file name to be uploaded
 	 * @param array  $metadata      Key/value pairs of meta data
 	 * @param string $leaseId       Lease identifier
+	 * @param array  $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
 	 * @return object Partial blob properties
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function putLargeBlob($containerName = '', $blobName = '', $localFileName = '', $metadata = array(), $leaseId = null)
+	public function putLargeBlob($containerName = '', $blobName = '', $localFileName = '', $metadata = array(), $leaseId = null, $additionalHeaders = array())
 	{
 		if ($containerName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Container name is not specified.');
@@ -727,7 +742,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			
 		// Check file size
 		if (filesize($localFileName) < self::MAX_BLOB_SIZE) {
-			return $this->putBlob($containerName, $blobName, $localFileName, $metadata);
+			return $this->putBlob($containerName, $blobName, $localFileName, $metadata, $leaseId, $additionalHeaders);
 		}
 			
 		// Determine number of parts
@@ -765,7 +780,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		fclose($fp);
 
 		// Put block list
-		$this->putBlockList($containerName, $blobName, $blockIdentifiers, $metadata, $leaseId);
+		$this->putBlockList($containerName, $blobName, $blockIdentifiers, $metadata, $leaseId, $additionalHeaders);
 
 		// Return information of the blob
 		return $this->getBlobInstance($containerName, $blobName, null, $leaseId);
@@ -852,10 +867,10 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 
 		// Generate block list request
 		$fileContents = utf8_encode(implode("\n", array(
-			'<?xml version="1.0" encoding="utf-8"?>',
-			'<BlockList>',
-		$blocks,
-			'</BlockList>'
+				'<?xml version="1.0" encoding="utf-8"?>',
+				'<BlockList>',
+				$blocks,
+				'</BlockList>'
 			)));
 
 			// Create metadata headers
@@ -1391,21 +1406,21 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 
 			// Return blob
 			return new Microsoft_WindowsAzure_Storage_BlobInstance(
-			$containerName,
-			$blobName,
-			$snapshotId,
-			$response->getHeader('Etag'),
-			$response->getHeader('Last-modified'),
-			$this->getBaseUrl() . '/' . $containerName . '/' . $blobName,
-			$response->getHeader('Content-Length'),
-			$response->getHeader('Content-Type'),
-			$response->getHeader('Content-Encoding'),
-			$response->getHeader('Content-Language'),
-			$response->getHeader('Cache-Control'),
-			$response->getHeader('x-ms-blob-type'),
-			$response->getHeader('x-ms-lease-status'),
-			false,
-			$metadata
+				$containerName,
+				$blobName,
+				$snapshotId,
+				$response->getHeader('Etag'),
+				$response->getHeader('Last-modified'),
+				$this->getBaseUrl() . '/' . $containerName . '/' . $blobName,
+				$response->getHeader('Content-Length'),
+				$response->getHeader('Content-Type'),
+				$response->getHeader('Content-Encoding'),
+				$response->getHeader('Content-Language'),
+				$response->getHeader('Cache-Control'),
+				$response->getHeader('x-ms-blob-type'),
+				$response->getHeader('x-ms-lease-status'),
+				false,
+				$metadata
 			);
 		} else {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));

@@ -170,6 +170,20 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	}
 	
 	/**
+	 * Create queue if it does not exist
+	 *
+	 * @param string $queueName Queue name
+	 * @param array  $metadata  Key/value pairs of meta data
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function createQueueIfNotExists($queueName = '', $metadata = array())
+	{
+		if (!$this->queueExists($queueName)) {
+			$this->createQueue($queueName, $metadata);
+		}
+	}
+	
+	/**
 	 * Get queue
 	 * 
 	 * @param string $queueName  Queue name
