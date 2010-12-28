@@ -4,7 +4,6 @@
     <title>Microsoft_WindowsAzure_Diagnostics_Manager</title>
 
     <para>
-        Blob Storage stores sets of binary data. Blob storage offers the following three
         Windows Azure Diagnostics enables you to collect diagnostic data from a service
         running in Windows Azure. It can be used for tasks like debugging and
         troubleshooting, measuring performance, monitoring resource usage, traffic
@@ -15,7 +14,7 @@
     
     <para>
         You can configure Windows Azure Diagnostics from code running within a role. You
-        can also configure it remotely from an application running outside of the Windows
+        can also configure it remotely from an application running outside of Windows
         Azure; for example, you can manage Windows Azure Diagnostics from a custom
         dashboard application running locally. By managing Windows Azure Diagnostics
         remotely, you can start your service with an initial diagnostic configuration,

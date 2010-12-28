@@ -34,7 +34,7 @@
  */
 
 if (!defined('PHPUnit_MAIN_METHOD')) {
-    define('PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_SessionHandlerTest::main');
+    define('PHPUnit_MAIN_METHOD', 'Microsoft_WindowsAzure_BlobSessionHandlerTest::main');
 }
 
 /**
@@ -47,8 +47,11 @@ require_once 'PHPUnit/Framework/TestCase.php';
 /** Microsoft_WindowsAzure_SessionHandler */
 require_once 'Microsoft/WindowsAzure/SessionHandler.php';
 
-/** Microsoft_WindowsAzure_Storage_Table */
-require_once 'Microsoft/WindowsAzure/Storage/Table.php';
+/** Microsoft_WindowsAzure_Storage_Blob */
+require_once 'Microsoft/WindowsAzure/Storage/Blob.php';
+
+/** Microsoft_WindowsAzure_TableSessionHandlerTest */
+require_once 'Microsoft/WindowsAzure/TableSessionHandlerTest.php';
 
 /**
  * @category   Microsoft
@@ -58,25 +61,14 @@ require_once 'Microsoft/WindowsAzure/Storage/Table.php';
  * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCase
+class Microsoft_WindowsAzure_BlobSessionHandlerTest extends Microsoft_WindowsAzure_TableSessionHandlerTest
 {
-    public function __construct()
-    {
-    }
-    
     public static function main()
     {
         if (TESTS_SESSIONHANDLER_RUNTESTS) {
-            $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_SessionHandlerTest");
+            $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_BlobSessionHandlerTest");
             $result = PHPUnit_TextUI_TestRunner::run($suite);
         }
-    }
-    
-    /**
-     * Test setup
-     */
-    protected function setUp()
-    {
     }
     
     /**
@@ -87,7 +79,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
         $storageClient = $this->createStorageInstance();
         for ($i = 1; $i <= self::$uniqId; $i++)
         {
-            try { $storageClient->deleteTable(TESTS_SESSIONHANDLER_TABLENAME_PREFIX . $i); } catch (Exception $e) { }
+            try { $storageClient->deleteContainer(TESTS_SESSIONHANDLER_TABLENAME_PREFIX . $i); } catch (Exception $e) { }
         }
     }
     
@@ -95,9 +87,9 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
     {
         $storageClient = null;
         if (TESTS_SESSIONHANDLER_RUNONPROD) {
-            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
+            $storageClient = new Microsoft_WindowsAzure_Storage_Blob(TESTS_BLOB_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
         } else {
-            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
+            $storageClient = new Microsoft_WindowsAzure_Storage_Blob(TESTS_BLOB_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
         }
         
         if (TESTS_STORAGE_USEPROXY) {
@@ -105,38 +97,6 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
         }
 
         return $storageClient;
-    }
-    
-    protected function createSessionHandler($storageInstance, $tableName)
-    {
-        $sessionHandler = new Microsoft_WindowsAzure_SessionHandler(
-            $storageInstance,
-            $tableName
-        );
-        return $sessionHandler;
-    }
-    
-    protected static $uniqId = 0;
-    
-    protected function generateName()
-    {
-        self::$uniqId++;
-        return TESTS_SESSIONHANDLER_TABLENAME_PREFIX . self::$uniqId;
-    }
-    
-    /**
-     * Test register
-     */
-    public function testRegister()
-    {
-        if (TESTS_SESSIONHANDLER_RUNTESTS) {
-            $storageClient = $this->createStorageInstance();
-            $tableName = $this->generateName();
-            $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
-            $result = $sessionHandler->register();
-            
-            $this->assertTrue($result);
-        }
     }
     
     /**
@@ -153,48 +113,11 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
             $this->assertTrue($result);
             
             
-            $verifyResult = $storageClient->listTables();
+            $verifyResult = $storageClient->listContainers();
             $this->assertEquals($tableName, $verifyResult[0]->Name);
         }
     }
-    
-    /**
-     * Test close
-     */
-    public function testClose()
-    {
-        if (TESTS_SESSIONHANDLER_RUNTESTS) {
-            $storageClient = $this->createStorageInstance();
-            $tableName = $this->generateName();
-            $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
-            $sessionHandler->open();
-            $result = $sessionHandler->close();
-            
-            $this->assertTrue($result);
-        }
-    }
-    
-    /**
-     * Test read
-     */
-    public function testRead()
-    {
-        if (TESTS_SESSIONHANDLER_RUNTESTS) {
-            $storageClient = $this->createStorageInstance();
-            $tableName = $this->generateName();
-            $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
-            $sessionHandler->open();
-            
-            $sessionId = $this->session_id();
-            $sessionData = serialize( 'PHPAzure' );
-            $sessionHandler->write($sessionId, $sessionData);
-            
-            $result = unserialize( $sessionHandler->read($sessionId) );
-            
-            $this->assertEquals('PHPAzure', $result);
-        }
-    }
-    
+   
     /**
      * Test write
      */
@@ -211,7 +134,34 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
             $sessionHandler->write($sessionId, $sessionData);
             
             
-            $verifyResult = $storageClient->retrieveEntities($tableName);
+            $verifyResult = $storageClient->listBlobs($tableName);
+            $this->assertEquals(1, count($verifyResult));
+        }
+    }
+    
+    /**
+     * Test write large
+     */
+    public function testWriteLarge()
+    {
+        if (TESTS_SESSIONHANDLER_RUNTESTS) {
+            $storageClient = $this->createStorageInstance();
+            $tableName = $this->generateName();
+            $sessionHandler = $this->createSessionHandler($storageClient, $tableName);
+            $sessionHandler->open();
+            
+            $sessionId = $this->session_id();
+            
+            $sessionData = '';
+            for ($i = 0; $i < 2 * Microsoft_WindowsAzure_SessionHandler::MAX_TS_PROPERTY_SIZE; $i++) {
+            	$sessionData .= 'a';
+            }
+            $sessionData = serialize( $sessionData );
+            
+            $sessionHandler->write($sessionId, $sessionData);
+            
+            
+            $verifyResult = $storageClient->listBlobs($tableName);
             $this->assertEquals(1, count($verifyResult));
         }
     }
@@ -234,7 +184,7 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
             $result = $sessionHandler->destroy($sessionId);
             $this->assertTrue($result);
             
-            $verifyResult = $storageClient->retrieveEntities($tableName);
+            $verifyResult = $storageClient->listBlobs($tableName);
             $this->assertEquals(0, count($verifyResult));
         }
     }
@@ -259,18 +209,13 @@ class Microsoft_WindowsAzure_SessionHandlerTest extends PHPUnit_Framework_TestCa
             $result = $sessionHandler->gc(0);
             $this->assertTrue($result);
             
-            $verifyResult = $storageClient->retrieveEntities($tableName);
+            $verifyResult = $storageClient->listBlobs($tableName);
             $this->assertEquals(0, count($verifyResult));
         }
     }
-
-    protected function session_id()
-    {
-        return md5(self::$uniqId);
-    }
 }
 
-// Call Microsoft_WindowsAzure_SessionHandlerTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_SessionHandlerTest::main") {
-    Microsoft_WindowsAzure_SessionHandlerTest::main();
+// Call Microsoft_WindowsAzure_BlobSessionHandlerTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_BlobSessionHandlerTest::main") {
+    Microsoft_WindowsAzure_BlobSessionHandlerTest::main();
 }

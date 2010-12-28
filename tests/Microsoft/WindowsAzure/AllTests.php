@@ -54,7 +54,8 @@ require_once 'Microsoft/WindowsAzure/DynamicTableEntityTest.php';
 require_once 'Microsoft/WindowsAzure/TableEntityQueryTest.php';
 require_once 'Microsoft/WindowsAzure/TableStorageTest.php';
 require_once 'Microsoft/WindowsAzure/QueueStorageTest.php';
-require_once 'Microsoft/WindowsAzure/SessionHandlerTest.php';
+require_once 'Microsoft/WindowsAzure/TableSessionHandlerTest.php';
+require_once 'Microsoft/WindowsAzure/BlobSessionHandlerTest.php';
 
 /**
  * @category   Microsoft
@@ -95,7 +96,8 @@ class Microsoft_WindowsAzure_AllTests
             $suite->addTestSuite('Microsoft_WindowsAzure_QueueStorageTest');
         }
         if (TESTS_SESSIONHANDLER_RUNTESTS) {
-            $suite->addTestSuite('Microsoft_WindowsAzure_SessionHandlerTest');
+            $suite->addTestSuite('Microsoft_WindowsAzure_TableSessionHandlerTest');
+            $suite->addTestSuite('Microsoft_WindowsAzure_BlobSessionHandlerTest');
         }
         return $suite;
     }
