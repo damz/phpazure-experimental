@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2009 - 2010, RealDolmen
+ * Copyright (c) 2009 - 2011, RealDolmen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  * @package    Microsoft_WindowsAzure
  * @subpackage UnitTests
  * @version    $Id: AllTests.php 35709 2009-12-14 14:14:14Z unknown $
- * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 
@@ -51,7 +51,7 @@ require_once 'Microsoft/WindowsAzure/Credentials/SharedAccessSignatureTest.php';
  * @package    Microsoft_WindowsAzure
  * @subpackage UnitTests
  * @version    $Id: AllTests.php 35709 2009-12-14 14:14:14Z unknown $
- * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_WindowsAzure_Credentials_AllTests

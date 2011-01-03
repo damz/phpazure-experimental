@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2009 - 2010, RealDolmen
+ * Copyright (c) 2009 - 2011, RealDolmen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  * @package    Microsoft_WindowsAzure
  * @subpackage RetryPolicy
  * @version    $Id$
- * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 
@@ -42,7 +42,7 @@ require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
  * @subpackage RetryPolicy
- * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
+ * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 class Microsoft_WindowsAzure_RetryPolicy_NoRetry extends Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
