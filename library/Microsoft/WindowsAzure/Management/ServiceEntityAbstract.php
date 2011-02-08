@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2009 - 2011, RealDolmen
+ * Copyright (c) 2009 - 2010, RealDolmen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,27 +27,25 @@
  *
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
- * @subpackage Storage
- * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
+ * @subpackage Management
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
- * @version    $Id: BlobInstance.php 45390 2010-04-19 08:28:21Z unknown $
+ * @version    $Id: BlobInstance.php 53615 2010-11-16 20:45:11Z unknown $
  */
 
 /**
- * @see Microsoft_WindowsAzure_Exception
+ * @see Microsoft_WindowsAzure_Management_Exception
  */
-require_once 'Microsoft/WindowsAzure/Exception.php';
-
+require_once 'Microsoft/WindowsAzure/Management/Exception.php';
 
 /**
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
- * @subpackage Storage
- * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
+ * @subpackage Management
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
- * 
  */
-abstract class Microsoft_WindowsAzure_Storage_StorageEntityAbstract
+abstract class Microsoft_WindowsAzure_Management_ServiceEntityAbstract
 {
     /**
      * Data
@@ -68,7 +66,7 @@ abstract class Microsoft_WindowsAzure_Storage_StorageEntityAbstract
             return;
         }
 
-        throw new Microsoft_WindowsAzure_Exception("Unknown property: " . $name);
+        throw new Microsoft_WindowsAzure_Management_Exception("Unknown property: " . $name);
     }
 
     /**
@@ -81,6 +79,6 @@ abstract class Microsoft_WindowsAzure_Storage_StorageEntityAbstract
             return $this->_data[strtolower($name)];
         }
 
-        throw new Microsoft_WindowsAzure_Exception("Unknown property: " . $name);
+        throw new Microsoft_WindowsAzure_Management_Exception("Unknown property: " . $name);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2009 - 2011, RealDolmen
+ * Copyright (c) 2009 - 2010, RealDolmen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,10 @@
  *
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
- * @subpackage Storage
- * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
+ * @subpackage Management
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
- * @version    $Id: BlobInstance.php 45390 2010-04-19 08:28:21Z unknown $
+ * @version    $Id: Storage.php 45989 2010-05-03 12:19:10Z unknown $
  */
 
 /**
@@ -38,49 +38,14 @@
  */
 require_once 'Microsoft/WindowsAzure/Exception.php';
 
-
 /**
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure
- * @subpackage Storage
- * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
+ * @subpackage Management
+ * @copyright  Copyright (c) 2009 - 2010, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
- * 
  */
-abstract class Microsoft_WindowsAzure_Storage_StorageEntityAbstract
+class Microsoft_WindowsAzure_Management_Exception
+	extends Microsoft_WindowsAzure_Exception
 {
-    /**
-     * Data
-     * 
-     * @var array
-     */
-    protected $_data = null;
-    
-    /**
-     * Magic overload for setting properties
-     * 
-     * @param string $name     Name of the property
-     * @param string $value    Value to set
-     */
-    public function __set($name, $value) {
-        if (array_key_exists(strtolower($name), $this->_data)) {
-            $this->_data[strtolower($name)] = $value;
-            return;
-        }
-
-        throw new Microsoft_WindowsAzure_Exception("Unknown property: " . $name);
-    }
-
-    /**
-     * Magic overload for getting properties
-     * 
-     * @param string $name     Name of the property
-     */
-    public function __get($name) {
-        if (array_key_exists(strtolower($name), $this->_data)) {
-            return $this->_data[strtolower($name)];
-        }
-
-        throw new Microsoft_WindowsAzure_Exception("Unknown property: " . $name);
-    }
 }
