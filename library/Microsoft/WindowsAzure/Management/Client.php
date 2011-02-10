@@ -63,6 +63,11 @@ require_once 'Microsoft/WindowsAzure/Management/OperationStatusInstance.php';
  */
 require_once 'Microsoft/WindowsAzure/Management/StorageServiceInstance.php';
 
+/**
+ * @see Microsoft_WindowsAzure_Management_DeploymentInstance
+ */
+require_once 'Microsoft/WindowsAzure/Management/DeploymentInstance.php';
+
 
 /**
  * @category   Microsoft
@@ -83,6 +88,7 @@ class Microsoft_WindowsAzure_Management_Client
 	 */
 	const OP_OPERATIONS         = "operations";
 	const OP_STORAGE_ACCOUNTS   = "services/storageservices";
+	const OP_HOSTED_SERVICES    = "services/hostedservices";
 
 	/**
 	 * Current API version
@@ -221,7 +227,7 @@ class Microsoft_WindowsAzure_Management_Client
 	 */
 	public function getBaseUrl()
 	{
-		return self::URL_MANAGEMENT . '/' . $this->_subscriptionId . '/';
+		return self::URL_MANAGEMENT . '/' . $this->_subscriptionId;
 	}
 	
 	/**
@@ -275,7 +281,7 @@ class Microsoft_WindowsAzure_Management_Client
 		$this->_httpClientChannel->setUri($requestUrl);
 		$this->_httpClientChannel->setHeaders($requestHeaders);
 		$this->_httpClientChannel->setRawData($rawData);
-				
+
 		// Execute request
 		$response = $this->_retryPolicy->execute(
 		    array($this->_httpClientChannel, 'request'),
@@ -336,6 +342,23 @@ class Microsoft_WindowsAzure_Management_Client
     {
     	return count($queryString) > 0 ? '?' . implode('&', $queryString) : '';
     }
+    
+	/**
+	 * Get error message from Microsoft_Http_Response
+	 *
+	 * @param Microsoft_Http_Response $response Repsonse
+	 * @param string $alternativeError Alternative error message
+	 * @return string
+	 */
+	protected function _getErrorMessage(Microsoft_Http_Response $response, $alternativeError = 'Unknown error.')
+	{
+		$response = $this->_parseResponse($response);
+		if ($response && $response->Message) {
+			return (string)$response->Message;
+		} else {
+			return $alternativeError;
+		}
+	}
     
     /**
      * The Get Operation Status operation returns the status of the specified operation.
@@ -483,7 +506,7 @@ class Microsoft_WindowsAzure_Management_Client
      * or secondary access key for the specified storage account.
      *
      * @param string $serviceName The name of your service.
-     * @param string $key		  'primary' or 'secondary'
+     * @param string $key		  The key to regenerate (primary or secondary)
      * @return array An array of strings
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
@@ -503,7 +526,7 @@ class Microsoft_WindowsAzure_Management_Client
     		array('Content-Type' => 'application/xml'),
     		'<?xml version="1.0" encoding="utf-8"?>
              <RegenerateKeys xmlns="http://schemas.microsoft.com/windowsazure">
-               <KeyType>' .ucfirst($key) . '</KeyType>
+               <KeyType>' . ucfirst($key) . '</KeyType>
              </RegenerateKeys>');
 
     	if ($response->isSuccessful()) {
@@ -518,6 +541,309 @@ class Microsoft_WindowsAzure_Management_Client
 				);
 			}
 			return array();
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Get Deployment operation returns configuration information, status,
+     * and system properties for the specified deployment.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+     * @return Microsoft_WindowsAzure_Management_DeploymentInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function getDeploymentBySlot($serviceName, $deploymentSlot)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot;
+    	return $this->_getDeployment($operationUrl);
+    }
+    
+    /**
+     * The Get Deployment operation returns configuration information, status,
+     * and system properties for the specified deployment.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentName	The deployment name
+     * @return Microsoft_WindowsAzure_Management_DeploymentInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function getDeploymentByName($serviceName, $deploymentName)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+        if ($deploymentName == '' || is_null($deploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	return $this->_getDeployment($operationUrl);
+    }
+    
+    /**
+     * The Get Deployment operation returns configuration information, status,
+     * and system properties for the specified deployment.
+     * 
+     * @param string $operationUrl		The operation url
+     * @return Microsoft_WindowsAzure_Management_DeploymentInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    protected function _getDeployment($operationUrl)
+    {
+        $response = $this->_performRequest($operationUrl);
+
+    	if ($response->isSuccessful()) {
+    		$this->_lastRequestId = $response->getHeader('x-ms-request-id');
+    		
+			$xmlService = $this->_parseResponse($response);
+
+			if (!is_null($xmlService)) {
+				$returnValue = new Microsoft_WindowsAzure_Management_DeploymentInstance(
+					(string)$xmlService->Name,
+					(string)$xmlService->DeploymentSlot,
+					(string)$xmlService->PrivateID,
+					(string)$xmlService->Label,
+					(string)$xmlService->Url,
+					(string)$xmlService->Configuration,
+					(string)$xmlService->Status,
+					(string)$xmlService->UpgradeStatus,
+					(string)$xmlService->UpgradeType,
+					(string)$xmlService->CurrentUpgradeDomainState,
+					(string)$xmlService->CurrentUpgradeDomain,
+					(string)$xmlService->UpgradeDomainCount
+				);
+				
+				// Append role instances
+				$xmlRoleInstances = $xmlService->RoleInstanceList->RoleInstance;
+			    if (count($xmlService->RoleInstanceList->RoleInstance) == 1) {
+	    		    $xmlRoleInstances = array($xmlService->RoleInstanceList->RoleInstance);
+	    		}
+	    		
+				$roleInstances = array();
+				if (!is_null($xmlRoleInstances)) {				
+					for ($i = 0; $i < count($xmlRoleInstances); $i++) {
+						$roleInstances[] = array(
+						    (string)$xmlRoleInstances[$i]->RoleName,
+						    (string)$xmlRoleInstances[$i]->InstanceName,
+						    (string)$xmlRoleInstances[$i]->InstanceStatus
+						);
+					}
+				}
+			
+				$returnValue->RoleInstanceList = $roleInstances;
+				
+				// Append roles
+				$xmlRoles = $xmlService->RoleList->Role;
+			    if (count($xmlService->RoleList->Role) == 1) {
+	    		    $xmlRoles = array($xmlService->RoleList->Role);
+	    		}
+    		
+				$roles = array();
+				if (!is_null($xmlRoles)) {				
+					for ($i = 0; $i < count($xmlRoles); $i++) {
+						$roles[] = array(
+						    (string)$xmlRoles[$i]->RoleName,
+						    (string)$xmlRoles[$i]->InstanceName,
+						    (string)$xmlRoles[$i]->InstanceStatus
+						);
+					}
+				}
+				$returnValue->RoleList = $roles;
+				
+				return $returnValue;
+			}
+			return null;
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * Updates a deployment's role instance count.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+     * @param string|array $roleName	The role name
+     * @param string|array $instanceCount The instance count
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+	public function setInstanceCountBySlot($serviceName, $deploymentSlot, $roleName, $instanceCount) {
+	    if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+    	if ($roleName == '' || is_null($roleName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Role name name should be specified.');
+    	}
+    	
+		// Get configuration
+		$deployment = $this->getDeploymentBySlot($serviceName, $deploymentSlot);
+		$configuration = $deployment->Configuration;
+		$configuration = $this->_updateInstanceCountInConfiguration($roleName, $instanceCount, $configuration);
+		
+		// Update configuration
+		$this->configureDeploymentBySlot($serviceName, $deploymentSlot, $configuration);		
+	}
+	
+    /**
+     * Updates a deployment's role instance count.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+     * @param string|array $roleName	The role name
+     * @param string|array $instanceCount The instance count
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function setInstanceCountByName($serviceName, $deploymentName, $roleName, $instanceCount)
+    {
+	    if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+        if ($deploymentName == '' || is_null($deploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	}
+    	if ($roleName == '' || is_null($roleName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Role name name should be specified.');
+    	}
+    	
+		// Get configuration
+		$deployment = $this->getDeploymentByName($serviceName, $deploymentName);
+		$configuration = $deployment->Configuration;
+		$configuration = $this->_updateInstanceCountInConfiguration($roleName, $instanceCount, $configuration);
+		
+		// Update configuration
+		$this->configureDeploymentByName($serviceName, $deploymentName, $configuration);
+    }
+	
+    /**
+     * Updates instance count in configuration XML.
+     * 
+     * @param string|array $roleName			The role name
+     * @param string|array $instanceCount		The instance count
+     * @param string $configuration             XML configuration represented as a string
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+	protected function _updateInstanceCountInConfiguration($roleName, $instanceCount, $configuration) {
+    	// Change variables
+		if (!is_array($roleName)) {
+			$roleName = array($roleName);
+		}
+		if (!is_array($instanceCount)) {
+			$instanceCount = array($instanceCount);
+		}
+		
+		//$configuration = preg_replace('/(<\?xml[^?]+?)utf-16/i', '$1utf-8', $configuration);
+		$configuration = '<?xml version="1.0"?>' . substr($configuration, strpos($configuration, '?>') + 2);
+
+		$xml = simplexml_load_string($configuration); 
+		
+		// http://www.php.net/manual/en/simplexmlelement.xpath.php#97818
+		$namespaces = $xml->getDocNamespaces();
+	    $xml->registerXPathNamespace('__empty_ns', $namespaces['']); 
+	
+		for ($i = 0; $i < count($roleName); $i++) {
+			$elements = $xml->xpath('//__empty_ns:Role[@name="' . $roleName[$i] . '"]/__empty_ns:Instances');
+	
+			if (count($elements) == 1) {
+				$element = $elements[0];
+				$element['count'] = $instanceCount[$i];
+			} 
+		}
+		
+		$configuration = $xml->asXML();
+		//$configuration = preg_replace('/(<\?xml[^?]+?)utf-8/i', '$1utf-16', $configuration);
+		
+		return $configuration;
+	}
+    
+    /**
+     * The Change Deployment Configuration request may be specified as follows.
+     * Note that you can change a deployment's configuration either by specifying the deployment
+     * environment (staging or production), or by specifying the deployment's unique name. 
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+     * @param string $configuration     XML configuration represented as a string
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function configureDeploymentBySlot($serviceName, $deploymentSlot, $configuration)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+    	if ($configuration == '' || is_null($configuration)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Configuration name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot;
+    	return $this->_configureDeployment($operationUrl, $configuration);
+    }
+    
+    /**
+     * The Change Deployment Configuration request may be specified as follows.
+     * Note that you can change a deployment's configuration either by specifying the deployment
+     * environment (staging or production), or by specifying the deployment's unique name. 
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentName	The deployment name
+     * @param string $configuration     XML configuration represented as a string
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function configureDeploymentByName($serviceName, $deploymentName, $configuration)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($deploymentName == '' || is_null($deploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	}
+    	if ($configuration == '' || is_null($configuration)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Configuration name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	return $this->_configureDeployment($operationUrl, $configuration);
+    }
+    
+    /**
+     * The Change Deployment Configuration request may be specified as follows.
+     * Note that you can change a deployment's configuration either by specifying the deployment
+     * environment (staging or production), or by specifying the deployment's unique name. 
+     * 
+     * @param string $operationUrl		The operation url
+     * @param string $configuration     XML configuration represented as a string
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    protected function _configureDeployment($operationUrl, $configuration)
+    {
+        $response = $this->_performRequest($operationUrl, '?comp=config',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml'),
+    		'<?xml version="1.0" encoding="utf-8"?>
+             <ChangeConfiguration xmlns="http://schemas.microsoft.com/windowsazure">
+               <Configuration>' . base64_encode($configuration) . '</Configuration>
+             </ChangeConfiguration>');
+		
+    	if ($response->isSuccessful()) {
+    		$this->_lastRequestId = $response->getHeader('x-ms-request-id');
 		} else {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
