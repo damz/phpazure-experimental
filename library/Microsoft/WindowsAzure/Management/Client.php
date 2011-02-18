@@ -263,7 +263,7 @@ class Microsoft_WindowsAzure_Management_Client
 		if (!isset($headers["Content-Type"])) {
 			$headers["Content-Type"] = '';
 		}
-		$headers["Expect"]= '';
+		//$headers["Expect"] = '';
 
 		// Add version header
 		$headers['x-ms-version'] = $this->_apiVersion;
@@ -287,6 +287,9 @@ class Microsoft_WindowsAzure_Management_Client
 		    array($this->_httpClientChannel, 'request'),
 		    array($httpVerb)
 		);
+		
+		// Store request id
+		$this->_lastRequestId = $response->getHeader('x-ms-request-id');
 		
 		return $response;
 	}
@@ -405,8 +408,6 @@ class Microsoft_WindowsAzure_Management_Client
     	$response = $this->_performRequest(self::OP_STORAGE_ACCOUNTS);
 
     	if ($response->isSuccessful()) {
-    		$this->_lastRequestId = $response->getHeader('x-ms-request-id');
-    		
 			$result = $this->_parseResponse($response);
 		    if (count($result->StorageService) > 1) {
     		    $xmlServices = $result->StorageService;
@@ -448,8 +449,6 @@ class Microsoft_WindowsAzure_Management_Client
     	$response = $this->_performRequest(self::OP_STORAGE_ACCOUNTS . '/' . $serviceName);
 
     	if ($response->isSuccessful()) {
-    		$this->_lastRequestId = $response->getHeader('x-ms-request-id');
-    		
 			$xmlService = $this->_parseResponse($response);
 
 			if (!is_null($xmlService)) {
@@ -485,8 +484,6 @@ class Microsoft_WindowsAzure_Management_Client
     	$response = $this->_performRequest(self::OP_STORAGE_ACCOUNTS . '/' . $serviceName . '/keys');
 
     	if ($response->isSuccessful()) {
-    		$this->_lastRequestId = $response->getHeader('x-ms-request-id');
-    		
 			$xmlService = $this->_parseResponse($response);
 
 			if (!is_null($xmlService)) {
@@ -530,8 +527,6 @@ class Microsoft_WindowsAzure_Management_Client
              </RegenerateKeys>');
 
     	if ($response->isSuccessful()) {
-    		$this->_lastRequestId = $response->getHeader('x-ms-request-id');
-    		
 			$xmlService = $this->_parseResponse($response);
 
 			if (!is_null($xmlService)) {
@@ -604,8 +599,6 @@ class Microsoft_WindowsAzure_Management_Client
         $response = $this->_performRequest($operationUrl);
 
     	if ($response->isSuccessful()) {
-    		$this->_lastRequestId = $response->getHeader('x-ms-request-id');
-    		
 			$xmlService = $this->_parseResponse($response);
 
 			if (!is_null($xmlService)) {
@@ -745,9 +738,9 @@ class Microsoft_WindowsAzure_Management_Client
 		if (!is_array($instanceCount)) {
 			$instanceCount = array($instanceCount);
 		}
-		
-		//$configuration = preg_replace('/(<\?xml[^?]+?)utf-16/i', '$1utf-8', $configuration);
-		$configuration = '<?xml version="1.0"?>' . substr($configuration, strpos($configuration, '?>') + 2);
+
+		$configuration = preg_replace('/(<\?xml[^?]+?)utf-16/i', '$1utf-8', $configuration);
+		//$configuration = '<?xml version="1.0">' . substr($configuration, strpos($configuration, '>') + 2);
 
 		$xml = simplexml_load_string($configuration); 
 		
@@ -766,7 +759,7 @@ class Microsoft_WindowsAzure_Management_Client
 		
 		$configuration = $xml->asXML();
 		//$configuration = preg_replace('/(<\?xml[^?]+?)utf-8/i', '$1utf-16', $configuration);
-		
+
 		return $configuration;
 	}
     
@@ -834,17 +827,17 @@ class Microsoft_WindowsAzure_Management_Client
      */
     protected function _configureDeployment($operationUrl, $configuration)
     {
-        $response = $this->_performRequest($operationUrl, '?comp=config',
+    	// Clean up the configuration
+    	$conformingConfiguration = $configuration;
+		$conformingConfiguration = str_replace("\r", "", $conformingConfiguration);
+		$conformingConfiguration = str_replace("\n", "", $conformingConfiguration);
+
+        $response = $this->_performRequest($operationUrl . '/', '?comp=config',
     		Microsoft_Http_Client::POST,
-    		array('Content-Type' => 'application/xml'),
-    		'<?xml version="1.0" encoding="utf-8"?>
-             <ChangeConfiguration xmlns="http://schemas.microsoft.com/windowsazure">
-               <Configuration>' . base64_encode($configuration) . '</Configuration>
-             </ChangeConfiguration>');
-		
-    	if ($response->isSuccessful()) {
-    		$this->_lastRequestId = $response->getHeader('x-ms-request-id');
-		} else {
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<ChangeConfiguration xmlns="http://schemas.microsoft.com/windowsazure" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><Configuration>' . base64_encode($conformingConfiguration) . '</Configuration></ChangeConfiguration>');
+			 
+    	if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
     }
