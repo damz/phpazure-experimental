@@ -34,19 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Storage_Blob
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Storage/Blob.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_Exception
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/Exception.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_ConfigurationInstance
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/ConfigurationInstance.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

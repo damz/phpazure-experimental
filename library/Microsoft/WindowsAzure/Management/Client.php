@@ -34,40 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
-
-/**
- * @see Microsoft_WindowsAzure_Exception
- */
-require_once 'Microsoft/WindowsAzure/Exception.php';
-
-/**
- * @see Microsoft_Http_Client
- */
-require_once 'Microsoft/Http/Client.php';
-
-/**
- * @see Microsoft_Http_Response
- */
-require_once 'Microsoft/Http/Response.php';
-
-/**
- * @see Microsoft_WindowsAzure_Management_OperationStatusInstance
- */
-require_once 'Microsoft/WindowsAzure/Management/OperationStatusInstance.php';
-
-/**
- * @see Microsoft_WindowsAzure_Management_StorageServiceInstance
- */
-require_once 'Microsoft/WindowsAzure/Management/StorageServiceInstance.php';
-
-/**
- * @see Microsoft_WindowsAzure_Management_DeploymentInstance
- */
-require_once 'Microsoft/WindowsAzure/Management/DeploymentInstance.php';
-
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft
@@ -86,16 +55,18 @@ class Microsoft_WindowsAzure_Management_Client
 	/**
 	 * Operations
 	 */
-	const OP_OPERATIONS         = "operations";
-	const OP_STORAGE_ACCOUNTS   = "services/storageservices";
-	const OP_HOSTED_SERVICES    = "services/hostedservices";
+	const OP_OPERATIONS                = "operations";
+	const OP_STORAGE_ACCOUNTS          = "services/storageservices";
+	const OP_HOSTED_SERVICES           = "services/hostedservices";
+	const OP_OPERATINGSYSTEMS          = "operatingsystems";
+	const OP_OPERATINGSYSTEMFAMILIES   = "operatingsystemfamilies ";
 
 	/**
 	 * Current API version
 	 * 
 	 * @var string
 	 */
-	protected $_apiVersion = '2009-10-01';
+	protected $_apiVersion = '2010-10-28';
 	
 	/**
 	 * Subscription ID
@@ -838,6 +809,111 @@ class Microsoft_WindowsAzure_Management_Client
     		'<ChangeConfiguration xmlns="http://schemas.microsoft.com/windowsazure" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><Configuration>' . base64_encode($conformingConfiguration) . '</Configuration></ChangeConfiguration>');
 			 
     	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The List Operating Systems operation lists the versions of the guest operating system
+     * that are currently available in Windows Azure. The 2010-10-28 version of List Operating
+     * Systems also indicates what family an operating system version belongs to.
+     * Currently Windows Azure supports two operating system families: the Windows Azure guest
+     * operating system that is substantially compatible with Windows Server 2008 SP2,
+     * and the Windows Azure guest operating system that is substantially compatible with
+     * Windows Server 2008 R2.
+     * 
+     * @return array Array of Microsoft_WindowsAzure_Management_OperatingSystemInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function listOperatingSystems()
+    {
+        $response = $this->_performRequest(self::OP_OPERATINGSYSTEMS);
+
+    	if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+			
+		    if (count($result->OperatingSystem) > 1) {
+    		    $xmlServices = $result->OperatingSystem;
+    		} else {
+    		    $xmlServices = array($result->OperatingSystem);
+    		}
+    		
+			$services = array();
+			if (!is_null($xmlServices)) {				
+				for ($i = 0; $i < count($xmlServices); $i++) {
+					$services[] = new Microsoft_WindowsAzure_Management_OperatingSystemInstance(
+					    (string)$xmlServices[$i]->Version,
+					    (string)$xmlServices[$i]->Label,
+					    ((string)$xmlServices[$i]->IsDefault == 'true'),
+					    ((string)$xmlServices[$i]->IsActive == 'true'),
+					    (string)$xmlServices[$i]->Family,
+					    (string)$xmlServices[$i]->FamilyLabel
+					);
+				}
+			}
+			return $services;
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The List OS Families operation lists the guest operating system families
+     * available in Windows Azure, and also lists the operating system versions
+     * available for each family. Currently Windows Azure supports two operating
+     * system families: the Windows Azure guest operating system that is
+     * substantially compatible with Windows Server 2008 SP2, and the Windows
+     * Azure guest operating system that is substantially compatible with
+     * Windows Server 2008 R2.
+     * 
+     * @return array Array of Microsoft_WindowsAzure_Management_OperatingSystemFamilyInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function listOperatingSystemFamilies()
+    {
+        $response = $this->_performRequest(self::OP_OPERATINGSYSTEMFAMILIES);
+
+    	if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+			
+		    if (count($result->OperatingSystemFamily) > 1) {
+    		    $xmlServices = $result->OperatingSystemFamily;
+    		} else {
+    		    $xmlServices = array($result->OperatingSystemFamily);
+    		}
+    		
+			$services = array();
+			if (!is_null($xmlServices)) {				
+				for ($i = 0; $i < count($xmlServices); $i++) {
+					$services[] = new Microsoft_WindowsAzure_Management_OperatingSystemFamilyInstance(
+					    (string)$xmlServices[$i]->Name,
+					    (string)$xmlServices[$i]->Label
+					);
+								
+					if (count($xmlServices[$i]->OperatingSystems->OperatingSystem) > 1) {
+		    		    $xmlOperatingSystems = $xmlServices[$i]->OperatingSystems->OperatingSystem;
+		    		} else {
+		    		    $xmlOperatingSystems = array($xmlServices[$i]->OperatingSystems->OperatingSystem);
+		    		}
+		    		
+					$operatingSystems = array();
+					if (!is_null($xmlOperatingSystems)) {				
+						for ($i = 0; $i < count($xmlOperatingSystems); $i++) {
+							$operatingSystems[] = new Microsoft_WindowsAzure_Management_OperatingSystemInstance(
+							    (string)$xmlOperatingSystems[$i]->Version,
+							    (string)$xmlOperatingSystems[$i]->Label,
+							    ((string)$xmlOperatingSystems[$i]->IsDefault == 'true'),
+							    ((string)$xmlOperatingSystems[$i]->IsActive == 'true'),
+							    (string)$xmlServices[$i]->Name,
+							    (string)$xmlServices[$i]->Label
+							);
+						}
+					}
+					$services[ count($services) - 1 ]->OperatingSystems = $operatingSystems;
+				}
+			}
+			return $services;
+		} else {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
     }
