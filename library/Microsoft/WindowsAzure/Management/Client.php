@@ -58,8 +58,10 @@ class Microsoft_WindowsAzure_Management_Client
 	const OP_OPERATIONS                = "operations";
 	const OP_STORAGE_ACCOUNTS          = "services/storageservices";
 	const OP_HOSTED_SERVICES           = "services/hostedservices";
+	const OP_AFFINITYGROUPS            = "affinitygroups";
+	const OP_LOCATIONS                 = "locations";
 	const OP_OPERATINGSYSTEMS          = "operatingsystems";
-	const OP_OPERATINGSYSTEMFAMILIES   = "operatingsystemfamilies ";
+	const OP_OPERATINGSYSTEMFAMILIES   = "operatingsystemfamilies";
 
 	/**
 	 * Current API version
@@ -809,6 +811,145 @@ class Microsoft_WindowsAzure_Management_Client
     		'<ChangeConfiguration xmlns="http://schemas.microsoft.com/windowsazure" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><Configuration>' . base64_encode($conformingConfiguration) . '</Configuration></ChangeConfiguration>');
 			 
     	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The List Affinity Groups operation lists the affinity groups associated with
+     * the specified subscription.
+     * 
+     * @return array Array of Microsoft_WindowsAzure_Management_AffinityGroupInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function listAffinityGroups()
+    {
+        $response = $this->_performRequest(self::OP_AFFINITYGROUPS);
+
+    	if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+			
+		    if (count($result->AffinityGroup) > 1) {
+    		    $xmlServices = $result->AffinityGroup;
+    		} else {
+    		    $xmlServices = array($result->AffinityGroup);
+    		}
+    		
+			$services = array();
+			if (!is_null($xmlServices)) {				
+				for ($i = 0; $i < count($xmlServices); $i++) {
+					$services[] = new Microsoft_WindowsAzure_Management_AffinityGroupInstance(
+					    (string)$xmlServices[$i]->Name,
+					    (string)$xmlServices[$i]->Label,
+					    (string)$xmlServices[$i]->Description,
+					    (string)$xmlServices[$i]->Location
+					);
+				}
+			}
+			return $services;
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Get Affinity Group Properties operation returns the
+     * system properties associated with the specified affinity group.
+     * 
+     * @param string $affinityGroupName The affinity group name.
+     * @return Microsoft_WindowsAzure_Management_AffinityGroupInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function getAffinityGroupProperties($affinityGroupName)
+    {
+        if ($affinityGroupName == '' || is_null($affinityGroupName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Affinity group name should be specified.');
+    	}
+    	
+        $response = $this->_performRequest(self::OP_AFFINITYGROUPS . '/' . $affinityGroupName);
+
+    	if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+			
+			$affinityGroup = new Microsoft_WindowsAzure_Management_AffinityGroupInstance(
+				$affinityGroupName,
+				(string)$result->Label,
+				(string)$result->Description,
+				(string)$result->Location
+			);
+
+			// Hosted services
+			if (count($result->HostedServices->HostedService) > 1) {
+		    	$xmlService = $result->HostedServices->HostedService;
+		    } else {
+		    	$xmlService = array($result->HostedServices->HostedService);
+		    }
+		    		
+			$services = array();
+			if (!is_null($xmlService)) {				
+				for ($i = 0; $i < count($xmlService); $i++) {
+					$services[] = array(
+						'url' => (string)$xmlService[$i]->Url,
+						'name' => (string)$xmlService[$i]->ServiceName
+					);
+				}
+			}
+			$affinityGroup->HostedServices = $services;
+			
+			// Storage services
+			if (count($result->StorageServices->StorageService) > 1) {
+		    	$xmlService = $result->StorageServices->StorageService;
+		    } else {
+		    	$xmlService = array($result->StorageServices->StorageService);
+		    }
+		    		
+			$services = array();
+			if (!is_null($xmlService)) {				
+				for ($i = 0; $i < count($xmlService); $i++) {
+					$services[] = array(
+						'url' => (string)$xmlService[$i]->Url,
+						'name' => (string)$xmlService[$i]->ServiceName
+					);
+				}
+			}
+			$affinityGroup->StorageServices = $services;	
+			
+			return $affinityGroup;
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The List Locations operation lists all of the data center locations
+     * that are valid for your subscription.
+     * 
+     * @return array Array of Microsoft_WindowsAzure_Management_LocationInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function listLocations()
+    {
+        $response = $this->_performRequest(self::OP_LOCATIONS);
+
+    	if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+			
+		    if (count($result->Location) > 1) {
+    		    $xmlServices = $result->Location;
+    		} else {
+    		    $xmlServices = array($result->Location);
+    		}
+    		
+			$services = array();
+			if (!is_null($xmlServices)) {				
+				for ($i = 0; $i < count($xmlServices); $i++) {
+					$services[] = new Microsoft_WindowsAzure_Management_LocationInstance(
+					    (string)$xmlServices[$i]->Name
+					);
+				}
+			}
+			return $services;
+		} else {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
     }
