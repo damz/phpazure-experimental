@@ -515,6 +515,181 @@ class Microsoft_WindowsAzure_Management_Client
     }
     
     /**
+     * The List Hosted Services operation lists the hosted services available
+     * under the current subscription.
+     *
+     * @return array An array of Microsoft_WindowsAzure_Management_HostedServiceInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function listHostedServices()
+    {
+    	$response = $this->_performRequest(self::OP_HOSTED_SERVICES);
+
+    	if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+		    if (count($result->HostedService) > 1) {
+    		    $xmlServices = $result->HostedService;
+    		} else {
+    		    $xmlServices = array($result->HostedService);
+    		}
+    		
+			$services = array();
+			if (!is_null($xmlServices)) {				
+				for ($i = 0; $i < count($xmlServices); $i++) {
+					$services[] = new Microsoft_WindowsAzure_Management_HostedServiceInstance(
+					    (string)$xmlServices[$i]->Url,
+					    (string)$xmlServices[$i]->ServiceName
+					);
+				}
+			}
+			return $services;
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Create Hosted Service operation creates a new hosted service in Windows Azure.
+     * 
+     * @param string $serviceName Required. A name for the hosted service that is unique to the subscription.
+     * @param string $label Required. A label for the hosted service. The label may be up to 100 characters in length.
+     * @param string $description Optional. A description for the hosted service. The description may be up to 1024 characters in length.
+     * @param string $location Required if AffinityGroup is not specified. The location where the hosted service will be created. 
+     * @param string $affinityGroup Required if Location is not specified. The name of an existing affinity group associated with this subscription.
+     */
+    public function createHostedService($serviceName, $label, $description = '', $location = null, $affinityGroup = null)
+    {
+    	if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($label == '' || is_null($label)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label name should be specified.');
+    	}
+        if (strlen($label) > 100) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
+    	}
+        if (strlen($description) > 1024) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Description is too long. The maximum length is 1024 characters.');
+    	}
+    	if ( (is_null($location) && is_null($affinityGroup)) || (!is_null($location) && !is_null($affinityGroup)) ) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Please specify a location -or- an affinity group for the service.');
+    	}
+    	
+    	$locationOrAffinityGroup = is_null($location)
+    		? '<AffinityGroup>' . $affinityGroup . '</AffinityGroup>'
+    		: '<Location>' . $location . '</Location>';
+    	
+        $response = $this->_performRequest(self::OP_HOSTED_SERVICES, '',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<CreateHostedService xmlns="http://schemas.microsoft.com/windowsazure"><ServiceName>' . $serviceName . '</ServiceName><Label>' . base64_encode($label) . '</Label><Description>' . $description . '</Description>' . $locationOrAffinityGroup . '</CreateHostedService>');
+ 	
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Update Hosted Service operation updates the label and/or the description for a hosted service in Windows Azure.
+     * 
+     * @param string $serviceName Required. A name for the hosted service that is unique to the subscription.
+     * @param string $label Required. A label for the hosted service. The label may be up to 100 characters in length.
+     * @param string $description Optional. A description for the hosted service. The description may be up to 1024 characters in length.
+     */
+    public function updateHostedService($serviceName, $label, $description = '')
+    {
+    	if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($label == '' || is_null($label)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label name should be specified.');
+    	}
+        if (strlen($label) > 100) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
+    	}
+    	
+        $response = $this->_performRequest(self::OP_HOSTED_SERVICES . '/' . $serviceName, '',
+    		Microsoft_Http_Client::PUT,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<UpdateHostedService xmlns="http://schemas.microsoft.com/windowsazure"><Label>' . base64_encode($label) . '</Label><Description>' . $description . '</Description></UpdateHostedService>');
+ 	
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Delete Hosted Service operation deletes the specified hosted service in Windows Azure.
+     * 
+     * @param string $serviceName Required. A name for the hosted service that is unique to the subscription.
+     */
+    public function deleteHostedService($serviceName)
+    {
+    	if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	
+        $response = $this->_performRequest(self::OP_HOSTED_SERVICES . '/' . $serviceName, '', Microsoft_Http_Client::DELETE);
+ 	
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Get Hosted Service Properties operation retrieves system properties
+     * for the specified hosted service. These properties include the service
+     * name and service type; the name of the affinity group to which the service
+     * belongs, or its location if it is not part of an affinity group; and
+     * optionally, information on the service's deployments.
+     *
+     * @param string $serviceName The name of your service.
+     * @return Microsoft_WindowsAzure_Management_HostedServiceInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function getHostedServiceProperties($serviceName)
+    {
+    	if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	
+    	$response = $this->_performRequest(self::OP_HOSTED_SERVICES . '/' . $serviceName, '?embed-detail=true');
+
+    	if ($response->isSuccessful()) {
+			$xmlService = $this->_parseResponse($response);
+
+			if (!is_null($xmlService)) {
+				$returnValue = new Microsoft_WindowsAzure_Management_HostedServiceInstance(
+					(string)$xmlService->Url,
+					(string)$xmlService->ServiceName,
+					(string)$xmlService->HostedServiceProperties->Description,
+					(string)$xmlService->HostedServiceProperties->AffinityGroup,
+					(string)$xmlService->HostedServiceProperties->Location,
+					(string)$xmlService->HostedServiceProperties->Label
+				);
+				
+				// Deployments
+		    	if (count($xmlService->Deployments->Deployment) > 1) {
+    		    	$xmlServices = $xmlService->Deployments->Deployment;
+    			} else {
+    		    	$xmlServices = array($xmlService->Deployments->Deployment);
+    			}
+    			
+    			$deployments = array();
+    			foreach ($xmlServices as $xmlDeployment) {
+					$deployments[] = $this->_convertXmlElementToDeploymentInstance($xmlDeployment);
+    			}
+				$returnValue->Deployments = $deployments;
+				
+				return $returnValue;
+			}
+			return null;
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
      * The Get Deployment operation returns configuration information, status,
      * and system properties for the specified deployment.
      * 
@@ -573,66 +748,77 @@ class Microsoft_WindowsAzure_Management_Client
 
     	if ($response->isSuccessful()) {
 			$xmlService = $this->_parseResponse($response);
-
-			if (!is_null($xmlService)) {
-				$returnValue = new Microsoft_WindowsAzure_Management_DeploymentInstance(
-					(string)$xmlService->Name,
-					(string)$xmlService->DeploymentSlot,
-					(string)$xmlService->PrivateID,
-					(string)$xmlService->Label,
-					(string)$xmlService->Url,
-					(string)$xmlService->Configuration,
-					(string)$xmlService->Status,
-					(string)$xmlService->UpgradeStatus,
-					(string)$xmlService->UpgradeType,
-					(string)$xmlService->CurrentUpgradeDomainState,
-					(string)$xmlService->CurrentUpgradeDomain,
-					(string)$xmlService->UpgradeDomainCount
-				);
-				
-				// Append role instances
-				$xmlRoleInstances = $xmlService->RoleInstanceList->RoleInstance;
-			    if (count($xmlService->RoleInstanceList->RoleInstance) == 1) {
-	    		    $xmlRoleInstances = array($xmlService->RoleInstanceList->RoleInstance);
-	    		}
-	    		
-				$roleInstances = array();
-				if (!is_null($xmlRoleInstances)) {				
-					for ($i = 0; $i < count($xmlRoleInstances); $i++) {
-						$roleInstances[] = array(
-						    (string)$xmlRoleInstances[$i]->RoleName,
-						    (string)$xmlRoleInstances[$i]->InstanceName,
-						    (string)$xmlRoleInstances[$i]->InstanceStatus
-						);
-					}
-				}
 			
-				$returnValue->RoleInstanceList = $roleInstances;
-				
-				// Append roles
-				$xmlRoles = $xmlService->RoleList->Role;
-			    if (count($xmlService->RoleList->Role) == 1) {
-	    		    $xmlRoles = array($xmlService->RoleList->Role);
-	    		}
-    		
-				$roles = array();
-				if (!is_null($xmlRoles)) {				
-					for ($i = 0; $i < count($xmlRoles); $i++) {
-						$roles[] = array(
-						    (string)$xmlRoles[$i]->RoleName,
-						    (string)$xmlRoles[$i]->InstanceName,
-						    (string)$xmlRoles[$i]->InstanceStatus
-						);
-					}
-				}
-				$returnValue->RoleList = $roles;
-				
-				return $returnValue;
-			}
-			return null;
+			return $this->_convertXmlElementToDeploymentInstance($xmlService);
 		} else {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
+    }
+    
+    /**
+     * Converts an XmlElement into a Microsoft_WindowsAzure_Management_DeploymentInstance
+     * 
+     * @param object $xmlService The XML Element
+     * @return Microsoft_WindowsAzure_Management_DeploymentInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    protected function _convertXmlElementToDeploymentInstance($xmlService)
+    {
+		if (!is_null($xmlService)) {
+			$returnValue = new Microsoft_WindowsAzure_Management_DeploymentInstance(
+				(string)$xmlService->Name,
+				(string)$xmlService->DeploymentSlot,
+				(string)$xmlService->PrivateID,
+				(string)$xmlService->Label,
+				(string)$xmlService->Url,
+				(string)$xmlService->Configuration,
+				(string)$xmlService->Status,
+				(string)$xmlService->UpgradeStatus,
+				(string)$xmlService->UpgradeType,
+				(string)$xmlService->CurrentUpgradeDomainState,
+				(string)$xmlService->CurrentUpgradeDomain,
+				(string)$xmlService->UpgradeDomainCount
+			);
+				
+			// Append role instances
+			$xmlRoleInstances = $xmlService->RoleInstanceList->RoleInstance;
+			if (count($xmlService->RoleInstanceList->RoleInstance) == 1) {
+	    	    $xmlRoleInstances = array($xmlService->RoleInstanceList->RoleInstance);
+	    	}
+	    		
+			$roleInstances = array();
+			if (!is_null($xmlRoleInstances)) {				
+				for ($i = 0; $i < count($xmlRoleInstances); $i++) {
+					$roleInstances[] = array(
+					    'rolename' => (string)$xmlRoleInstances[$i]->RoleName,
+					    'instancename' => (string)$xmlRoleInstances[$i]->InstanceName,
+					    'instancestatus' => (string)$xmlRoleInstances[$i]->InstanceStatus
+					);
+				}
+			}
+			
+			$returnValue->RoleInstanceList = $roleInstances;
+			
+			// Append roles
+			$xmlRoles = $xmlService->RoleList->Role;
+			if (count($xmlService->RoleList->Role) == 1) {
+	    	    $xmlRoles = array($xmlService->RoleList->Role);
+	    	}
+    		
+			$roles = array();
+			if (!is_null($xmlRoles)) {				
+				for ($i = 0; $i < count($xmlRoles); $i++) {
+					$roles[] = array(
+					    'rolename' => (string)$xmlRoles[$i]->RoleName,
+					    'osversion' => (!is_null($xmlRoles[$i]->OsVersion) ? (string)$xmlRoles[$i]->OsVersion : (string)$xmlRoles[$i]->OperatingSystemVersion)					
+					);
+				}
+			}
+			$returnValue->RoleList = $roles;
+				
+			return $returnValue;
+		}
+		return null;
     }
     
     /**
