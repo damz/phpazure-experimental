@@ -816,6 +816,156 @@ class Microsoft_WindowsAzure_Management_Client
     }
     
     /**
+     * The List Certificates operation lists all certificates associated with
+     * the specified hosted service.
+     * 
+     * @param string $serviceName		The service name
+     * @return array Array of Microsoft_WindowsAzure_Management_CertificateInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function listCertificates($serviceName)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/certificates';
+        $response = $this->_performRequest($operationUrl);
+
+    	if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+
+		    if (count($result->Certificate) > 1) {
+    		    $xmlServices = $result->Certificate;
+    		} else {
+    		    $xmlServices = array($result->Certificate);
+    		}
+    		
+			$services = array();
+			if (!is_null($xmlServices)) {				
+				for ($i = 0; $i < count($xmlServices); $i++) {
+					$services[] = new Microsoft_WindowsAzure_Management_CertificateInstance(
+					    (string)$xmlServices[$i]->CertificateUrl,
+					    (string)$xmlServices[$i]->Thumbprint,
+					    (string)$xmlServices[$i]->ThumbprintAlgorithm,
+					    (string)$xmlServices[$i]->Data
+					);
+				}
+			}
+			return $services;
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Get Certificate operation returns the public data for the specified certificate.
+     * 
+     * @param string $serviceName|$certificateUrl	The service name -or- the certificate URL
+     * @param string $algorithm         			Algorithm
+     * @param string $thumbprint        			Thumbprint
+     * @return Microsoft_WindowsAzure_Management_CertificateInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function getCertificate($serviceName, $algorithm = '', $thumbprint = '')
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name or certificate URL should be specified.');
+    	}
+    	if (strpos($serviceName, 'https') === false && ($algorithm == '' || is_null($algorithm)) && ($thumbprint == '' || is_null($thumbprint))) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Algorithm and thumbprint should be specified.');
+    	}
+    	
+    	$operationUrl = str_replace($this->getBaseUrl(), '', $serviceName);
+    	if (strpos($serviceName, 'https') === false) {
+    		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/certificates/' . $algorithm . '-' . strtoupper($thumbprint);
+    	}
+    	
+        $response = $this->_performRequest($operationUrl);
+
+    	if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+			
+			return new Microsoft_WindowsAzure_Management_CertificateInstance(
+				$this->getBaseUrl() . $operationUrl,
+				$algorithm,
+				$thumbprint,
+				(string)$result->Data
+			);
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Add Certificate operation adds a certificate to the subscription.
+     * 
+     * @param string $serviceName         The service name
+     * @param string $certificateData     Certificate data
+     * @param string $certificatePassword The certificate password
+     * @param string $certificateFormat   The certificate format. Currently, only 'pfx' is supported.
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function addCertificate($serviceName, $certificateData, $certificatePassword, $certificateFormat = 'pfx')
+    {
+    	if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($certificateData == '' || is_null($certificateData)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Certificate data should be specified.');
+    	}
+    	if ($certificatePassword == '' || is_null($certificatePassword)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Certificate password should be specified.');
+    	}
+    	if ($certificateFormat != 'pfx') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Certificate format should be "pfx".');
+    	}
+    	
+    	if (@file_exists($certificateData)) {
+    		$certificateData = file_get_contents($certificateData);
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/certificates';
+        $response = $this->_performRequest($operationUrl, '',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<CertificateFile xmlns="http://schemas.microsoft.com/windowsazure"><Data>' . base64_encode($certificateData) . '</Data><CertificateFormat>' . $certificateFormat . '</CertificateFormat><Password>' . $certificatePassword . '</Password></CertificateFile>');
+
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Delete Certificate operation deletes a certificate from the subscription's certificate store.
+     * 
+     * @param string $serviceName|$certificateUrl	The service name -or- the certificate URL
+     * @param string $algorithm         			Algorithm
+     * @param string $thumbprint        			Thumbprint
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function deleteCertificate($serviceName, $algorithm = '', $thumbprint = '')
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name or certificate URL should be specified.');
+    	}
+    	if (strpos($serviceName, 'https') === false && ($algorithm == '' || is_null($algorithm)) && ($thumbprint == '' || is_null($thumbprint))) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Algorithm and thumbprint should be specified.');
+    	}
+    	
+    	$operationUrl = str_replace($this->getBaseUrl(), '', $serviceName);
+    	if (strpos($serviceName, 'https') === false) {
+    		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/certificates/' . $algorithm . '-' . strtoupper($thumbprint);
+    	}
+    	
+        $response = $this->_performRequest($operationUrl, '', Microsoft_Http_Client::DELETE);
+
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
      * The List Affinity Groups operation lists the affinity groups associated with
      * the specified subscription.
      * 
