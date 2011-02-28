@@ -371,6 +371,101 @@ class Microsoft_WindowsAzure_Management_Client
     }
     
     /**
+     * Wait for an operation to complete
+     * 
+     * @param string $requestId The request ID. If omitted, the last request ID will be used.
+     * @param int $sleepInterval Sleep interval in milliseconds.
+     * @return Microsoft_WindowsAzure_Management_OperationStatusInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function waitForOperation($requestId = '', $sleepInterval = 250)
+    {
+    	if ($requestId == '') {
+    		$requestId = $this->getLastRequestId();
+    	}
+
+		$status = $this->getOperationStatus($requestId);
+		while ($status->Status == 'InProgress') {
+		  $status = $this->getOperationStatus($requestId);
+		  usleep($sleepInterval);
+		}
+		
+		return $status;
+    }
+    
+	/**
+	 * Creates a new Microsoft_WindowsAzure_Storage_Blob instance for the current account
+	 *
+	 * @param string $serviceName the service name to create a storage client for.
+	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
+	 * @return Microsoft_WindowsAzure_Storage_Blob
+	 */
+	public function createBlobClientForService($serviceName, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
+	{
+		if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	
+    	$storageKeys = $this->getStorageAccountKeys($serviceName);
+    	
+		return new Microsoft_WindowsAzure_Storage_Blob(
+			Microsoft_WindowsAzure_Storage::URL_CLOUD_BLOB,
+			$serviceName,
+			$storageKeys[0],
+			false,
+			$retryPolicy
+		);
+	}
+	
+	/**
+	 * Creates a new Microsoft_WindowsAzure_Storage_Table instance for the current account
+	 *
+	 * @param string $serviceName the service name to create a storage client for.
+	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
+	 * @return Microsoft_WindowsAzure_Storage_Table
+	 */
+	public function createTableClientForService($serviceName, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
+	{
+		if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	
+    	$storageKeys = $this->getStorageAccountKeys($serviceName);
+    	
+		return new Microsoft_WindowsAzure_Storage_Table(
+			Microsoft_WindowsAzure_Storage::URL_CLOUD_TABLE,
+			$serviceName,
+			$storageKeys[0],
+			false,
+			$retryPolicy
+		);
+	}
+	
+	/**
+	 * Creates a new Microsoft_WindowsAzure_Storage_Queue instance for the current account
+	 *
+	 * @param string $serviceName the service name to create a storage client for.
+	 * @param Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy Retry policy to use when making requests
+	 * @return Microsoft_WindowsAzure_Storage_Queue
+	 */
+	public function createQueueClientForService($serviceName, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract $retryPolicy = null)
+	{
+		if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	
+    	$storageKeys = $this->getStorageAccountKeys($serviceName);
+    	
+		return new Microsoft_WindowsAzure_Storage_Queue(
+			Microsoft_WindowsAzure_Storage::URL_CLOUD_QUEUE,
+			$serviceName,
+			$storageKeys[0],
+			false,
+			$retryPolicy
+		);
+	}
+    
+    /**
      * The List Storage Accounts operation lists the storage accounts available under
      * the current subscription.
      *
@@ -563,7 +658,7 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
     	if ($label == '' || is_null($label)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Label name should be specified.');
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
     	}
         if (strlen($label) > 100) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
@@ -602,7 +697,7 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
     	if ($label == '' || is_null($label)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Label name should be specified.');
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
     	}
         if (strlen($label) > 100) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
@@ -688,6 +783,63 @@ class Microsoft_WindowsAzure_Management_Client
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
     }
+
+    /**
+     * The Create Deployment operation uploads a new service package
+     * and creates a new deployment on staging or production.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+	 * @param string $name              Required. The name for the deployment. The deployment name must be unique among other deployments for the hosted service.
+	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
+	 * @param string $packageUrl        Required. The service configuration file for the deployment.
+	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
+	 * @param boolean $startDeployment  Optional. Indicates whether to start the deployment immediately after it is created.
+	 * @param boolean $treatWarningsAsErrors Optional. Indicates whether to treat package validation warnings as errors.
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function createDeployment($serviceName, $deploymentSlot, $name, $label, $packageUrl, $configuration, $startDeployment = false, $treatWarningsAsErrors = false)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+    	if ($name == '' || is_null($name)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Name should be specified.');
+    	}
+    	if ($label == '' || is_null($label)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
+    	}
+        if (strlen($label) > 100) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
+    	}
+    	if ($packageUrl == '' || is_null($packageUrl)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Package URL should be specified.');
+    	}
+    	if ($configuration == '' || is_null($configuration)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Configuration should be specified.');
+    	}
+    	
+    	if (@file_exists($configuration)) {
+    		$configuration = utf8_decode(file_get_contents($configuration));
+    	}
+    	
+    	// Clean up the configuration
+    	$conformingConfiguration = $this->_cleanConfiguration($configuration);
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot;
+        $response = $this->_performRequest($operationUrl, '',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<CreateDeployment xmlns="http://schemas.microsoft.com/windowsazure"><Name>' . $name . '</Name><PackageUrl>' . $packageUrl . '</PackageUrl><Label>' . base64_encode($label) . '</Label><Configuration>' . base64_encode($conformingConfiguration) . '</Configuration><StartDeployment>' . ($startDeployment ? 'true' : 'false') . '</StartDeployment><TreatWarningsAsError>' . ($treatWarningsAsErrors ? 'true' : 'false') . '</TreatWarningsAsError></CreateDeployment>');
+ 	
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}    	
+    }
     
     /**
      * The Get Deployment operation returns configuration information, status,
@@ -751,6 +903,167 @@ class Microsoft_WindowsAzure_Management_Client
 			
 			return $this->_convertXmlElementToDeploymentInstance($xmlService);
 		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Swap Deployment operation initiates a virtual IP swap between
+     * the staging and production deployment environments for a service.
+     * If the service is currently running in the staging environment,
+     * it will be swapped to the production environment. If it is running
+     * in the production environment, it will be swapped to staging.
+     * 
+     * @param string $serviceName The service name.
+     * @param string $productionDeploymentName Required. The name of the production deployment.
+     * @param string $sourceDeploymentName Required. The name of the source deployment.
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function swapDeployment($serviceName, $productionDeploymentName, $sourceDeploymentName)
+    {
+    	if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($productionDeploymentName == '' || is_null($productionDeploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Production deployment name should be specified.');
+    	}
+    	if ($sourceDeploymentName == '' || is_null($sourceDeploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Source deployment name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName;
+        $response = $this->_performRequest($operationUrl, '',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<Swap xmlns="http://schemas.microsoft.com/windowsazure"><Production>' . $productionDeploymentName . '</Production><SourceDeployment>' . $sourceDeploymentName . '</SourceDeployment></Swap>');
+    		
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}    	
+    }
+    
+    /**
+     * The Delete Deployment operation deletes the specified deployment.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function deleteDeploymentBySlot($serviceName, $deploymentSlot)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot;
+    	return $this->_deleteDeployment($operationUrl);
+    }
+    
+    /**
+     * The Delete Deployment operation deletes the specified deployment.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentName	The deployment name
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function deleteDeploymentByName($serviceName, $deploymentName)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($deploymentName == '' || is_null($deploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	return $this->_deleteDeployment($operationUrl);
+    }
+    
+    /**
+     * The Delete Deployment operation deletes the specified deployment.
+     * 
+     * @param string $operationUrl		The operation url
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    protected function _deleteDeployment($operationUrl)
+    {
+        $response = $this->_performRequest($operationUrl, '', Microsoft_Http_Client::DELETE);
+			 
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Update Deployment Status operation initiates a change in deployment status.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+     * @param string $status            The deployment status (running|suspended)
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function updateDeploymentStatusBySlot($serviceName, $deploymentSlot, $status = 'running')
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+    	$status = strtolower($status);
+    	if ($status != 'running' && $status != 'suspended') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Status should be running|suspended.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot;
+    	return $this->_updateDeploymentStatus($operationUrl, $status);
+    }
+    
+    /**
+     * The Update Deployment Status operation initiates a change in deployment status.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentName	The deployment name
+     * @param string $status            The deployment status (running|suspended)
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function updateDeploymentStatusByName($serviceName, $deploymentName, $status = 'running')
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($deploymentName == '' || is_null($deploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	}
+        $status = strtolower($status);
+    	if ($status != 'running' && $status != 'suspended') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Status should be running|suspended.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	return $this->_updateDeploymentStatus($operationUrl, $status);
+    }
+    
+    /**
+     * The Update Deployment Status operation initiates a change in deployment status.
+     * 
+     * @param string $operationUrl		The operation url
+     * @param string $status            The deployment status (running|suspended)
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    protected function _updateDeploymentStatus($operationUrl, $status = 'running')
+    {
+        $response = $this->_performRequest($operationUrl . '/', '?comp=status',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<UpdateDeploymentStatus xmlns="http://schemas.microsoft.com/windowsazure"><Status>' . ucfirst($status) . '</Status></UpdateDeploymentStatus>');
+    		
+    	if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
     }
@@ -987,9 +1300,7 @@ class Microsoft_WindowsAzure_Management_Client
     protected function _configureDeployment($operationUrl, $configuration)
     {
     	// Clean up the configuration
-    	$conformingConfiguration = $configuration;
-		$conformingConfiguration = str_replace("\r", "", $conformingConfiguration);
-		$conformingConfiguration = str_replace("\n", "", $conformingConfiguration);
+    	$conformingConfiguration = $this->_cleanConfiguration($configuration);
 
         $response = $this->_performRequest($operationUrl . '/', '?comp=config',
     		Microsoft_Http_Client::POST,
@@ -1393,5 +1704,19 @@ class Microsoft_WindowsAzure_Management_Client
 		} else {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
+    }
+    
+    /**
+     * Clean configuration
+     * 
+     * @param string $configuration Configuration to clean.
+     * @return string
+     */
+    public function _cleanConfiguration($configuration) {
+    	$configuration = str_replace('?<?', '<?', $configuration);
+		$configuration = str_replace("\r", "", $configuration);
+		$configuration = str_replace("\n", "", $configuration);
+		
+		return $configuration;
     }
 }
