@@ -485,6 +485,18 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 	}
 	
 	/**
+	 * Checks to see if a given queue has messages
+	 *
+	 * @param string $queueName         Queue name
+	 * @return boolean
+	 * @throws Microsoft_WindowsAzure_Exception
+	 */
+	public function hasMessages($queueName = '')
+	{
+		return count($this->peekMessages($queueName)) > 0;
+	}
+	
+	/**
 	 * Clear queue messages
 	 *
 	 * @param string $queueName         Queue name

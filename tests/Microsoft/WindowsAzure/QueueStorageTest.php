@@ -308,9 +308,11 @@ class Microsoft_WindowsAzure_QueueStorageTest extends PHPUnit_Framework_TestCase
             
             $messages1 = $storageClient->peekMessages($queueName, 4);
             $messages2 = $storageClient->getMessages($queueName, 4);
+            $hasMessages = $storageClient->hasMessages($queueName);
             
             $this->assertEquals(4, count($messages1));
             $this->assertEquals(4, count($messages2));
+            $this->assertTrue($hasMessages);
         }
     }
     
