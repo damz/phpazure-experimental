@@ -383,6 +383,9 @@ class Microsoft_WindowsAzure_Management_Client
     	if ($requestId == '') {
     		$requestId = $this->getLastRequestId();
     	}
+    	if ($requestId == '' || is_null($requestId)) {
+    		return null;
+    	}
 
 		$status = $this->getOperationStatus($requestId);
 		while ($status->Status == 'InProgress') {
@@ -1307,6 +1310,124 @@ class Microsoft_WindowsAzure_Management_Client
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<ChangeConfiguration xmlns="http://schemas.microsoft.com/windowsazure" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><Configuration>' . base64_encode($conformingConfiguration) . '</Configuration></ChangeConfiguration>');
 			 
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Reboot Role Instance operation requests a reboot of a role instance
+     * that is running in a deployment.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+     * @param string $roleInstanceName  The role instance name
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function rebootRoleInstanceBySlot($serviceName, $deploymentSlot, $roleInstanceName)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+        if ($roleInstanceName == '' || is_null($roleInstanceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Role instance name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot . '/roleinstances/' . $roleInstanceName;
+    	return $this->_rebootOrReimageRoleInstance($operationUrl, 'reboot');
+    }
+    
+    /**
+     * The Reboot Role Instance operation requests a reboot of a role instance
+     * that is running in a deployment.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentName	The deployment name
+     * @param string $roleInstanceName  The role instance name
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function rebootRoleInstanceByName($serviceName, $deploymentName, $roleInstanceName)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($deploymentName == '' || is_null($deploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	}
+        if ($roleInstanceName == '' || is_null($roleInstanceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Role instance name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName . '/roleinstances/' . $roleInstanceName;
+    	return $this->_rebootOrReimageRoleInstance($operationUrl, 'reboot');
+    }
+
+    /**
+     * The Reimage Role Instance operation requests a reimage of a role instance
+     * that is running in a deployment.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+     * @param string $roleInstanceName  The role instance name
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function reimageRoleInstanceBySlot($serviceName, $deploymentSlot, $roleInstanceName)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+        if ($roleInstanceName == '' || is_null($roleInstanceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Role instance name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot . '/roleinstances/' . $roleInstanceName;
+    	return $this->_rebootOrReimageRoleInstance($operationUrl, 'reimage');
+    }
+    
+    /**
+     * The Reimage Role Instance operation requests a reimage of a role instance
+     * that is running in a deployment.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentName	The deployment name
+     * @param string $roleInstanceName  The role instance name
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function reimageRoleInstanceByName($serviceName, $deploymentName, $roleInstanceName)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($deploymentName == '' || is_null($deploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	}
+        if ($roleInstanceName == '' || is_null($roleInstanceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Role instance name should be specified.');
+    	}
+    	
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName . '/roleinstances/' . $roleInstanceName;
+    	return $this->_rebootOrReimageRoleInstance($operationUrl, 'reimage');
+    }
+    
+    /**
+     * Reboots or reimages a role instance.
+     * 
+     * @param string $operationUrl		The operation url
+     * @param string $operation The operation (reboot|reimage)
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    protected function _rebootOrReimageRoleInstance($operationUrl, $operation = 'reboot')
+    {
+        $response = $this->_performRequest($operationUrl, '?comp=' . $operation, Microsoft_Http_Client::POST);
+    		
     	if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
