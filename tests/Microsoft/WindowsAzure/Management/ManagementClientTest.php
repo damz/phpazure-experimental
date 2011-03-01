@@ -179,7 +179,7 @@ class Microsoft_WindowsAzure_Management_ManagementClientTest extends PHPUnit_Fra
 	        
 			// ** Step 7: Reboot
 	        $this->log('Rebooting...');
-			$client->rebootRoleInstanceBySlot(TESTS_MANAGEMENT_SERVICENAME, 'production', 'PhpOnAzure.Web_IN_0');
+			$managementClient->rebootRoleInstanceBySlot(TESTS_MANAGEMENT_SERVICENAME, 'production', 'PhpOnAzure.Web_IN_0');
 	        $managementClient->waitForOperation();
 	        $this->log('Rebooted.');
             
