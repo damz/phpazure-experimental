@@ -55,8 +55,8 @@ define('TESTS_TABLE_HOST_PROD',                 'table.core.windows.net');
  */
 define('TESTS_STORAGE_ACCOUNT_DEV',             'devstoreaccount1');
 define('TESTS_STORAGE_KEY_DEV',                 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==');
-define('TESTS_STORAGE_ACCOUNT_PROD',            'phpazure');
-define('TESTS_STORAGE_KEY_PROD',                'I+ebYPcIDB6BsmfAe6pJSpOw8oXA6jMBZv1BEZcSPRqTpldt44refCl65YpKJqcBOiD21Lxsj8d6Ah8Oc2/gKA==');
+define('TESTS_STORAGE_ACCOUNT_PROD',            'phptestsdk');
+define('TESTS_STORAGE_KEY_PROD',                '');
 
 /**
  * Blob storage tests
@@ -95,6 +95,15 @@ define('TESTS_SESSIONHANDLER_TABLENAME_PREFIX', 'phpazuretestsession');
 define('TESTS_DIAGNOSTICS_RUNTESTS',            true);
 define('TESTS_DIAGNOSTICS_RUNONPROD',           false);
 define('TESTS_DIAGNOSTICS_CONTAINER_PREFIX',    'phpazuretestdiag');
+
+/**
+ * Management tests
+ */
+define('TESTS_MANAGEMENT_RUNTESTS',             true);
+define('TESTS_MANAGEMENT_CONTAINER',            'phpazuretestmgmt');
+define('TESTS_MANAGEMENT_SERVICENAME',          'phptest-sdk');
+define('TESTS_MANAGEMENT_SUBSCRIPTIONID',       '');
+define('TESTS_MANAGEMENT_CERTIFICATEPASSWORD',  'phpazure');
 
 /**
  * PHPUnit Code Coverage / Test Report
