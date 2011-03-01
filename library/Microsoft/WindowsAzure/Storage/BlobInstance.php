@@ -66,7 +66,7 @@ require_once 'Microsoft/WindowsAzure/Storage/StorageEntityAbstract.php';
  * @property boolean $IsPrefix        Is it a blob or a directory prefix?
  * @property array   $Metadata        Key/value pairs of meta data
  */
-class Microsoft_WindowsAzure_Storage_BlobInstance
+class Microsoft_WindowsAzure_Storage_BlobInstance extends Microsoft_WindowsAzure_Storage_StorageEntityAbstract
 {
     /**
      * Data

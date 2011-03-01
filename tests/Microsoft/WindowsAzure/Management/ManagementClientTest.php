@@ -189,7 +189,7 @@ class Microsoft_WindowsAzure_Management_ManagementClientTest extends PHPUnit_Fra
     }
 }
 
-// Call Microsoft_WindowsAzure_BlobSessionHandlerTest::main() if this source file is executed directly.
-if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_BlobSessionHandlerTest::main") {
-    Microsoft_WindowsAzure_BlobSessionHandlerTest::main();
+// Call Microsoft_WindowsAzure_Management_ManagementClientTest::main() if this source file is executed directly.
+if (PHPUnit_MAIN_METHOD == "Microsoft_WindowsAzure_Management_ManagementClientTest::main") {
+    Microsoft_WindowsAzure_Management_ManagementClientTest::main();
 }
