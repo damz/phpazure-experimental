@@ -226,6 +226,7 @@ class Microsoft_WindowsAzure_Diagnostics_ConfigurationInstance
 		$returnValue[] = '    </Directories>';
 		
 		$returnValue[] = '  </DataSources>';
+		$returnValue[] = '  <IsDefault>false</IsDefault>';
 		$returnValue[] = '</ConfigRequest>';
 		
 		// Return
