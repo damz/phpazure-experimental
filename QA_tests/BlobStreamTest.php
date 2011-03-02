@@ -257,12 +257,23 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 		$array = fstat ( $fh );
 		
 		$this->assertNotNull ( $array );
-		$this->assertTrue ( $array ["atime"] > 0 );
-		$this->assertTrue ( $array ["atime"] <= time () );
+		$this->assertEquals ( $array ["mode"], 0100000 );
+		$this->assertTrue ( $array ["ctime"] > 0 );
+		$this->assertTrue ( $array ["ctime"] <= time () );
+		$this->assertTrue ( $array ["mtime"] > 0 );
+		$this->assertTrue ( $array ["mtime"] <= time () );
+		$this->assertTrue ( $array ["atime"], 0 );
 		$this->assertEquals ( strlen ( $fileContent ), $array ["size"] );
 		
 		fclose ( $fh );
-	
+		
+		// The same data should be available via url_stat().
+		$stat_via_url_stat = stat ( $fileName );
+		$this->assertIdentical ( $stat_via_url_stat, $array );
+		
+		// In addition, stating a non existing file should return false.
+		$stat_non_existing = stat ( 'azure://non-existing' );
+		$this->assertTrue ( $stat_non_existing === false );
 	}
 	
 	/**

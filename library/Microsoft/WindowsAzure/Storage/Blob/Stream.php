@@ -360,36 +360,7 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
             return false;
         }
 
-        $stat = array();
-        $stat['dev'] = 0;
-        $stat['ino'] = 0;
-        $stat['mode'] = 0;
-        $stat['nlink'] = 0;
-        $stat['uid'] = 0;
-        $stat['gid'] = 0;
-        $stat['rdev'] = 0;
-        $stat['size'] = 0;
-        $stat['atime'] = 0;
-        $stat['mtime'] = 0;
-        $stat['ctime'] = 0;
-        $stat['blksize'] = 0;
-        $stat['blocks'] = 0;
-
-        $info = null;
-        try {
-            $info = $this->_getStorageClient($this->_fileName)->getBlobInstance(
-                        $this->_getContainerName($this->_fileName),
-                        $this->_getFileName($this->_fileName)
-                    );
-        } catch (Microsoft_WindowsAzure_Exception $ex) {
-            // Unexisting file...
-        }
-        if (!is_null($info)) {
-            $stat['size']  = $info->Size;
-            $stat['atime'] = time();
-        }     
-        
-        return $stat;
+        return $this->url_stat($this->_fileName, 0);
     }
 
     /**
@@ -474,15 +445,21 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
                         $this->_getContainerName($path),
                         $this->_getFileName($path)
                     );
+            $stat['size']  = $info->Size;
+
+            // Set the modification time and last modified to the Last-Modified header.
+            $lastmodified = strtotime($info->LastModified);
+            $stat['mtime'] = $lastmodified;
+            $stat['ctime'] = $lastmodified;
+
+            // Entry is a regular file.
+            $stat['mode'] = 0100000;
+
+            return array_values($stat) + $stat;
         } catch (Microsoft_WindowsAzure_Exception $ex) {
             // Unexisting file...
+            return false;
         }
-        if (!is_null($info)) {
-            $stat['size']  = $info->Size;
-            $stat['atime'] = time();
-        } 
-
-        return $stat;
     }
 
     /**
