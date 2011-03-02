@@ -404,6 +404,10 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
             $this->_getContainerName($path),
             $this->_getFileName($path)
         );
+
+        // Clear the stat cache for this path.
+        clearstatcache(true, $path);
+        return true;
     }
 
     /**
@@ -433,6 +437,10 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
             $this->_getContainerName($path_from),
             $this->_getFileName($path_from)
         );
+
+        // Clear the stat cache for the affected paths.
+        clearstatcache(true, $path_from);
+        clearstatcache(true, $path_to);
         return true;
     }
     
@@ -493,6 +501,7 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
                 $this->_getStorageClient($path)->createContainer(
                     $this->_getContainerName($path)
                 );
+                return true;
             } catch (Microsoft_WindowsAzure_Exception $ex) {
                 return false;
             }
@@ -511,11 +520,15 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
     public function rmdir($path, $options)
     {
         if ($this->_getContainerName($path) == $this->_getFileName($path)) {
+            // Clear the stat cache so that affected paths are refreshed.
+            clearstatcache();
+
             // Delete container
             try {
                 $this->_getStorageClient($path)->deleteContainer(
                     $this->_getContainerName($path)
                 );
+                return true;
             } catch (Microsoft_WindowsAzure_Exception $ex) {
                 return false;
             }
