@@ -163,7 +163,7 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      * @param  string  $opened_path
      * @return boolean
      */
-    public function stream_open($path, $mode, $options, $opened_path)
+    public function stream_open($path, $mode, $options, &$opened_path)
     {
         $this->_fileName = $path;
         $this->_temporaryFileName = tempnam(sys_get_temp_dir(), 'azure');
