@@ -58,42 +58,42 @@ class Microsoft_WindowsAzure_Storage_Blob_Stream
      * 
      * @var string
      */
-    private $_fileName = null;
+    protected $_fileName = null;
     
     /**
      * Temporary file name
      * 
      * @var string
      */
-    private $_temporaryFileName = null;
+    protected $_temporaryFileName = null;
     
     /**
      * Temporary file handle
      * 
      * @var resource
      */
-    private $_temporaryFileHandle = null;
+    protected $_temporaryFileHandle = null;
     
     /**
      * Blob storage client
      * 
      * @var Microsoft_WindowsAzure_Storage_Blob
      */
-    private $_storageClient = null;
+    protected $_storageClient = null;
     
     /**
      * Write mode?
      * 
      * @var boolean
      */
-    private $_writeMode = false;
+    protected $_writeMode = false;
     
     /**
      * List of blobs
      * 
      * @var array
      */
-    private $_blobs = null;
+    protected $_blobs = null;
     
     /**
      * Retrieve storage client for this stream type

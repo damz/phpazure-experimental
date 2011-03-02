@@ -6,8 +6,8 @@
   <adhoc-task name="replaceHeader">
     <![CDATA[
         class ReplaceHeaderTask extends Task {
-            private $file;
-            private $filesets = array();
+            protected $file;
+            protected $filesets = array();
 
             function setFile(PhingFile $f) {
                 $this->file = $f;

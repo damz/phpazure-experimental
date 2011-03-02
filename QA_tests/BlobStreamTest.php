@@ -50,11 +50,11 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
-	private function _createStorageClient() {
+	protected function _createStorageClient() {
 		return new Microsoft_WindowsAzure_Storage_Blob ( BLOB_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
-	private function _createTempFile($content) {
+	protected function _createTempFile($content) {
 		$fileName = tempnam ( '', 'tst' );
 		$fp = fopen ( $fileName, 'w' );
 		fwrite ( $fp, $content );
@@ -63,7 +63,7 @@ class Microsoft_WindowsAzure_BlobStreamTest extends PHPUnit_Framework_TestCase {
 		return $fileName;
 	}
 	
-	private function _expectException($e, $message) {
+	protected function _expectException($e, $message) {
 		$this->assertNotNull ( $e, $message );
 		$this->_assertExceptionMessageContain ( $e, $message );
 	}

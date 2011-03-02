@@ -66,7 +66,7 @@ class Microsoft_WindowsAzure_QueueTest extends PHPUnit_Framework_TestCase {
 	
 	}
 	
-	private function _queueExists($result, $qeueName) {
+	protected function _queueExists($result, $qeueName) {
 		foreach ( $result as $table )
 			if ($table->Name == $qeueName) {
 				return true;
@@ -875,7 +875,7 @@ public function testDeleteMessagesNotExist() {
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
-	private function _createStorageClient() {
+	protected function _createStorageClient() {
 		return new Microsoft_WindowsAzure_Storage_Queue ( QUEUE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 }

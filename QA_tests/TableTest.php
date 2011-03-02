@@ -60,7 +60,7 @@ class Microsoft_WindowsAzure_TableTest extends PHPUnit_Framework_TestCase {
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
-	private function _createStorageClient() {
+	protected function _createStorageClient() {
 		return new Microsoft_WindowsAzure_Storage_Table ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
@@ -78,7 +78,7 @@ class Microsoft_WindowsAzure_TableTest extends PHPUnit_Framework_TestCase {
 			return $eitities;
 	}
 	
-	private function _tableExists($result, $tableName) {
+	protected function _tableExists($result, $tableName) {
 		foreach ( $result as $table )
 			if ($table->Name == $tableName) {
 				return true;
@@ -86,14 +86,14 @@ class Microsoft_WindowsAzure_TableTest extends PHPUnit_Framework_TestCase {
 		return false;
 	}
 	
-	private function _randomString($length = 1) {
+	protected function _randomString($length = 1) {
 		$char = array ();
 		for($i = 0; $i < $length; $i ++)
 			$char [] = chr ( rand ( 65, 90 ) );
 		return implode ( "", $char );
 	}
 	
-	private function _randomFloat($min, $max) {
+	protected function _randomFloat($min, $max) {
 		return ($min + lcg_value () * (abs ( $max - $min )));
 	}
 	

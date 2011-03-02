@@ -65,17 +65,17 @@ class Microsoft_WindowsAzure_BlobSharedAccessTest extends PHPUnit_Framework_Test
 		$result = PHPUnit_TextUI_TestRunner::run ( $suite );
 	}
 	
-	private function _createAdminStorageClient() {
+	protected function _createAdminStorageClient() {
 		return new Microsoft_WindowsAzure_Storage_Blob ( BLOB_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	
-	private function _createGuestStorageClient() {
+	protected function _createGuestStorageClient() {
 		$storageClient = new Microsoft_WindowsAzure_Storage_Blob ( BLOB_HOST, CLIENT_STORAGE_ACCOUNT, CLIENT_STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 		$storageClient->setCredentials ( new Microsoft_WindowsAzure_SharedAccessSignatureCredentials ( CLIENT_STORAGE_ACCOUNT, CLIENT_STORAGE_KEY, false ) );
 		return $storageClient;
 	}
 	
-	private function _createTempFile($content) {
+	protected function _createTempFile($content) {
 		$fileName = tempnam ( '', 'tst' );
 		$fp = fopen ( $fileName, 'w' );
 		fwrite ( $fp, $content );

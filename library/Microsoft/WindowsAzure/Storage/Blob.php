@@ -167,7 +167,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 *
 	 * @var Microsoft_WindowsAzure_Credentials_SharedAccessSignature
 	 */
-	private $_sharedAccessSignatureCredentials = null;
+	protected $_sharedAccessSignatureCredentials = null;
 
 	/**
 	 * Creates a new Microsoft_WindowsAzure_Storage_Blob instance

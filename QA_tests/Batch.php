@@ -33,7 +33,7 @@ class Microsoft_WindowsAzure_BlobTest extends PHPUnit_Framework_TestCase {
 		require_once 'TestConfiguration.php';
 	}
 	
-	private function _createStorageClient() {
+	protected function _createStorageClient() {
 		return new Microsoft_WindowsAzure_Storage_Blob ( TABLE_HOST, STORAGE_ACCOUNT, STORAGE_KEY, false, Microsoft_WindowsAzure_RetryPolicy::retryN ( 10, 250 ) );
 	}
 	

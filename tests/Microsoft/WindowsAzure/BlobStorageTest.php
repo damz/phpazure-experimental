@@ -847,7 +847,7 @@ class Microsoft_WindowsAzure_BlobStorageTest extends PHPUnit_Framework_TestCase
      * 
      * @return string Filename
      */
-    private function _createLargeFile()
+    protected function _createLargeFile()
     {
         $fileName = tempnam('', 'tst');
         $fp = fopen($fileName, 'w');
