@@ -1316,6 +1316,190 @@ class Microsoft_WindowsAzure_Management_Client
     }
     
     /**
+     * The Upgrade Deployment operation initiates an upgrade.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
+	 * @param string $packageUrl        Required. The service configuration file for the deployment.
+	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
+     * @param string $mode              Required. The type of upgrade to initiate. Possible values are Auto or Manual.
+     * @param string $roleToUpgrade     Optional. The name of the specific role to upgrade.
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function upgradeDeploymentBySlot($serviceName, $deploymentSlot, $label, $packageUrl, $configuration, $mode = 'auto', $roleToUpgrade = null)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+    	if ($label == '' || is_null($label)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
+    	}
+        if (strlen($label) > 100) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
+    	}
+    	if ($packageUrl == '' || is_null($packageUrl)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Package URL should be specified.');
+    	}
+    	if ($configuration == '' || is_null($configuration)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Configuration should be specified.');
+    	}
+    	$mode = strtolower($mode);
+    	if ($mode != 'auto' && $mode != 'manual') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Mode should be auto|manual.');
+    	}
+    	
+    	if (@file_exists($configuration)) {
+    		$configuration = utf8_decode(file_get_contents($configuration));
+    	}
+    	
+		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot;
+    	return $this->_upgradeDeployment($operationUrl, $label, $packageUrl, $configuration, $mode, $roleToUpgrade);  	
+    }
+    
+    /**
+     * The Upgrade Deployment operation initiates an upgrade.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentName	The deployment name
+	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
+	 * @param string $packageUrl        Required. The service configuration file for the deployment.
+	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
+     * @param string $mode              Required. The type of upgrade to initiate. Possible values are Auto or Manual.
+     * @param string $roleToUpgrade     Optional. The name of the specific role to upgrade.
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function upgradeDeploymentByName($serviceName, $deploymentName, $label, $packageUrl, $configuration, $mode = 'auto', $roleToUpgrade = null)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($deploymentName == '' || is_null($deploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	}
+    	if ($label == '' || is_null($label)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
+    	}
+        if (strlen($label) > 100) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
+    	}
+    	if ($packageUrl == '' || is_null($packageUrl)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Package URL should be specified.');
+    	}
+    	if ($configuration == '' || is_null($configuration)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Configuration should be specified.');
+    	}
+    	$mode = strtolower($mode);
+    	if ($mode != 'auto' && $mode != 'manual') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Mode should be auto|manual.');
+    	}
+    	
+    	if (@file_exists($configuration)) {
+    		$configuration = utf8_decode(file_get_contents($configuration));
+    	}
+    	
+		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	return $this->_upgradeDeployment($operationUrl, $label, $packageUrl, $configuration, $mode, $roleToUpgrade);  	
+    }
+    
+    
+    /**
+     * The Upgrade Deployment operation initiates an upgrade.
+     * 
+     * @param string $operationUrl		The operation url
+	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
+	 * @param string $packageUrl        Required. The service configuration file for the deployment.
+	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
+     * @param string $mode              Required. The type of upgrade to initiate. Possible values are Auto or Manual.
+     * @param string $roleToUpgrade     Optional. The name of the specific role to upgrade.
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    protected function _upgradeDeployment($operationUrl, $label, $packageUrl, $configuration, $mode, $roleToUpgrade)
+    {
+    	// Clean up the configuration
+    	$conformingConfiguration = $this->_cleanConfiguration($configuration);
+    	
+        $response = $this->_performRequest($operationUrl . '/', '?comp=upgrade',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<UpgradeDeployment xmlns="http://schemas.microsoft.com/windowsazure"><Mode>' . ucfirst($mode) . '</Mode><PackageUrl>' . $packageUrl . '</PackageUrl><Configuration>' . base64_encode($conformingConfiguration) . '</Configuration><Label>' . base64_encode($label) . '</Label>' . (!is_null($roleToUpgrade) ? '<RoleToUpgrade>' . $roleToUpgrade . '</RoleToUpgrade>' : '') . '</UpgradeDeployment>');		
+    		
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Walk Upgrade Domain operation specifies the next upgrade domain to be walked during an in-place upgrade.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentSlot	The deployment slot (production or staging)
+	 * @param int $upgradeDomain     Required. An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function walkUpgradeDomainBySlot($serviceName, $deploymentSlot, $upgradeDomain = 0)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	$deploymentSlot = strtolower($deploymentSlot);
+    	if ($deploymentSlot != 'production' && $deploymentSlot != 'staging') {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment slot should be production|staging.');
+    	}
+    	
+		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot;
+    	return $this->_walkUpgradeDomain($operationUrl, $upgradeDomain);  	
+    }
+    
+    /**
+     * The Walk Upgrade Domain operation specifies the next upgrade domain to be walked during an in-place upgrade.
+     * 
+     * @param string $serviceName		The service name
+     * @param string $deploymentName	The deployment name
+	 * @param int $upgradeDomain     Required. An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function walkUpgradeDomainByName($serviceName, $deploymentName, $upgradeDomain = 0)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($deploymentName == '' || is_null($deploymentName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	}
+    	
+		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	return $this->_walkUpgradeDomain($operationUrl, $upgradeDomain);  	
+    }
+    
+    
+    /**
+     * The Walk Upgrade Domain operation specifies the next upgrade domain to be walked during an in-place upgrade.
+     * 
+     * @param string $operationUrl   The operation url
+	 * @param int $upgradeDomain     Required. An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    protected function _walkUpgradeDomain($operationUrl, $upgradeDomain = 0)
+    {
+    	// Clean up the configuration
+    	$conformingConfiguration = $this->_cleanConfiguration($configuration);
+    	
+        $response = $this->_performRequest($operationUrl . '/', '?comp=walkupgradedomain',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<WalkUpgradeDomain xmlns="http://schemas.microsoft.com/windowsazure"><UpgradeDomain>' . $upgradeDomain . '</UpgradeDomain></WalkUpgradeDomain>');		
+
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
      * The Reboot Role Instance operation requests a reboot of a role instance
      * that is running in a deployment.
      * 
