@@ -158,6 +158,16 @@ class Microsoft_WindowsAzure_Diagnostics_Manager
 			$roleIdParts = explode('.', $_SERVER['RdRoleId']);
 			return $roleIdParts[0] . '/' . $roleIdParts[2] . '/' . $_SERVER['RdRoleId'];
 		}
+
+		if (!isset($_SERVER['RoleDeploymentID']) && !isset($_SERVER['RoleInstanceID']) && !isset($_SERVER['RoleName'])) {
+			throw new Exception('Server variables \'RoleDeploymentID\', \'RoleInstanceID\' and \'RoleName\' are unknown. Please verify the application is running in Development Fabric or Windows Azure Fabric.');
+		}
+		
+		if (strpos($_SERVER['RdRoleId'], 'deployment(') === false) {
+			return $_SERVER['RdRoleId'];
+		} else {
+			return $_SERVER['RoleDeploymentID'] . '/' . $_SERVER['RoleInstanceID'] . '/' . $_SERVER['RoleName'];
+		}
 	}
 	
 	/**
