@@ -793,7 +793,7 @@ class Microsoft_WindowsAzure_Management_Client
      * 
      * @param string $serviceName		The service name
      * @param string $deploymentSlot	The deployment slot (production or staging)
-	 * @param string $name              Required. The name for the deployment. The deployment name must be unique among other deployments for the hosted service.
+	 * @param string $name              Required. The name for the deployment. The deployment ID as listed on the Windows Azure management portal must be unique among other deployments for the hosted service.
 	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
 	 * @param string $packageUrl        Required. The service configuration file for the deployment.
 	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
@@ -872,20 +872,20 @@ class Microsoft_WindowsAzure_Management_Client
      * and system properties for the specified deployment.
      * 
      * @param string $serviceName		The service name
-     * @param string $deploymentName	The deployment name
+     * @param string $deploymentId	The deployment ID as listed on the Windows Azure management portal
      * @return Microsoft_WindowsAzure_Management_DeploymentInstance
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function getDeploymentByName($serviceName, $deploymentName)
+    public function getDeploymentByDeploymentId($serviceName, $deploymentId)
     {
         if ($serviceName == '' || is_null($serviceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
-        if ($deploymentName == '' || is_null($deploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+        if ($deploymentId == '' || is_null($deploymentId)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment ID should be specified.');
     	}
     	
-    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentId;
     	return $this->_getDeployment($operationUrl);
     }
     
@@ -928,10 +928,10 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
     	if ($productionDeploymentName == '' || is_null($productionDeploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Production deployment name should be specified.');
+    		throw new Microsoft_WindowsAzure_Management_Exception('Production Deployment ID should be specified.');
     	}
     	if ($sourceDeploymentName == '' || is_null($sourceDeploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Source deployment name should be specified.');
+    		throw new Microsoft_WindowsAzure_Management_Exception('Source Deployment ID should be specified.');
     	}
     	
     	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName;
@@ -970,19 +970,19 @@ class Microsoft_WindowsAzure_Management_Client
      * The Delete Deployment operation deletes the specified deployment.
      * 
      * @param string $serviceName		The service name
-     * @param string $deploymentName	The deployment name
+     * @param string $deploymentId	The deployment ID as listed on the Windows Azure management portal
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function deleteDeploymentByName($serviceName, $deploymentName)
+    public function deleteDeploymentByDeploymentId($serviceName, $deploymentId)
     {
         if ($serviceName == '' || is_null($serviceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
-    	if ($deploymentName == '' || is_null($deploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	if ($deploymentId == '' || is_null($deploymentId)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment ID should be specified.');
     	}
     	
-    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentId;
     	return $this->_deleteDeployment($operationUrl);
     }
     
@@ -1031,24 +1031,24 @@ class Microsoft_WindowsAzure_Management_Client
      * The Update Deployment Status operation initiates a change in deployment status.
      * 
      * @param string $serviceName		The service name
-     * @param string $deploymentName	The deployment name
+     * @param string $deploymentId	The deployment ID as listed on the Windows Azure management portal
      * @param string $status            The deployment status (running|suspended)
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function updateDeploymentStatusByName($serviceName, $deploymentName, $status = 'running')
+    public function updateDeploymentStatusByDeploymentId($serviceName, $deploymentId, $status = 'running')
     {
         if ($serviceName == '' || is_null($serviceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
-    	if ($deploymentName == '' || is_null($deploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	if ($deploymentId == '' || is_null($deploymentId)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment ID should be specified.');
     	}
         $status = strtolower($status);
     	if ($status != 'running' && $status != 'suspended') {
     		throw new Microsoft_WindowsAzure_Management_Exception('Status should be running|suspended.');
     	}
     	
-    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentId;
     	return $this->_updateDeploymentStatus($operationUrl, $status);
     }
     
@@ -1176,25 +1176,25 @@ class Microsoft_WindowsAzure_Management_Client
      * @param string|array $instanceCount The instance count
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function setInstanceCountByName($serviceName, $deploymentName, $roleName, $instanceCount)
+    public function setInstanceCountByDeploymentId($serviceName, $deploymentId, $roleName, $instanceCount)
     {
 	    if ($serviceName == '' || is_null($serviceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
-        if ($deploymentName == '' || is_null($deploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+        if ($deploymentId == '' || is_null($deploymentId)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment ID should be specified.');
     	}
     	if ($roleName == '' || is_null($roleName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Role name name should be specified.');
     	}
     	
 		// Get configuration
-		$deployment = $this->getDeploymentByName($serviceName, $deploymentName);
+		$deployment = $this->getDeploymentByDeploymentId($serviceName, $deploymentId);
 		$configuration = $deployment->Configuration;
 		$configuration = $this->_updateInstanceCountInConfiguration($roleName, $instanceCount, $configuration);
 		
 		// Update configuration
-		$this->configureDeploymentByName($serviceName, $deploymentName, $configuration);
+		$this->configureDeploymentByDeploymentId($serviceName, $deploymentId, $configuration);
     }
 	
     /**
@@ -1271,23 +1271,23 @@ class Microsoft_WindowsAzure_Management_Client
      * environment (staging or production), or by specifying the deployment's unique name. 
      * 
      * @param string $serviceName		The service name
-     * @param string $deploymentName	The deployment name
+     * @param string $deploymentId	The deployment ID as listed on the Windows Azure management portal
      * @param string $configuration     XML configuration represented as a string
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function configureDeploymentByName($serviceName, $deploymentName, $configuration)
+    public function configureDeploymentByDeploymentId($serviceName, $deploymentId, $configuration)
     {
         if ($serviceName == '' || is_null($serviceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
-    	if ($deploymentName == '' || is_null($deploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	if ($deploymentId == '' || is_null($deploymentId)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment ID should be specified.');
     	}
     	if ($configuration == '' || is_null($configuration)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Configuration name should be specified.');
     	}
     	
-    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentId;
     	return $this->_configureDeployment($operationUrl, $configuration);
     }
     
@@ -1365,7 +1365,7 @@ class Microsoft_WindowsAzure_Management_Client
      * The Upgrade Deployment operation initiates an upgrade.
      * 
      * @param string $serviceName		The service name
-     * @param string $deploymentName	The deployment name
+     * @param string $deploymentId	The deployment ID as listed on the Windows Azure management portal
 	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
 	 * @param string $packageUrl        Required. The service configuration file for the deployment.
 	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
@@ -1373,13 +1373,13 @@ class Microsoft_WindowsAzure_Management_Client
      * @param string $roleToUpgrade     Optional. The name of the specific role to upgrade.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function upgradeDeploymentByName($serviceName, $deploymentName, $label, $packageUrl, $configuration, $mode = 'auto', $roleToUpgrade = null)
+    public function upgradeDeploymentByDeploymentId($serviceName, $deploymentId, $label, $packageUrl, $configuration, $mode = 'auto', $roleToUpgrade = null)
     {
         if ($serviceName == '' || is_null($serviceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
-    	if ($deploymentName == '' || is_null($deploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	if ($deploymentId == '' || is_null($deploymentId)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment ID should be specified.');
     	}
     	if ($label == '' || is_null($label)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
@@ -1402,7 +1402,7 @@ class Microsoft_WindowsAzure_Management_Client
     		$configuration = utf8_decode(file_get_contents($configuration));
     	}
     	
-		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentId;
     	return $this->_upgradeDeployment($operationUrl, $label, $packageUrl, $configuration, $mode, $roleToUpgrade);  	
     }
     
@@ -1459,20 +1459,20 @@ class Microsoft_WindowsAzure_Management_Client
      * The Walk Upgrade Domain operation specifies the next upgrade domain to be walked during an in-place upgrade.
      * 
      * @param string $serviceName		The service name
-     * @param string $deploymentName	The deployment name
+     * @param string $deploymentId	The deployment ID as listed on the Windows Azure management portal
 	 * @param int $upgradeDomain     Required. An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function walkUpgradeDomainByName($serviceName, $deploymentName, $upgradeDomain = 0)
+    public function walkUpgradeDomainByDeploymentId($serviceName, $deploymentId, $upgradeDomain = 0)
     {
         if ($serviceName == '' || is_null($serviceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
-    	if ($deploymentName == '' || is_null($deploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	if ($deploymentId == '' || is_null($deploymentId)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment ID should be specified.');
     	}
     	
-		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName;
+		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentId;
     	return $this->_walkUpgradeDomain($operationUrl, $upgradeDomain);  	
     }
     
@@ -1530,23 +1530,23 @@ class Microsoft_WindowsAzure_Management_Client
      * that is running in a deployment.
      * 
      * @param string $serviceName		The service name
-     * @param string $deploymentName	The deployment name
+     * @param string $deploymentId	The deployment ID as listed on the Windows Azure management portal
      * @param string $roleInstanceName  The role instance name
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function rebootRoleInstanceByName($serviceName, $deploymentName, $roleInstanceName)
+    public function rebootRoleInstanceByDeploymentId($serviceName, $deploymentId, $roleInstanceName)
     {
         if ($serviceName == '' || is_null($serviceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
-    	if ($deploymentName == '' || is_null($deploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	if ($deploymentId == '' || is_null($deploymentId)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment ID should be specified.');
     	}
         if ($roleInstanceName == '' || is_null($roleInstanceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Role instance name should be specified.');
     	}
     	
-    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName . '/roleinstances/' . $roleInstanceName;
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentId . '/roleinstances/' . $roleInstanceName;
     	return $this->_rebootOrReimageRoleInstance($operationUrl, 'reboot');
     }
 
@@ -1581,23 +1581,23 @@ class Microsoft_WindowsAzure_Management_Client
      * that is running in a deployment.
      * 
      * @param string $serviceName		The service name
-     * @param string $deploymentName	The deployment name
+     * @param string $deploymentId	    The deployment ID as listed on the Windows Azure management portal
      * @param string $roleInstanceName  The role instance name
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function reimageRoleInstanceByName($serviceName, $deploymentName, $roleInstanceName)
+    public function reimageRoleInstanceByDeploymentId($serviceName, $deploymentId, $roleInstanceName)
     {
         if ($serviceName == '' || is_null($serviceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
-    	if ($deploymentName == '' || is_null($deploymentName)) {
-    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment name should be specified.');
+    	if ($deploymentId == '' || is_null($deploymentId)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Deployment ID should be specified.');
     	}
         if ($roleInstanceName == '' || is_null($roleInstanceName)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Role instance name should be specified.');
     	}
     	
-    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentName . '/roleinstances/' . $roleInstanceName;
+    	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentId . '/roleinstances/' . $roleInstanceName;
     	return $this->_rebootOrReimageRoleInstance($operationUrl, 'reimage');
     }
     
