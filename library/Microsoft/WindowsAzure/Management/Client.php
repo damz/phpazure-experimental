@@ -381,12 +381,11 @@ class Microsoft_WindowsAzure_Management_Client
      * @param string $endTime The end of the timeframe to begin listing subscription operations in UTC format. This parameter and the $startTime parameter indicate the timeframe to retrieve subscription operations. 
      * @param string $objectIdFilter Returns subscription operations only for the specified object type and object ID. 
      * @param string $operationResultFilter Returns subscription operations only for the specified result status, either Succeeded, Failed, or InProgress.
-     * @param int $maxResults The maximum number of results to return. 
      * @param string $continuationToken Internal usage.
      * @return array Array of Microsoft_WindowsAzure_Management_SubscriptionOperationInstance
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
-    public function listSubscriptionOperations($startTime, $endTime, $objectIdFilter = null, $operationResultFilter = null, $maxResults = null, $continuationToken = null)
+    public function listSubscriptionOperations($startTime, $endTime, $objectIdFilter = null, $operationResultFilter = null, $continuationToken = null)
     {
     	if ($startTime == '' || is_null($startTime)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Start time should be specified.');
@@ -449,16 +448,11 @@ class Microsoft_WindowsAzure_Management_Client
 		    }
 		    
 			// More data?
-		    if (!is_null($result->SubscriptionOperations->ContinuationToken)) {
-		    	if (is_null($maxResults) || count($returnValue) < $maxResults) {
-		        	$returnValue = array_merge($returnValue, $this->listSubscriptionOperations($startTime, $endTime, $objectIdFilter, $operationResultFilter, $maxResults, (string)$result->SubscriptionOperations->ContinuationToken));
-		    	}
+		    if (!is_null($result->ContinuationToken) && $result->ContinuationToken != '') {
+		    	$returnValue = array_merge($returnValue, $this->listSubscriptionOperations($startTime, $endTime, $objectIdFilter, $operationResultFilter, (string)$result->ContinuationToken));
 		    }
 		    
 		    // Return
-		    if (!is_null($maxResults)) {
-		    	return array_splice($returnValue, 0, $maxResults);
-		    }
 		    return $returnValue;
 		} else {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
