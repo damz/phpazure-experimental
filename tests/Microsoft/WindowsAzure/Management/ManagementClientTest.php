@@ -108,6 +108,9 @@ class Microsoft_WindowsAzure_Management_ManagementClientTest extends PHPUnit_Fra
 
 		// Remove hosted service
         try { $managementClient->deleteHostedService(TESTS_MANAGEMENT_SERVICENAME); $managementClient->waitForOperation(); } catch (Exception $ex) { }
+        
+        // Remove affinity group
+        try { $managementClient->deleteAffinityGroup('test'); } catch (Exception $ex) { }
     }
     
     protected function createStorageInstance()
@@ -140,44 +143,49 @@ class Microsoft_WindowsAzure_Management_ManagementClientTest extends PHPUnit_Fra
             // Create a management client
             $managementClient = $this->createManagementClient();
             
-	        // ** Step 1: create a hosted service
+             // ** Step 1: create an affinity group
+	        $this->log('Creating affinity group...');
+            $managementClient->createAffinityGroup('test', 'test', 'A test affinity group.', 'North Central US');
+            $this->log('Created affinity group.');
+            
+	        // ** Step 2: create a hosted service
 	        $this->log('Creating hosted service...');
-	        $managementClient->createHostedService(TESTS_MANAGEMENT_SERVICENAME, TESTS_MANAGEMENT_SERVICENAME, TESTS_MANAGEMENT_SERVICENAME, 'North Central US');
+	        $managementClient->createHostedService(TESTS_MANAGEMENT_SERVICENAME, TESTS_MANAGEMENT_SERVICENAME, TESTS_MANAGEMENT_SERVICENAME, null, 'test');
 	        $managementClient->waitForOperation();
 	        $this->log('Created hosted service.');
 	        
-	        // ** Step 2: create a new deployment
+	        // ** Step 3: create a new deployment
 	        $this->log('Creating staging deployment...');
 	        $managementClient->createDeployment(TESTS_MANAGEMENT_SERVICENAME, 'staging', $deploymentName, $deploymentName, $this->packageUrl, self::$path . 'ServiceConfiguration.cscfg', false, false);
 	        $managementClient->waitForOperation();
 	        $this->log('Created staging deployment.');
 	            
-	        // ** Step 3: Run the deployment
+	        // ** Step 4: Run the deployment
 	        $this->log('Changing status of staging deployment to running...');
 	        $managementClient->updateDeploymentStatusBySlot(TESTS_MANAGEMENT_SERVICENAME, 'staging', 'running');
 	        $managementClient->waitForOperation();
 	        $this->log('Changed status of staging deployment to running.');
             
-			// ** Step 4: Swap production <-> staging
+			// ** Step 5: Swap production <-> staging
 	        $this->log('Performing VIP swap...');
 			$result = $managementClient->getHostedServiceProperties(TESTS_MANAGEMENT_SERVICENAME);
 			$managementClient->swapDeployment(TESTS_MANAGEMENT_SERVICENAME, $deploymentName, $result->Deployments[0]->Name);
 	        $managementClient->waitForOperation();
 	        $this->log('Performed VIP swap.');
 	        
-	        // ** Step 5: Scale to two instances
+	        // ** Step 6: Scale to two instances
 	        $this->log('Scaling out...');
 			$managementClient->setInstanceCountBySlot(TESTS_MANAGEMENT_SERVICENAME, 'production', 'PhpOnAzure.Web', 2);
 	        $managementClient->waitForOperation();
 	        $this->log('Scaled out.');
 	        
-	        // ** Step 6: Scale back
+	        // ** Step 7: Scale back
 	        $this->log('Scaling in...');
 			$managementClient->setInstanceCountBySlot(TESTS_MANAGEMENT_SERVICENAME, 'production', 'PhpOnAzure.Web', 1);
 	        $managementClient->waitForOperation();
 	        $this->log('Scaled in.');
 	        
-			// ** Step 7: Reboot
+			// ** Step 8: Reboot
 	        $this->log('Rebooting...');
 			$managementClient->rebootRoleInstanceBySlot(TESTS_MANAGEMENT_SERVICENAME, 'production', 'PhpOnAzure.Web_IN_0');
 	        $managementClient->waitForOperation();

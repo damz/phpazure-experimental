@@ -68,7 +68,7 @@ class Microsoft_WindowsAzure_Management_Client
 	 * 
 	 * @var string
 	 */
-	protected $_apiVersion = '2010-10-28';
+	protected $_apiVersion = '2011-02-25';
 	
 	/**
 	 * Subscription ID
@@ -354,17 +354,112 @@ class Microsoft_WindowsAzure_Management_Client
     	$response = $this->_performRequest(self::OP_OPERATIONS . '/' . $requestId);
 
     	if ($response->isSuccessful()) {
-			$xmlResponse = $this->_parseResponse($response);
+			$result = $this->_parseResponse($response);
 
-			if (!is_null($xmlResponse)) {
+			if (!is_null($result)) {
 				return new Microsoft_WindowsAzure_Management_OperationStatusInstance(
-					(string)$xmlResponse->ID,
-					(string)$xmlResponse->Status,
-					($xmlResponse->Error ? (string)$xmlResponse->Error->Code : ''),
-					($xmlResponse->Error ? (string)$xmlResponse->Error->Message : '')
+					(string)$result->ID,
+					(string)$result->Status,
+					($result->Error ? (string)$result->Error->Code : ''),
+					($result->Error ? (string)$result->Error->Message : '')
 				);
 			}
 			return null;
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+
+    
+    /**
+     * The List Subscription Operations operation returns a list of create, update,
+     * and delete operations that were performed on a subscription during the specified timeframe.
+     * Documentation on the parameters can be found at http://msdn.microsoft.com/en-us/library/gg715318.aspx.
+     *
+     * @param string $startTime The start of the timeframe to begin listing subscription operations in UTC format. This parameter and the $endTime parameter indicate the timeframe to retrieve subscription operations. This parameter cannot indicate a start date of more than 90 days in the past.
+     * @param string $endTime The end of the timeframe to begin listing subscription operations in UTC format. This parameter and the $startTime parameter indicate the timeframe to retrieve subscription operations. 
+     * @param string $objectIdFilter Returns subscription operations only for the specified object type and object ID. 
+     * @param string $operationResultFilter Returns subscription operations only for the specified result status, either Succeeded, Failed, or InProgress.
+     * @param int $maxResults The maximum number of results to return. 
+     * @param string $continuationToken Internal usage.
+     * @return array Array of Microsoft_WindowsAzure_Management_SubscriptionOperationInstance
+     * @throws Microsoft_WindowsAzure_Management_Exception
+     */
+    public function listSubscriptionOperations($startTime, $endTime, $objectIdFilter = null, $operationResultFilter = null, $maxResults = null, $continuationToken = null)
+    {
+    	if ($startTime == '' || is_null($startTime)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Start time should be specified.');
+    	}
+    	if ($endTime == '' || is_null($endTime)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('End time should be specified.');
+    	}
+    	if ($operationResultFilter != '' && !is_null($operationResultFilter)) {
+	        $operationResultFilter = strtolower($operationResultFilter);
+	    	if ($operationResultFilter != 'succeeded' && $operationResultFilter != 'failed' && $operationResultFilter != 'inprogress') {
+	    		throw new Microsoft_WindowsAzure_Management_Exception('OperationResultFilter should be succeeded|failed|inprogress.');
+	    	}
+    	}
+    	
+    	$parameters = array();
+    	$parameters[] = 'StartTime=' . $startTime;
+    	$parameters[] = 'EndTime=' . $endTime;
+    	if ($objectIdFilter != '' && !is_null($objectIdFilter)) {
+    		$parameters[] = 'ObjectIdFilter=' . $objectIdFilter;
+    	}
+    	if ($operationResultFilter != '' && !is_null($operationResultFilter)) {
+    		$parameters[] = 'OperationResultFilter=' . ucfirst($operationResultFilter);
+    	}
+    	if ($continuationToken != '' && !is_null($continuationToken)) {
+    		$parameters[] = 'ContinuationToken=' . $continuationToken;
+    	}
+    	
+    	$response = $this->_performRequest(self::OP_OPERATIONS, '?' . implode('&', $parameters));
+
+    	if ($response->isSuccessful()) {
+			$result = $this->_parseResponse($response);
+			$namespaces = $result->getDocNamespaces(); 
+    		$result->registerXPathNamespace('__empty_ns', $namespaces['']);
+ 
+			$xmlOperations = $result->xpath('//__empty_ns:SubscriptionOperation');
+			
+		    // Create return value
+		    $returnValue = array();		    
+		    foreach ($xmlOperations as $xmlOperation) {
+		    	// Create operation instance
+		    	$operation = new Microsoft_WindowsAzure_Management_SubscriptionOperationInstance(
+		    		$xmlOperation->OperationId,
+		    		$xmlOperation->OperationObjectId,
+		    		$xmlOperation->OperationName,
+		    		array(),
+		    		(array)$xmlOperation->OperationCaller,
+		    		(array)$xmlOperation->OperationStatus
+		    	);
+		    	
+		    	// Parse parameters
+		    	$xmlOperation->registerXPathNamespace('__empty_ns', $namespaces['']); 
+		    	$xmlParameters = $xmlOperation->xpath('.//__empty_ns:OperationParameter');
+		    	foreach ($xmlParameters as $xmlParameter) {
+		    		$xmlParameterDetails = $xmlParameter->children('http://schemas.datacontract.org/2004/07/Microsoft.Samples.WindowsAzure.ServiceManagement');
+		    		$operation->addOperationParameter((string)$xmlParameterDetails->Name, (string)$xmlParameterDetails->Value);
+		    	}
+		    	
+    		    // Add to result
+    		    $returnValue[] = $operation;
+		    }
+		    
+			// More data?
+		    if (!is_null($result->SubscriptionOperations->ContinuationToken)) {
+		    	if (is_null($maxResults) || count($returnValue) < $maxResults) {
+		        	$returnValue = array_merge($returnValue, $this->listSubscriptionOperations($startTime, $endTime, $objectIdFilter, $operationResultFilter, $maxResults, (string)$result->SubscriptionOperations->ContinuationToken));
+		    	}
+		    }
+		    
+		    // Return
+		    if (!is_null($maxResults)) {
+		    	return array_splice($returnValue, 0, $maxResults);
+		    }
+		    return $returnValue;
 		} else {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -649,9 +744,9 @@ class Microsoft_WindowsAzure_Management_Client
     /**
      * The Create Hosted Service operation creates a new hosted service in Windows Azure.
      * 
-     * @param string $serviceName Required. A name for the hosted service that is unique to the subscription.
-     * @param string $label Required. A label for the hosted service. The label may be up to 100 characters in length.
-     * @param string $description Optional. A description for the hosted service. The description may be up to 1024 characters in length.
+     * @param string $serviceName A name for the hosted service that is unique to the subscription.
+     * @param string $label A label for the hosted service. The label may be up to 100 characters in length.
+     * @param string $description A description for the hosted service. The description may be up to 1024 characters in length.
      * @param string $location Required if AffinityGroup is not specified. The location where the hosted service will be created. 
      * @param string $affinityGroup Required if Location is not specified. The name of an existing affinity group associated with this subscription.
      */
@@ -690,9 +785,9 @@ class Microsoft_WindowsAzure_Management_Client
     /**
      * The Update Hosted Service operation updates the label and/or the description for a hosted service in Windows Azure.
      * 
-     * @param string $serviceName Required. A name for the hosted service that is unique to the subscription.
-     * @param string $label Required. A label for the hosted service. The label may be up to 100 characters in length.
-     * @param string $description Optional. A description for the hosted service. The description may be up to 1024 characters in length.
+     * @param string $serviceName A name for the hosted service that is unique to the subscription.
+     * @param string $label A label for the hosted service. The label may be up to 100 characters in length.
+     * @param string $description A description for the hosted service. The description may be up to 1024 characters in length.
      */
     public function updateHostedService($serviceName, $label, $description = '')
     {
@@ -719,7 +814,7 @@ class Microsoft_WindowsAzure_Management_Client
     /**
      * The Delete Hosted Service operation deletes the specified hosted service in Windows Azure.
      * 
-     * @param string $serviceName Required. A name for the hosted service that is unique to the subscription.
+     * @param string $serviceName A name for the hosted service that is unique to the subscription.
      */
     public function deleteHostedService($serviceName)
     {
@@ -793,12 +888,12 @@ class Microsoft_WindowsAzure_Management_Client
      * 
      * @param string $serviceName		The service name
      * @param string $deploymentSlot	The deployment slot (production or staging)
-	 * @param string $name              Required. The name for the deployment. The deployment ID as listed on the Windows Azure management portal must be unique among other deployments for the hosted service.
-	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
-	 * @param string $packageUrl        Required. The service configuration file for the deployment.
-	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
-	 * @param boolean $startDeployment  Optional. Indicates whether to start the deployment immediately after it is created.
-	 * @param boolean $treatWarningsAsErrors Optional. Indicates whether to treat package validation warnings as errors.
+	 * @param string $name              The name for the deployment. The deployment ID as listed on the Windows Azure management portal must be unique among other deployments for the hosted service.
+	 * @param string $label             A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
+	 * @param string $packageUrl        The service configuration file for the deployment.
+	 * @param string $configuration     A label for this deployment, up to 100 characters in length.
+	 * @param boolean $startDeployment  Indicates whether to start the deployment immediately after it is created.
+	 * @param boolean $treatWarningsAsErrors Indicates whether to treat package validation warnings as errors.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
     public function createDeployment($serviceName, $deploymentSlot, $name, $label, $packageUrl, $configuration, $startDeployment = false, $treatWarningsAsErrors = false)
@@ -918,8 +1013,8 @@ class Microsoft_WindowsAzure_Management_Client
      * in the production environment, it will be swapped to staging.
      * 
      * @param string $serviceName The service name.
-     * @param string $productionDeploymentName Required. The name of the production deployment.
-     * @param string $sourceDeploymentName Required. The name of the source deployment.
+     * @param string $productionDeploymentName The name of the production deployment.
+     * @param string $sourceDeploymentName The name of the source deployment.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
     public function swapDeployment($serviceName, $productionDeploymentName, $sourceDeploymentName)
@@ -1320,11 +1415,11 @@ class Microsoft_WindowsAzure_Management_Client
      * 
      * @param string $serviceName		The service name
      * @param string $deploymentSlot	The deployment slot (production or staging)
-	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
-	 * @param string $packageUrl        Required. The service configuration file for the deployment.
-	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
-     * @param string $mode              Required. The type of upgrade to initiate. Possible values are Auto or Manual.
-     * @param string $roleToUpgrade     Optional. The name of the specific role to upgrade.
+	 * @param string $label             A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
+	 * @param string $packageUrl        The service configuration file for the deployment.
+	 * @param string $configuration     A label for this deployment, up to 100 characters in length.
+     * @param string $mode              The type of upgrade to initiate. Possible values are Auto or Manual.
+     * @param string $roleToUpgrade     The name of the specific role to upgrade.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
     public function upgradeDeploymentBySlot($serviceName, $deploymentSlot, $label, $packageUrl, $configuration, $mode = 'auto', $roleToUpgrade = null)
@@ -1366,11 +1461,11 @@ class Microsoft_WindowsAzure_Management_Client
      * 
      * @param string $serviceName		The service name
      * @param string $deploymentId	The deployment ID as listed on the Windows Azure management portal
-	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
-	 * @param string $packageUrl        Required. The service configuration file for the deployment.
-	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
-     * @param string $mode              Required. The type of upgrade to initiate. Possible values are Auto or Manual.
-     * @param string $roleToUpgrade     Optional. The name of the specific role to upgrade.
+	 * @param string $label             A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
+	 * @param string $packageUrl        The service configuration file for the deployment.
+	 * @param string $configuration     A label for this deployment, up to 100 characters in length.
+     * @param string $mode              The type of upgrade to initiate. Possible values are Auto or Manual.
+     * @param string $roleToUpgrade     The name of the specific role to upgrade.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
     public function upgradeDeploymentByDeploymentId($serviceName, $deploymentId, $label, $packageUrl, $configuration, $mode = 'auto', $roleToUpgrade = null)
@@ -1411,11 +1506,11 @@ class Microsoft_WindowsAzure_Management_Client
      * The Upgrade Deployment operation initiates an upgrade.
      * 
      * @param string $operationUrl		The operation url
-	 * @param string $label             Required. A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
-	 * @param string $packageUrl        Required. The service configuration file for the deployment.
-	 * @param string $configuration     Required. A label for this deployment, up to 100 characters in length.
-     * @param string $mode              Required. The type of upgrade to initiate. Possible values are Auto or Manual.
-     * @param string $roleToUpgrade     Optional. The name of the specific role to upgrade.
+	 * @param string $label             A URL that refers to the location of the service package in the Blob service. The service package must be located in a storage account beneath the same subscription.
+	 * @param string $packageUrl        The service configuration file for the deployment.
+	 * @param string $configuration     A label for this deployment, up to 100 characters in length.
+     * @param string $mode              The type of upgrade to initiate. Possible values are Auto or Manual.
+     * @param string $roleToUpgrade     The name of the specific role to upgrade.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
     protected function _upgradeDeployment($operationUrl, $label, $packageUrl, $configuration, $mode, $roleToUpgrade)
@@ -1438,7 +1533,7 @@ class Microsoft_WindowsAzure_Management_Client
      * 
      * @param string $serviceName		The service name
      * @param string $deploymentSlot	The deployment slot (production or staging)
-	 * @param int $upgradeDomain     Required. An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
+	 * @param int $upgradeDomain     An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
     public function walkUpgradeDomainBySlot($serviceName, $deploymentSlot, $upgradeDomain = 0)
@@ -1460,7 +1555,7 @@ class Microsoft_WindowsAzure_Management_Client
      * 
      * @param string $serviceName		The service name
      * @param string $deploymentId	The deployment ID as listed on the Windows Azure management portal
-	 * @param int $upgradeDomain     Required. An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
+	 * @param int $upgradeDomain     An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
     public function walkUpgradeDomainByDeploymentId($serviceName, $deploymentId, $upgradeDomain = 0)
@@ -1481,7 +1576,7 @@ class Microsoft_WindowsAzure_Management_Client
      * The Walk Upgrade Domain operation specifies the next upgrade domain to be walked during an in-place upgrade.
      * 
      * @param string $operationUrl   The operation url
-	 * @param int $upgradeDomain     Required. An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
+	 * @param int $upgradeDomain     An integer value that identifies the upgrade domain to walk. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
      * @throws Microsoft_WindowsAzure_Management_Exception
      */
     protected function _walkUpgradeDomain($operationUrl, $upgradeDomain = 0)
@@ -1800,6 +1895,93 @@ class Microsoft_WindowsAzure_Management_Client
 			}
 			return $services;
 		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Create Affinity Group operation creates a new affinity group for the specified subscription.
+     * 
+     * @param string $name A name for the affinity group that is unique to the subscription.
+     * @param string $label A label for the affinity group. The label may be up to 100 characters in length.
+     * @param string $description A description for the affinity group. The description may be up to 1024 characters in length.
+     * @param string $location The location where the affinity group will be created. To list available locations, use the List Locations operation. 
+     */
+    public function createAffinityGroup($name, $label, $description = '', $location = '')
+    {
+    	if ($name == '' || is_null($name)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Affinity group name should be specified.');
+    	}
+    	if ($label == '' || is_null($label)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
+    	}
+        if (strlen($label) > 100) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
+    	}
+        if (strlen($description) > 1024) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Description is too long. The maximum length is 1024 characters.');
+    	}
+    	if ($location == '' || is_null($location)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Location should be specified.');
+    	}
+    	
+        $response = $this->_performRequest(self::OP_AFFINITYGROUPS, '',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<CreateAffinityGroup xmlns="http://schemas.microsoft.com/windowsazure"><Name>' . $name . '</Name><Label>' . base64_encode($label) . '</Label><Description>' . $description . '</Description><Location>' . $location . '</Location></CreateAffinityGroup>');	
+    		
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Update Affinity Group operation updates the label and/or the description for an affinity group for the specified subscription.
+     * 
+     * @param string $name The name for the affinity group that should be updated.
+     * @param string $label A label for the affinity group. The label may be up to 100 characters in length.
+     * @param string $description A description for the affinity group. The description may be up to 1024 characters in length. 
+     */
+    public function updateAffinityGroup($name, $label, $description = '')
+    {
+    	if ($name == '' || is_null($name)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Affinity group name should be specified.');
+    	}
+    	if ($label == '' || is_null($label)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
+    	}
+        if (strlen($label) > 100) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
+    	}
+        if (strlen($description) > 1024) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Description is too long. The maximum length is 1024 characters.');
+    	}
+    	
+        $response = $this->_performRequest(self::OP_AFFINITYGROUPS . '/' . $name, '',
+    		Microsoft_Http_Client::PUT,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<UpdateAffinityGroup xmlns="http://schemas.microsoft.com/windowsazure"><Label>' . base64_encode($label) . '</Label><Description>' . $description . '</Description></UpdateAffinityGroup>');	
+    		
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Delete Affinity Group operation deletes an affinity group in the specified subscription.
+     * 
+     * @param string $name The name for the affinity group that should be deleted.
+     */
+    public function deleteAffinityGroup($name)
+    {
+    	if ($name == '' || is_null($name)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Affinity group name should be specified.');
+    	}
+    	
+        $response = $this->_performRequest(self::OP_AFFINITYGROUPS . '/' . $name, '',
+    		Microsoft_Http_Client::DELETE);
+    		
+    	if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
     }
