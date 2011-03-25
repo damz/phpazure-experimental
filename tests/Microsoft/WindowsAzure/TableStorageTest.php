@@ -834,6 +834,7 @@ class Microsoft_WindowsAzure_TableStorageTest extends PHPUnit_Framework_TestCase
             $entity->FullName = md5(uniqid(rand(), true));
             $entity->Age      = rand(1, 130);
             $entity->Visible  = rand(1,2) == 1;
+            $entity->DateInService = new DateTime('now', new DateTimeZone('UTC'));
             
             $returnValue[] = $entity;
         }
@@ -861,6 +862,11 @@ class TSTest_TestEntity extends Microsoft_WindowsAzure_Storage_TableEntity
      * @azure Visible Edm.Boolean
      */
     public $Visible = false;
+    
+    /**
+     * @azure DateInService Edm.DateTime
+     */
+    public $DateInService;
 }
 
 /**

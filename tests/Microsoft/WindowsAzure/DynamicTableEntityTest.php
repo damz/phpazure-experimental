@@ -78,9 +78,12 @@ class Microsoft_WindowsAzure_DynamicTableEntityTest extends PHPUnit_Framework_Te
      */
     public function testGetAzureValues()
     {
+    	$dateTimeValue = new DateTime();
+    	
         $target = new Microsoft_WindowsAzure_Storage_DynamicTableEntity('partition1', '000001');
         $target->Name = 'Name';
         $target->Age  = 25;
+        $target->DateInService = $dateTimeValue;
         $result = $target->getAzureValues();
 
         $this->assertEquals('Name',       $result[0]->Name);
@@ -91,8 +94,12 @@ class Microsoft_WindowsAzure_DynamicTableEntityTest extends PHPUnit_Framework_Te
         $this->assertEquals(25,           $result[1]->Value);
         $this->assertEquals('Edm.Int32',  $result[1]->Type);
         
-        $this->assertEquals('partition1', $result[2]->Value);
-        $this->assertEquals('000001',     $result[3]->Value);
+        $this->assertEquals('DateInService',	$result[2]->Name);
+        $this->assertEquals($dateTimeValue,  	$result[2]->Value);
+        $this->assertEquals('Edm.DateTime',  	$result[2]->Type);
+        
+        $this->assertEquals('partition1', $result[3]->Value);
+        $this->assertEquals('000001',     $result[4]->Value);
     }
     
     /**
@@ -100,12 +107,15 @@ class Microsoft_WindowsAzure_DynamicTableEntityTest extends PHPUnit_Framework_Te
      */
     public function testSetAzureValues()
     {
+    	$dateTimeValue = new DateTime();
+    	
         $values = array(
             'PartitionKey' => 'partition1',
             'RowKey' => '000001',
             'Name' => 'Maarten',
             'Age' => 25,
-            'Visible' => true
+            'Visible' => true,
+        	'DateInService' => $dateTimeValue
         );
         
         $target = new Microsoft_WindowsAzure_Storage_DynamicTableEntity();
@@ -118,6 +128,8 @@ class Microsoft_WindowsAzure_DynamicTableEntityTest extends PHPUnit_Framework_Te
         $this->assertEquals(25,           $target->Age);
         $this->assertEquals('Edm.Int32',  $target->getAzurePropertyType('Age'));
         $this->assertEquals(true,         $target->Visible);
+        $this->assertEquals($dateTimeValue,		$target->DateInService);
+        $this->assertEquals('Edm.DateTime',  	$target->getAzurePropertyType('DateInService'));
     }
 }
 

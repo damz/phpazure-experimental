@@ -393,7 +393,7 @@ class Microsoft_WindowsAzure_Storage_Table
 		    $result = $this->_parseResponse($response);
 		    
 		    $timestamp = $result->xpath('//m:properties/d:Timestamp');
-		    $timestamp = (string)$timestamp[0];
+		    $timestamp = $this->_convertToDateTime( (string)$timestamp[0] );
 
 		    $etag      = $result->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
 		    $etag      = (string)$etag['etag'];
@@ -710,7 +710,7 @@ class Microsoft_WindowsAzure_Storage_Table
 		}
 		
 		// Ensure entity timestamp matches updated timestamp 
-        $entity->setTimestamp($this->isoDate());
+        $entity->setTimestamp(new DateTime());
         
 	    return $this->_changeEntity(Microsoft_Http_Client::MERGE, $tableName, $mergeEntity, $verifyEtag);
 	}
@@ -778,12 +778,9 @@ class Microsoft_WindowsAzure_Storage_Table
 		
 		// Attempt to get timestamp from entity
         $timestamp = $entity->getTimestamp();
-        if ($timestamp == Microsoft_WindowsAzure_Storage_TableEntity::DEFAULT_TIMESTAMP) {
-            $timestamp = $this->isoDate();
-        }
         
         $requestBody = $this->_fillTemplate($requestBody, array(
-        	'Updated'    => $timestamp,
+        	'Updated'    => $this->_convertToEdmDateTime($timestamp),
             'Properties' => $this->_generateAzureRepresentation($entity)
         ));
 
@@ -807,7 +804,7 @@ class Microsoft_WindowsAzure_Storage_Table
 		if ($response->isSuccessful()) {
 		    // Update properties
 			$entity->setEtag($response->getHeader('Etag'));
-			$entity->setTimestamp($response->getHeader('Last-modified'));
+			$entity->setTimestamp( $this->_convertToDateTime($response->getHeader('Last-modified')) );
 
 		    return $entity;
 		} else {
@@ -865,6 +862,8 @@ class Microsoft_WindowsAzure_Storage_Table
 		    if (!is_null($azureValue->Value)) {
 		        if (strtolower($azureValue->Type) == 'edm.boolean') {
 		            $value[] = ($azureValue->Value == true ? '1' : '0');
+		        } else if (strtolower($azureValue->Type) == 'edm.datetime') {
+		        	$value[] = $this->_convertToEdmDateTime($azureValue->Value);
 		        } else {
 		            $value[] = htmlspecialchars($azureValue->Value);
 		        }
@@ -915,5 +914,42 @@ class Microsoft_WindowsAzure_Storage_Table
 			$resourceType,
 			$requiredPermission
 		);
-	}
+	}  
+	  
+    /**
+     * Converts a string to a DateTime object. Returns false on failure.
+     * 
+     * @param string $value The string value to parse
+     * @return DateTime|boolean
+     */
+    protected function _convertToDateTime($value = '') 
+    {
+    	if ($value instanceof DateTime) {
+    		return $value;
+    	}
+    	
+    	try {
+    		if (substr($value, -1) == 'Z') {
+    			$value = substr($value, 0, strlen($value) - 1);
+    		}
+    		return new DateTime($value, new DateTimeZone('UTC'));
+    	}
+    	catch (Exception $ex) {
+    		return false;
+    	}
+    }
+    
+    /**
+     * Converts a DateTime object into an Edm.DaeTime value in UTC timezone,
+     * represented as a string.
+     * 
+     * @param DateTime $value
+     * @return string
+     */
+    protected function _convertToEdmDateTime(DateTime $value) 
+    {
+    	$cloned = clone $value;
+    	$cloned->setTimezone(new DateTimeZone('UTC'));
+    	return str_replace('+0000', 'Z', $cloned->format(DateTime::ISO8601));
+    }
 }
