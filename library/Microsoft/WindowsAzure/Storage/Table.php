@@ -550,7 +550,9 @@ class Microsoft_WindowsAzure_Storage_Table
 		    // Option 1: $tableName is a string
 		    
 		    // Append parentheses
-		    $tableName .= '()';
+		    if (strpos($tableName, '()') === false) {
+		    	$tableName .= '()';
+		    }
 		    
     	    // Build query
     	    $query = array();
@@ -580,9 +582,11 @@ class Microsoft_WindowsAzure_Storage_Table
 		if (!is_null($nextPartitionKey) && !is_null($nextRowKey)) {
 		    if ($queryString !== '') {
 		        $queryString .= '&';
+		    } else {
+		    	$queryString .= '?';
 		    }
 		        
-		    $queryString .= '&NextPartitionKey=' . rawurlencode($nextPartitionKey) . '&NextRowKey=' . rawurlencode($nextRowKey);
+		    $queryString .= 'NextPartitionKey=' . rawurlencode($nextPartitionKey) . '&NextRowKey=' . rawurlencode($nextRowKey);
 		}
 
 		// Perform request

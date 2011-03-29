@@ -819,6 +819,46 @@ class Microsoft_WindowsAzure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test continuation tokens
+     */
+    public function testContinuationTokens()
+    {
+        if (TESTS_TABLE_RUNTESTS) {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $numberOfEntities = 2500;
+            $numberOfEntitiesPerBatch = 100;
+            $entities = $this->_generateEntities($numberOfEntities);
+
+            // Insert test data
+            for ($i = 0; $i < $numberOfEntities; $i+=$numberOfEntitiesPerBatch) {
+            	$batch = $storageClient->startBatch();
+            
+            	$entitiesTemp = array_slice($entities, $i, $numberOfEntitiesPerBatch);
+	            foreach ($entitiesTemp as $entity)
+	            {
+	                $storageClient->insertEntity($tableName, $entity);
+	            }
+            	
+            	$batch->commit();
+            }
+            
+            // Verify
+            $result = $storageClient->retrieveEntities($tableName);
+            $this->assertEquals(2500, count($result));
+            
+            $result = $storageClient->retrieveEntities(
+                $storageClient->select()
+                              ->from($tableName)
+                              ->where('Age ne 0')
+            );
+            $this->assertEquals(2500, count($result));
+        }
+    }
+    
+    /**
      * Generate entities
      * 
      * @param int 		$amount Number of entities to generate

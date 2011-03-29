@@ -210,7 +210,7 @@ class Microsoft_WindowsAzure_Storage_Batch
      * @throws Microsoft_WindowsAzure_Exception
      */
     public function commit()
-    {
+    {    	
         // Perform batch
         $response = $this->_storageClient->performBatch($this->_operations, $this->_forTableStorage, $this->_isSingleSelect);
         
