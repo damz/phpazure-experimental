@@ -461,18 +461,18 @@ class Microsoft_WindowsAzure_Storage_Table
 	 * @return Microsoft_WindowsAzure_Storage_TableEntity
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function retrieveEntityById($tableName = '', $partitionKey = '', $rowKey = '', $entityClass = 'Microsoft_WindowsAzure_Storage_DynamicTableEntity')
+	public function retrieveEntityById($tableName, $partitionKey, $rowKey, $entityClass = 'Microsoft_WindowsAzure_Storage_DynamicTableEntity')
 	{
-		if ($tableName === '') {
+		if (is_null($tableName) || $tableName === '') {
 			throw new Microsoft_WindowsAzure_Exception('Table name is not specified.');
 		}
-		if ($partitionKey === '') {
+		if (is_null($partitionKey) || $partitionKey === '') {
 			throw new Microsoft_WindowsAzure_Exception('Partition key is not specified.');
 		}
-		if ($rowKey === '') {
+		if (is_null($rowKey) || $rowKey === '') {
 			throw new Microsoft_WindowsAzure_Exception('Row key is not specified.');
 		}
-		if ($entityClass === '') {
+		if (is_null($entityClass) || $entityClass === '') {
 			throw new Microsoft_WindowsAzure_Exception('Entity class is not specified.');
 		}
 
