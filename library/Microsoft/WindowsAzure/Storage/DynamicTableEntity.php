@@ -108,6 +108,9 @@ class Microsoft_WindowsAzure_Storage_DynamicTableEntity extends Microsoft_Window
                     } else if (is_bool($value)) {
                         $type = 'Edm.Boolean';
                     } else if ($value instanceof DateTime || $this->_convertToDateTime($value) !== false) {
+                        if (!$value instanceof DateTime) {
+                            $value = $this->_convertToDateTime($value);
+                        }
                         $type = 'Edm.DateTime';
                     }
                 }
