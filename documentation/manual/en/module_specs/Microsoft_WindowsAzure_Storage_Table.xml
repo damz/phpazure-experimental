@@ -273,13 +273,13 @@ public $Age;
             <itemizedlist>
                 <listitem>
                     <para>
-                        <constant>Edm.Binary</constant> - An array of bytes up to 64 KB in size.
+                        <constant>Edm.Binary</constant> - An array of bytes up to 64 KB in size. This will be mapped to a string in PHP.
                     </para>
                 </listitem>
 
                 <listitem>
                     <para>
-                        <constant>Edm.Boolean</constant> - A boolean value.
+                        <constant>Edm.Boolean</constant> - A boolean value. This will be mapped to a boolean in PHP.
                     </para>
                 </listitem>
 
@@ -288,38 +288,40 @@ public $Age;
                         <constant>Edm.DateTime</constant> - A 64-bit value expressed as Coordinated
                         Universal Time (UTC). The supported DateTime range begins from 12:00
                         midnight, January 1, 1601 A.D. (C.E.), Coordinated Universal Time (UTC). The
-                        range ends at December 31st, 9999.
+                        range ends at December 31st, 9999. This will be mapped to a DateTime object in PHP.
                     </para>
                 </listitem>
 
                 <listitem>
                     <para>
-                        <constant>Edm.Double</constant> - A 64-bit floating point value.
+                        <constant>Edm.Double</constant> - A 64-bit floating point value. This will be mapped to a
+                        double in PHP.
                     </para>
                 </listitem>
 
                 <listitem>
                     <para>
-                        <constant>Edm.Guid</constant> - A 128-bit globally unique identifier.
+                        <constant>Edm.Guid</constant> - A 128-bit globally unique identifier. This will be mapped
+                        to a string in PHP.
                     </para>
                 </listitem>
 
                 <listitem>
                     <para>
-                        <constant>Edm.Int32</constant> - A 32-bit integer.
+                        <constant>Edm.Int32</constant> - A 32-bit integer. This will be mapped to an integer in PHP.
                     </para>
                 </listitem>
 
                 <listitem>
                     <para>
-                        <constant>Edm.Int64</constant> - A 64-bit integer.
+                        <constant>Edm.Int64</constant> - A 64-bit integer. This will be mapped to an integer in PHP.
                     </para>
                 </listitem>
 
                 <listitem>
                     <para>
                         <constant>Edm.String</constant> - A UTF-16-encoded value. String values may
-                        be up to 64 KB in size.
+                        be up to 64 KB in size. This will be mapped to a string in PHP.
                     </para>
                 </listitem>
             </itemizedlist>
