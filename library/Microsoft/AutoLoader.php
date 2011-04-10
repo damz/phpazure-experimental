@@ -33,7 +33,7 @@
 
 /** Microsoft root directory */
 if (!defined('MICROSOFT_ROOT')) {
-	define('MICROSOFT_ROOT', dirname(__FILE__) . '/../');
+	define('MICROSOFT_ROOT', realpath(dirname(__FILE__) . '/../') . DIRECTORY_SEPARATOR);
 }
 Microsoft_AutoLoader::Register();
 
