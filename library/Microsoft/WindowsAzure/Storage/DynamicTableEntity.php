@@ -35,14 +35,9 @@
 
 
 /**
- * @see Microsoft_WindowsAzure_Exception
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Exception.php';
-
-/**
- * @see Microsoft_WindowsAzure_Storage_TableEntity
- */
-require_once 'Microsoft/WindowsAzure/Storage/TableEntity.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 
 /**

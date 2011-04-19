@@ -34,14 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Exception
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Exception.php';
-
-/**
- * @see Microsoft_WindowsAzure_Storage_StorageEntityAbstract
- */
-require_once 'Microsoft/WindowsAzure/Storage/StorageEntityAbstract.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

@@ -34,69 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Credentials_CredentialsAbstract
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Credentials/CredentialsAbstract.php';
-
-/**
- * @see Microsoft_WindowsAzure_Credentials_SharedKey
- */
-require_once 'Microsoft/WindowsAzure/Credentials/SharedKey.php';
-
-/**
- * @see Microsoft_WindowsAzure_Credentials_SharedKeyLite
- */
-require_once 'Microsoft/WindowsAzure/Credentials/SharedKeyLite.php';
-
-/**
- * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
- */
-require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
-
-/**
- * @see Microsoft_Http_Client
- */
-require_once 'Microsoft/Http/Client.php';
-
-/**
- * @see Microsoft_Http_Response
- */
-require_once 'Microsoft/Http/Response.php';
-
-/**
- * @see Microsoft_WindowsAzure_Storage
- */
-require_once 'Microsoft/WindowsAzure/Storage.php';
-
-/**
- * @see Microsoft_WindowsAzure_Storage_BatchStorageAbstract
- */
-require_once 'Microsoft/WindowsAzure/Storage/BatchStorageAbstract.php';
-
-/**
- * @see Microsoft_WindowsAzure_Storage_TableInstance
- */
-require_once 'Microsoft/WindowsAzure/Storage/TableInstance.php';
-
-/**
- * @see Microsoft_WindowsAzure_Storage_TableEntity
- */
-require_once 'Microsoft/WindowsAzure/Storage/TableEntity.php';
-
-/**
- * @see Microsoft_WindowsAzure_Storage_DynamicTableEntity
- */
-require_once 'Microsoft/WindowsAzure/Storage/DynamicTableEntity.php';
-
-/**
- * @see Microsoft_WindowsAzure_Storage_TableEntityQuery
- */
-require_once 'Microsoft/WindowsAzure/Storage/TableEntityQuery.php';
-
-/**
- * @see Microsoft_WindowsAzure_Exception
- */
-require_once 'Microsoft/WindowsAzure/Exception.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 
 /**

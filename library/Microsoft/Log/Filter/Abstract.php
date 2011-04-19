@@ -20,11 +20,10 @@
  * @version    $Id$
  */
 
-/** @see Microsoft_Log_Filter_Interface */
-require_once 'Microsoft/Log/Filter/Interface.php';
-
-/** @see Microsoft_Log_FactoryInterface */
-require_once 'Microsoft/Log/FactoryInterface.php';
+/**
+ * @see Microsoft_AutoLoader
+ */
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

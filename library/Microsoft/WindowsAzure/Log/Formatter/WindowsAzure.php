@@ -33,8 +33,10 @@
  * @version    $Id: Storage.php 21617 2009-06-12 10:46:31Z unknown $
  */
 
-/** Microsoft_Log_Formatter_Interface */
-require_once 'Microsoft/Log/Formatter/Interface.php';
+/**
+ * @see Microsoft_AutoLoader
+ */
+require_once dirname(__FILE__) . '/../../../AutoLoader.php';
 
 /**
  * @category   Microsoft

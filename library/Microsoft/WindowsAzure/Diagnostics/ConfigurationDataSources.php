@@ -34,39 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Diagnostics_Exception
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Diagnostics/Exception.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_ConfigurationObjectBaseAbstract
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/ConfigurationObjectBaseAbstract.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_ConfigurationLogs
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/ConfigurationLogs.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_ConfigurationDiagnosticInfrastructureLogs
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/ConfigurationDiagnosticInfrastructureLogs.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_ConfigurationPerformanceCounters
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/ConfigurationPerformanceCounters.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_ConfigurationWindowsEventLog
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/ConfigurationWindowsEventLog.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_ConfigurationDirectories
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/ConfigurationDirectories.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

@@ -33,14 +33,9 @@
  */
 
 /**
- * @see Microsoft_Http_Client
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/Http/Client.php';
-
-/**
- * @see Microsoft_WindowsAzure_Credentials_Exception
- */
-require_once 'Microsoft/WindowsAzure/Credentials/Exception.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

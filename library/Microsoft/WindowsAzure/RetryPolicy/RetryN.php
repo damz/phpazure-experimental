@@ -34,14 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
-
-/**
- * @see Microsoft_WindowsAzure_RetryPolicy_Exception
- */
-require_once 'Microsoft/WindowsAzure/RetryPolicy/Exception.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

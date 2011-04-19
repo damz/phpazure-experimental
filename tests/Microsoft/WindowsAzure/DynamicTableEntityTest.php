@@ -44,6 +44,9 @@ require_once dirname(__FILE__) . '/../../TestHelper.php';
 require_once dirname(__FILE__) . '/../../TestConfiguration.php';
 require_once 'PHPUnit/Framework/TestCase.php';
 
+/** Microsoft_WindowsAzure_Storage_Table */
+require_once 'Microsoft/WindowsAzure/Storage/Table.php';
+
 /** Microsoft_WindowsAzure_Storage_DynamicTableEntity */
 require_once 'Microsoft/WindowsAzure/Storage/DynamicTableEntity.php';
 
@@ -61,6 +64,42 @@ class Microsoft_WindowsAzure_DynamicTableEntityTest extends PHPUnit_Framework_Te
     {
         $suite  = new PHPUnit_Framework_TestSuite("Microsoft_WindowsAzure_DynamicTableEntityTest");
         $result = PHPUnit_TextUI_TestRunner::run($suite);
+    }
+    
+    /**
+     * Test teardown
+     */
+    protected function tearDown()
+    {
+        $storageClient = $this->createStorageInstance();
+        for ($i = 1; $i <= self::$uniqId; $i++)
+        {
+            try { $storageClient->deleteTable(TESTS_TABLE_TABLENAME_PREFIX . $i); } catch (Exception $e) { }
+        }
+    }
+    
+    protected function createStorageInstance()
+    {
+        $storageClient = null;
+        if (TESTS_TABLE_RUNONPROD) {
+            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_PROD, TESTS_STORAGE_ACCOUNT_PROD, TESTS_STORAGE_KEY_PROD, false, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
+        } else {
+            $storageClient = new Microsoft_WindowsAzure_Storage_Table(TESTS_TABLE_HOST_DEV, TESTS_STORAGE_ACCOUNT_DEV, TESTS_STORAGE_KEY_DEV, true, Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract::retryN(10, 250));
+        }
+        
+        if (TESTS_STORAGE_USEPROXY) {
+            $storageClient->setProxy(TESTS_STORAGE_USEPROXY, TESTS_STORAGE_PROXY, TESTS_STORAGE_PROXY_PORT, TESTS_STORAGE_PROXY_CREDENTIALS);
+        }
+
+        return $storageClient;
+    }
+    
+    protected static $uniqId = 0;
+    
+    protected function generateName()
+    {
+        self::$uniqId++;
+        return TESTS_TABLE_TABLENAME_PREFIX . self::$uniqId;
     }
     
     /**
@@ -130,6 +169,30 @@ class Microsoft_WindowsAzure_DynamicTableEntityTest extends PHPUnit_Framework_Te
         $this->assertEquals(true,         $target->Visible);
         $this->assertEquals($dateTimeValue,		$target->DateInService);
         $this->assertEquals('Edm.DateTime',  	$target->getAzurePropertyType('DateInService'));
+    }
+    
+    /**
+     * Test insert entity
+     */
+    public function testInsertEntity()
+    {
+        if (TESTS_TABLE_RUNTESTS) {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entity = new Microsoft_WindowsAzure_Storage_DynamicTableEntity();
+            $entity->Name = 'Maarten';
+            $entity->Age = 25;
+            $entity->Inserted = new DateTime();
+            $entity->TestValue = 200000;
+            
+            $result = $storageClient->insertEntity($tableName, $entity);
+
+            $this->assertNotEquals('0001-01-01T00:00:00', $result->getTimestamp());
+            $this->assertNotEquals('', $result->getEtag());
+            $this->assertEquals($entity->getAzureValues(), $result->getAzureValues());
+        }
     }
 }
 

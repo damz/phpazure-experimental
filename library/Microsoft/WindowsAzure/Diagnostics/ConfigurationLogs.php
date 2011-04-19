@@ -34,19 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Diagnostics_Exception
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Diagnostics/Exception.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_ConfigurationObjectBaseAbstract
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/ConfigurationObjectBaseAbstract.php';
-
-/**
- * @see Microsoft_WindowsAzure_Diagnostics_LogLevel
- */
-require_once 'Microsoft/WindowsAzure/Diagnostics/LogLevel.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

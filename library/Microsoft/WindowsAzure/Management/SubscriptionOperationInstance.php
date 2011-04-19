@@ -34,14 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Management_Exception
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Management/Exception.php';
-
-/**
- * @see Microsoft_WindowsAzure_Management_ServiceEntityAbstract
- */
-require_once 'Microsoft/WindowsAzure/Management/ServiceEntityAbstract.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

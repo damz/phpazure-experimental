@@ -33,13 +33,10 @@
  * @version    $Id: Storage.php 21617 2009-06-12 10:46:31Z unknown $
  */
 
-/** Microsoft_WindowsAzure_Storage_Table */
-require_once 'Microsoft/WindowsAzure/Storage/Table.php';
-
 /**
- * @see Microsoft_WindowsAzure_Exception
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Exception.php';
+require_once dirname(__FILE__) . '/../AutoLoader.php';
 
 /**
  * @category   Microsoft
@@ -184,7 +181,7 @@ class Microsoft_WindowsAzure_SessionHandler
 	                $this->_sessionContainerPartition,
 	                $id
 	            );
-	            return base64_decode($sessionRecord->serializedData);
+	            return unserialize(base64_decode($sessionRecord->serializedData));
 	        }
 	        catch (Microsoft_WindowsAzure_Exception $ex)
 	        {
@@ -198,7 +195,7 @@ class Microsoft_WindowsAzure_SessionHandler
     				$this->_sessionContainer,
     				$this->_sessionContainerPartition . '/' . $id
     			);
-	            return base64_decode($data);
+	            return unserialize(base64_decode($data));
 	        }
 	        catch (Microsoft_WindowsAzure_Exception $ex)
 	        {
@@ -217,7 +214,7 @@ class Microsoft_WindowsAzure_SessionHandler
     public function write($id, $serializedData)
     {
     	// Encode data
-    	$serializedData = base64_encode($serializedData);
+    	$serializedData = base64_encode(serialize($serializedData));
     	if (strlen($serializedData) >= self::MAX_TS_PROPERTY_SIZE && $this->_storageType == self::STORAGE_TYPE_TABLE) {
     		throw new Microsoft_WindowsAzure_Exception('Session data exceeds the maximum allowed size of ' . self::MAX_TS_PROPERTY_SIZE . ' bytes that can be stored using table storage. Consider switching to a blob storage back-end or try reducing session data size.');
     	}

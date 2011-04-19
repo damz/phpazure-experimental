@@ -26,44 +26,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @category   Microsoft
- * @package    Microsoft_WindowsAzure
- * @subpackage Storage
+ * @package    Microsoft_Console
+ * @subpackage Exception
+ * @version    $Id: Exception.php 55733 2011-01-03 09:17:16Z unknown $
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
- * @version    $Id: BlobContainer.php 17553 2009-05-15 10:40:55Z unknown $
  */
 
 /**
- * @see Microsoft_AutoLoader
+ * @see Microsoft_Exception
  */
-require_once dirname(__FILE__) . '/../../AutoLoader.php';
+require_once 'Microsoft/Exception.php';
 
 /**
  * @category   Microsoft
- * @package    Microsoft_WindowsAzure
- * @subpackage Storage
+ * @package    Microsoft_Console
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
- * 
- * @property string  $Name                     Name of the queue
- * @property array   $Metadata                 Key/value pairs of meta data
- * @property integer $ApproximateMessageCount  The approximate number of messages in the queue
  */
-class Microsoft_WindowsAzure_Storage_QueueInstance
-	extends Microsoft_WindowsAzure_Storage_StorageEntityAbstract
-{
-    /**
-     * Constructor
-     * 
-     * @param string $name          Name
-     * @param array  $metadata      Key/value pairs of meta data
-     */
-    public function __construct($name, $metadata = array()) 
-    {
-        $this->_data = array(
-            'name'         => $name,
-            'metadata'     => $metadata,
-            'approximatemessagecount' => 0
-        );
-    }
-}
+class Microsoft_Console_Exception extends Microsoft_Exception
+{}

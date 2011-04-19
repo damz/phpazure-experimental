@@ -20,8 +20,10 @@
  * @version    $Id: Suppress.php 20096 2010-01-06 02:05:09Z bkarwin $
  */
 
-/** Microsoft_Log_Filter_Interface */
-require_once 'Microsoft/Log/Filter/Interface.php';
+/**
+ * @see Microsoft_AutoLoader
+ */
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

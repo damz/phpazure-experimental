@@ -20,8 +20,10 @@
  * @version    $Id: Message.php 20982 2010-02-08 15:51:36Z matthew $
  */
 
-/** Microsoft_Log_Filter_Abstract */
-require_once 'Microsoft/Log/Filter/Abstract.php';
+/**
+ * @see Microsoft_AutoLoader
+ */
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

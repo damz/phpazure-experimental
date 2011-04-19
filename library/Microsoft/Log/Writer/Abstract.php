@@ -20,8 +20,10 @@
  * @version    $Id: Abstract.php 22632 2010-07-18 18:30:08Z ramon $
  */
 
-/** Microsoft_Log_Filter_Priority */
-require_once 'Microsoft/Log/Filter/Priority.php';
+/**
+ * @see Microsoft_AutoLoader
+ */
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

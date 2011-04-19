@@ -34,34 +34,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Credentials_CredentialsAbstract
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Credentials/CredentialsAbstract.php';
-
-/**
- * @see Microsoft_WindowsAzure_Credentials_SharedKey
- */
-require_once 'Microsoft/WindowsAzure/Credentials/SharedKey.php';
-
-/**
- * @see Microsoft_WindowsAzure_RetryPolicy_RetryPolicyAbstract
- */
-require_once 'Microsoft/WindowsAzure/RetryPolicy/RetryPolicyAbstract.php';
-
-/**
- * @see Microsoft_WindowsAzure_Exception
- */
-require_once 'Microsoft/WindowsAzure/Exception.php';
-
-/**
- * @see Microsoft_Http_Client
- */
-require_once 'Microsoft/Http/Client.php';
-
-/**
- * @see Microsoft_Http_Response
- */
-require_once 'Microsoft/Http/Response.php';
+require_once dirname(__FILE__) . '/../AutoLoader.php';
 
 /**
  * @category   Microsoft

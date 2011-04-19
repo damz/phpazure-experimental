@@ -33,19 +33,9 @@
  */
 
 /**
- * @see Microsoft_WindowsAzure_Credentials_CredentialsAbstract
+ * @see Microsoft_AutoLoader
  */
-require_once 'Microsoft/WindowsAzure/Credentials/CredentialsAbstract.php';
-
-/**
- * @see Microsoft_WindowsAzure_Storage
- */
-require_once 'Microsoft/WindowsAzure/Storage.php';
-
-/**
- * @see Microsoft_Http_Client
- */
-require_once 'Microsoft/Http/Client.php';
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

@@ -33,8 +33,10 @@
  * @version    $Id: Storage.php 21617 2009-06-12 10:46:31Z unknown $
  */
 
-/** Microsoft_Log_Writer_Abstract */
-require_once 'Microsoft/Log/Writer/Abstract.php';
+/**
+ * @see Microsoft_AutoLoader
+ */
+require_once dirname(__FILE__) . '/../../../AutoLoader.php';
 
 /**
  * @category   Microsoft

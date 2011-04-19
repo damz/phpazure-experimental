@@ -20,8 +20,10 @@
  * @version    $Id: Priority.php 20260 2010-01-13 18:29:22Z ralph $
  */
 
-/** Microsoft_Log_Filter_Abstract */
-require_once 'Microsoft/Log/Filter/Abstract.php';
+/**
+ * @see Microsoft_AutoLoader
+ */
+require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
  * @category   Microsoft

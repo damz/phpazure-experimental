@@ -31,6 +31,10 @@
  * @license    http://phpazure.codeplex.com/license
  */
 
+/**
+ * @see Microsoft_AutoLoader
+ */
+require_once dirname(__FILE__) . '/AutoLoader.php';
 
 /**
  * @category   Microsoft

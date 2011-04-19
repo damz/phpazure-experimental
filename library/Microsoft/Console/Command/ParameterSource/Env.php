@@ -26,44 +26,59 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @category   Microsoft
- * @package    Microsoft_WindowsAzure
- * @subpackage Storage
+ * @package    Microsoft_Console
+ * @subpackage Exception
+ * @version    $Id: Exception.php 55733 2011-01-03 09:17:16Z unknown $
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
- * @version    $Id: BlobContainer.php 17553 2009-05-15 10:40:55Z unknown $
  */
 
 /**
  * @see Microsoft_AutoLoader
  */
-require_once dirname(__FILE__) . '/../../AutoLoader.php';
+require_once dirname(__FILE__) . '/../../../AutoLoader.php';
 
 /**
  * @category   Microsoft
- * @package    Microsoft_WindowsAzure
- * @subpackage Storage
+ * @package    Microsoft_Console
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
- * 
- * @property string  $Name                     Name of the queue
- * @property array   $Metadata                 Key/value pairs of meta data
- * @property integer $ApproximateMessageCount  The approximate number of messages in the queue
  */
-class Microsoft_WindowsAzure_Storage_QueueInstance
-	extends Microsoft_WindowsAzure_Storage_StorageEntityAbstract
+class Microsoft_Console_Command_ParameterSource_Env
+	implements Microsoft_Console_Command_ParameterSource_ParameterSourceInterface
 {
-    /**
-     * Constructor
-     * 
-     * @param string $name          Name
-     * @param array  $metadata      Key/value pairs of meta data
-     */
-    public function __construct($name, $metadata = array()) 
-    {
-        $this->_data = array(
-            'name'         => $name,
-            'metadata'     => $metadata,
-            'approximatemessagecount' => 0
-        );
-    }
+	/**
+	 * Get value for a named parameter.
+	 * 
+	 * @param mixed $parameter Parameter to get a value for
+	 * @param array $argv Argument values passed to the script when run in console.
+	 * @return mixed
+	 */
+	public function getValueForParameter($parameter, $argv = array())
+	{
+		// Default value: null
+		$parameterValue = null;
+		
+		// Fetch value for parameter
+		foreach ($parameter->aliases as $alias) {
+			while (strpos($alias, '-') !== false) {
+				$alias = substr($alias, 1);
+			}
+			$value = getenv($alias);
+			
+			if (!is_null($value) && $value !== false) {
+				$parameterValue = $value;
+				break;
+			}
+		}
+		
+		if ($parameterValue == 'true') {
+			$parameterValue = true;
+		} else if ($parameterValue == 'false') {
+			$parameterValue = false;
+		}
+		
+		// Done!
+		return $parameterValue;
+	}
 }
