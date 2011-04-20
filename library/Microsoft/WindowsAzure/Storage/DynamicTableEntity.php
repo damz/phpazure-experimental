@@ -117,7 +117,28 @@ class Microsoft_WindowsAzure_Storage_DynamicTableEntity extends Microsoft_Window
                     	'Value' => $value,
                     );
             }
-    
+            
+            // Set type?
+            if (!is_null($type)) {
+            	$this->_dynamicProperties[strtolower($name)]->Type = $type;
+            	
+            	// Try to convert the type
+            	if ($type == 'Edm.Int32' || $type == 'Edm.Int64') {
+            		$value = intval($value);
+            	} else if ($type == 'Edm.Double') {
+            		$value = floatval($value);
+            	} else if ($type == 'Edm.Boolean') {
+            		if (!is_bool($value)) {
+            			$value = strtolower($value) == 'true';
+            		}
+            	} else if ($type == 'Edm.DateTime') {
+            		if (!$value instanceof DateTime) {
+                    	$value = $this->_convertToDateTime($value);
+                    }
+            	}
+            }
+       
+    		// Set value
             $this->_dynamicProperties[strtolower($name)]->Value = $value;
         }
         return $this;

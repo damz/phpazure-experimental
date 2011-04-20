@@ -13,6 +13,9 @@ php ..\library\Microsoft\WindowsAzure\CommandLine\Storage.php ListAccounts -p:"p
 REM ### Storage - GetProperties
 php ..\library\Microsoft\WindowsAzure\CommandLine\Storage.php GetProperties -p:"phpazure" --AccountName:"phptestsdk"
 
+REM ### Storage - GetProperty
+php ..\library\Microsoft\WindowsAzure\CommandLine\Storage.php GetProperty -p:"phpazure" --AccountName:"phptestsdk" --Property:Url
+
 REM ### Storage - GetKeys
 php ..\library\Microsoft\WindowsAzure\CommandLine\Storage.php GetKeys -p:"phpazure" --AccountName:"phptestsdk"
 

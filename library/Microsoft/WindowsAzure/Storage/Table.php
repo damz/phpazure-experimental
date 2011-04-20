@@ -579,13 +579,13 @@ class Microsoft_WindowsAzure_Storage_Table
     		    $entity = new $entityClass('', '');
     		    $entity->setAzureValues((array)$properties, $this->_throwExceptionOnMissingData);
     		    
-    		    // If we have a Microsoft_WindowsAzure_Storage_DynamicTableEntity, make sure all property types are OK
+    		    // If we have a Microsoft_WindowsAzure_Storage_DynamicTableEntity, make sure all property types are set
     		    if ($entity instanceof Microsoft_WindowsAzure_Storage_DynamicTableEntity) {
     		        foreach ($properties as $key => $value) {  
     		            $attributes = $value->attributes('http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
     		            $type = (string)$attributes['type'];
     		            if ($type !== '') {
-    		                $entity->setAzurePropertyType($key, $type);
+    		            	$entity->setAzureProperty($key, (string)$value, $type);
     		            }
     		        }
     		    }

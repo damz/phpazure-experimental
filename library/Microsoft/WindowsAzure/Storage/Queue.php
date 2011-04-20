@@ -503,7 +503,7 @@ class Microsoft_WindowsAzure_Storage_Queue extends Microsoft_WindowsAzure_Storag
 		}
 
 		// Perform request
-		$response = $this->_performRequest($queueName . '/messages/' . $message->MessageId, '?popreceipt=' . $message->PopReceipt, Microsoft_Http_Client::DELETE);	
+		$response = $this->_performRequest($queueName . '/messages/' . $message->MessageId, '?popreceipt=' . urlencode($message->PopReceipt), Microsoft_Http_Client::DELETE);	
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}

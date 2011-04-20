@@ -136,7 +136,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKey
 		if ($queryString !== '') {
 		    $queryStringItems = $this->_makeArrayOfQueryString($queryString);
 		    foreach ($queryStringItems as $key => $value) {
-		    	$canonicalizedResource .= "\n" . strtolower($key) . ':' . $value;
+		    	$canonicalizedResource .= "\n" . strtolower($key) . ':' . urldecode($value);
 		    }
 		}
 		
