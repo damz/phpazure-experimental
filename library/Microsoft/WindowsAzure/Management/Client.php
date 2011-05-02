@@ -569,6 +569,10 @@ class Microsoft_WindowsAzure_Management_Client
 
     	if ($response->isSuccessful()) {
 			$result = $this->_parseResponse($response);
+			
+    		if (!$result->StorageService) {
+				return array();
+			}
 		    if (count($result->StorageService) > 1) {
     		    $xmlServices = $result->StorageService;
     		} else {
@@ -714,6 +718,10 @@ class Microsoft_WindowsAzure_Management_Client
 
     	if ($response->isSuccessful()) {
 			$result = $this->_parseResponse($response);
+			
+    		if (!$result->HostedService) {
+				return array();
+			}
 		    if (count($result->HostedService) > 1) {
     		    $xmlServices = $result->HostedService;
     		} else {
@@ -1186,40 +1194,44 @@ class Microsoft_WindowsAzure_Management_Client
 			);
 				
 			// Append role instances
-			$xmlRoleInstances = $xmlService->RoleInstanceList->RoleInstance;
-			if (count($xmlService->RoleInstanceList->RoleInstance) == 1) {
-	    	    $xmlRoleInstances = array($xmlService->RoleInstanceList->RoleInstance);
-	    	}
-	    		
-			$roleInstances = array();
-			if (!is_null($xmlRoleInstances)) {				
-				for ($i = 0; $i < count($xmlRoleInstances); $i++) {
-					$roleInstances[] = array(
-					    'rolename' => (string)$xmlRoleInstances[$i]->RoleName,
-					    'instancename' => (string)$xmlRoleInstances[$i]->InstanceName,
-					    'instancestatus' => (string)$xmlRoleInstances[$i]->InstanceStatus
-					);
+			if ($xmlService->RoleInstanceList && $xmlService->RoleInstanceList->RoleInstance) {
+				$xmlRoleInstances = $xmlService->RoleInstanceList->RoleInstance;
+				if (count($xmlService->RoleInstanceList->RoleInstance) == 1) {
+		    	    $xmlRoleInstances = array($xmlService->RoleInstanceList->RoleInstance);
+		    	}
+		    		
+				$roleInstances = array();
+				if (!is_null($xmlRoleInstances)) {				
+					for ($i = 0; $i < count($xmlRoleInstances); $i++) {
+						$roleInstances[] = array(
+						    'rolename' => (string)$xmlRoleInstances[$i]->RoleName,
+						    'instancename' => (string)$xmlRoleInstances[$i]->InstanceName,
+						    'instancestatus' => (string)$xmlRoleInstances[$i]->InstanceStatus
+						);
+					}
 				}
+				
+				$returnValue->RoleInstanceList = $roleInstances;
 			}
-			
-			$returnValue->RoleInstanceList = $roleInstances;
 			
 			// Append roles
-			$xmlRoles = $xmlService->RoleList->Role;
-			if (count($xmlService->RoleList->Role) == 1) {
-	    	    $xmlRoles = array($xmlService->RoleList->Role);
-	    	}
-    		
-			$roles = array();
-			if (!is_null($xmlRoles)) {				
-				for ($i = 0; $i < count($xmlRoles); $i++) {
-					$roles[] = array(
-					    'rolename' => (string)$xmlRoles[$i]->RoleName,
-					    'osversion' => (!is_null($xmlRoles[$i]->OsVersion) ? (string)$xmlRoles[$i]->OsVersion : (string)$xmlRoles[$i]->OperatingSystemVersion)					
-					);
+			if ($xmlService->RoleList && $xmlService->RoleList->Role) {
+				$xmlRoles = $xmlService->RoleList->Role;
+				if (count($xmlService->RoleList->Role) == 1) {
+		    	    $xmlRoles = array($xmlService->RoleList->Role);
+		    	}
+	    		
+				$roles = array();
+				if (!is_null($xmlRoles)) {				
+					for ($i = 0; $i < count($xmlRoles); $i++) {
+						$roles[] = array(
+						    'rolename' => (string)$xmlRoles[$i]->RoleName,
+						    'osversion' => (!is_null($xmlRoles[$i]->OsVersion) ? (string)$xmlRoles[$i]->OsVersion : (string)$xmlRoles[$i]->OperatingSystemVersion)					
+						);
+					}
 				}
+				$returnValue->RoleList = $roles;
 			}
-			$returnValue->RoleList = $roles;
 				
 			return $returnValue;
 		}
@@ -1350,6 +1362,10 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Configuration name should be specified.');
     	}
     	
+        if (@file_exists($configuration)) {
+    		$configuration = utf8_decode(file_get_contents($configuration));
+    	}
+    	
     	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot;
     	return $this->_configureDeployment($operationUrl, $configuration);
     }
@@ -1374,6 +1390,10 @@ class Microsoft_WindowsAzure_Management_Client
     	}
     	if ($configuration == '' || is_null($configuration)) {
     		throw new Microsoft_WindowsAzure_Management_Exception('Configuration name should be specified.');
+    	}
+    	
+        if (@file_exists($configuration)) {
+    		$configuration = utf8_decode(file_get_contents($configuration));
     	}
     	
     	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deployments/' . $deploymentId;
@@ -1575,9 +1595,6 @@ class Microsoft_WindowsAzure_Management_Client
      */
     protected function _walkUpgradeDomain($operationUrl, $upgradeDomain = 0)
     {
-    	// Clean up the configuration
-    	$conformingConfiguration = $this->_cleanConfiguration($configuration);
-    	
         $response = $this->_performRequest($operationUrl . '/', '?comp=walkupgradedomain',
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
@@ -1726,12 +1743,15 @@ class Microsoft_WindowsAzure_Management_Client
     	if ($response->isSuccessful()) {
 			$result = $this->_parseResponse($response);
 
+			if (!$result->Certificate) {
+				return array();
+			}
 		    if (count($result->Certificate) > 1) {
     		    $xmlServices = $result->Certificate;
     		} else {
     		    $xmlServices = array($result->Certificate);
     		}
-    		
+
 			$services = array();
 			if (!is_null($xmlServices)) {				
 				for ($i = 0; $i < count($xmlServices); $i++) {
@@ -1870,6 +1890,9 @@ class Microsoft_WindowsAzure_Management_Client
     	if ($response->isSuccessful()) {
 			$result = $this->_parseResponse($response);
 			
+    		if (!$result->AffinityGroup) {
+				return array();
+			}
 		    if (count($result->AffinityGroup) > 1) {
     		    $xmlServices = $result->AffinityGroup;
     		} else {
@@ -2062,6 +2085,9 @@ class Microsoft_WindowsAzure_Management_Client
     	if ($response->isSuccessful()) {
 			$result = $this->_parseResponse($response);
 			
+    		if (!$result->Location) {
+				return array();
+			}
 		    if (count($result->Location) > 1) {
     		    $xmlServices = $result->Location;
     		} else {
@@ -2101,6 +2127,9 @@ class Microsoft_WindowsAzure_Management_Client
     	if ($response->isSuccessful()) {
 			$result = $this->_parseResponse($response);
 			
+    		if (!$result->OperatingSystem) {
+				return array();
+			}
 		    if (count($result->OperatingSystem) > 1) {
     		    $xmlServices = $result->OperatingSystem;
     		} else {
@@ -2145,6 +2174,9 @@ class Microsoft_WindowsAzure_Management_Client
     	if ($response->isSuccessful()) {
 			$result = $this->_parseResponse($response);
 			
+    		if (!$result->OperatingSystemFamily) {
+				return array();
+			}
 		    if (count($result->OperatingSystemFamily) > 1) {
     		    $xmlServices = $result->OperatingSystemFamily;
     		} else {

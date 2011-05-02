@@ -169,6 +169,10 @@ class Microsoft_Console_Command
 					break;
 				}
 			}
+			if (is_null($value) && $parameter->required) {
+				self::stderr("Error: Missing parameter: " . $parameter->aliases[0]);
+				die();
+			}
 			
 			// Set value
 			$parameterValues[] = $value;
@@ -201,6 +205,7 @@ class Microsoft_Console_Command
 			$handlers = self::_findValueForDocComment('@command-handler', $type->getDocComment());
 			$handlerDescriptions = self::_findValueForDocComment('@command-handler-description', $type->getDocComment());
 			$handlerHeaders = self::_findValueForDocComment('@command-handler-header', $type->getDocComment());
+			$handlerFooters = self::_findValueForDocComment('@command-handler-footer', $type->getDocComment());
 			
 			for ($hi = 0; $hi < count($handlers); $hi++) {
 				$handler = $handlers[$hi];
@@ -212,6 +217,7 @@ class Microsoft_Console_Command
 					'handler'     => $handler,
 					'description' => $handlerDescription,
 					'headers'     => $handlerHeaders,
+					'footers'     => $handlerFooters,
 					'class'       => $class,
 					'commands'    => array()
 				);
@@ -257,7 +263,8 @@ class Microsoft_Console_Command
 								'name'           => '$' . $parameter->getName(),
 								'valueproviders' => explode('|', $parameterFor[1]),
 								'aliases'        => explode('|', $parameterFor[2]),
-								'description'    => (isset($parameterFor[2]) ? $parameterFor[3] : '')
+								'description'    => (isset($parameterFor[3]) ? $parameterFor[3] : ''),
+								'required'       => (isset($parameterFor[3]) ? strpos(strtolower($parameterFor[3]), 'required') !== false && strpos(strtolower($parameterFor[3]), 'required if') === false : false),
 							);
 							
 							// Add to model
@@ -360,6 +367,14 @@ class Microsoft_Console_Command
 				}
 				printf($newline);
 			}
+		}
+		
+		if (count($handler->footers) > 0) {
+			printf($newline);
+			foreach ($handler->footers as $footer) {
+				printf('%s%s', $footer, $newline);		
+			}
+			printf($newline);
 		}
 	}
 }

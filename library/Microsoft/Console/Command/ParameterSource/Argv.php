@@ -68,9 +68,9 @@ class Microsoft_Console_Command_ParameterSource_Argv
 				break;
 			}	
 		}
-		if ($parameterValue == 'true') {
+		if (strtolower($parameterValue) == 'true') {
 			$parameterValue = true;
-		} else if ($parameterValue == 'false') {
+		} else if (strtolower($parameterValue) == 'false') {
 			$parameterValue = false;
 		}
 		

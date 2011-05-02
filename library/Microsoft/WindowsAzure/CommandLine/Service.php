@@ -39,15 +39,15 @@
 require_once dirname(__FILE__) . '/../../AutoLoader.php';
 
 /**
- * Storage commands
+ * Service commands
  * 
  * @category   Microsoft
  * @package    Microsoft_WindowsAzure_CommandLine
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  * 
- * @command-handler storage
- * @command-handler-description Windows Azure Storage commands
+ * @command-handler service
+ * @command-handler-description Windows Azure Service commands
  * @command-handler-header Windows Azure SDK for PHP
  * @command-handler-header Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @command-handler-footer Note: Parameters that are common across all commands can be stored 
@@ -60,24 +60,24 @@ require_once dirname(__FILE__) . '/../../AutoLoader.php';
  * @command-handler-footer value per line. It accepts the same parameters as one can
  * @command-handler-footer use from the command line command.
  */
-class Microsoft_WindowsAzure_CommandLine_Storage
+class Microsoft_WindowsAzure_CommandLine_Service
 	extends Microsoft_Console_Command
 {	
 	/**
-	 * List storage accounts for a specified subscription.
+	 * List hosted service accounts for a specified subscription.
 	 * 
-	 * @command-name ListAccounts
-	 * @command-description List storage accounts for a specified subscription.
+	 * @command-name List
+	 * @command-description List hosted service accounts for a specified subscription.
 	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
 	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
-	 * @command-example List storage accounts for subscription:
-	 * @command-example ListAccounts -sid:"<your_subscription_id>" -cert:"mycert.pem"
+	 * @command-example List hosted service accounts for subscription:
+	 * @command-example List -sid:"<your_subscription_id>" -cert:"mycert.pem"
 	 */
-	public function listAccountsCommand($subscriptionId, $certificate, $certificatePassphrase)
+	public function listCommand($subscriptionId, $certificate, $certificatePassphrase)
 	{
 		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
-		$result = $client->listStorageAccounts();
+		$result = $client->listHostedServices();
 
 		if (count($result) == 0) {
 			echo 'No data to display.';
@@ -88,114 +88,117 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	}
 	
 	/**
-	 * Get storage account properties.
+	 * Get hosted service account properties.
 	 * 
 	 * @command-name GetProperties
-	 * @command-description Get storage account properties.
+	 * @command-description Get hosted service account properties.
 	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
 	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
-	 * @command-parameter-for $accountName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --AccountName Required. The storage account name to operate on.
-	 * @command-example Get storage account properties for account "phptest":
+	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Name Required. The hosted service account name to operate on.
+	 * @command-example Get hosted service account properties for service "phptest":
 	 * @command-example GetProperties -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest"
+	 * @command-example --Name:"phptest"
 	 */
-	public function getPropertiesCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName)
+	public function getPropertiesCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName)
 	{
 		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
-		$result = $client->getStorageAccountProperties($accountName);
+		$result = $client->getHostedServiceProperties($serviceName);
 		
 		$this->_displayObjectInformation($result, array('ServiceName', 'Label', 'AffinityGroup', 'Location'));
 	}
 	
 	/**
-	 * Get storage account property.
+	 * Get hosted service account property.
 	 * 
 	 * @command-name GetProperty
 	 * @command-description Get storage account property.
 	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
 	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
-	 * @command-parameter-for $accountName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --AccountName Required. The storage account name to operate on.
-	 * @command-parameter-for $property Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Property|-prop Required. The property to retrieve for the storage account.
-	 * @command-example Get storage account property "Url" for account "phptest":
+	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Name Required. The hosted service account name to operate on.
+	 * @command-parameter-for $property Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Property|-prop Required. The property to retrieve for the hosted service account.
+	 * @command-example Get hosted service account property "Url" for service "phptest":
 	 * @command-example GetProperty -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest" --Property:Url
+	 * @command-example --Name:"phptest" --Property:Url
 	 */
-	public function getPropertyCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName, $property)
+	public function getPropertyCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $property)
 	{
 		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
-		$result = $client->getStorageAccountProperties($accountName);
+		$result = $client->getHostedServiceProperties($serviceName);
 		
 		printf("%s\r\n", $result->$property);
 	}
 	
 	/**
-	 * Get storage account keys.
+	 * Create hosted service account.
 	 * 
-	 * @command-name GetKeys
-	 * @command-description Get storage account keys.
+	 * @command-name Create
+	 * @command-description Create hosted service account.
 	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
 	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
-	 * @command-parameter-for $accountName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --AccountName Required. The storage account name to operate on.
-	 * @command-example Get storage account keys for account "phptest":
-	 * @command-example GetKeys -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest"
-	 */
-	public function getKeysCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName)
-	{
-		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
-		$result = $client->getStorageAccountKeys($accountName);
-		
-		$this->_displayObjectInformation((object)array('Key' => 'primary', 'Value' => $result[0]), array('Key', 'Value'));
-		$this->_displayObjectInformation((object)array('Key' => 'secondary', 'Value' => $result[1]), array('Key', 'Value'));
-	}
-	
-	/**
-	 * Get storage account key.
-	 * 
-	 * @command-name GetKey
-	 * @command-description Get storage account key.
-	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
-	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
-	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
-	 * @command-parameter-for $accountName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --AccountName Required. The storage account name to operate on.
-	 * @command-parameter-for $key Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Key|-k Optional. Specifies the key to regenerate (primary|secondary). If omitted, primary key is used as the default.
-	 * @command-example Get primary storage account key for account "phptest":
-	 * @command-example GetKey -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest" -Key:primary
-	 */
-	public function getKeyCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName, $key = 'primary')
-	{
-		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
-		$result = $client->getStorageAccountKeys($accountName);
-		
-		if (strtolower($key) == 'secondary') {
-			printf("%s\r\n", $result[1]);
-		}
-		printf("%s\r\n", $result[0]);
-	}
-	
-	/**
-	 * Regenerate storage account keys.
-	 * 
-	 * @command-name RegenerateKeys
-	 * @command-description Regenerate storage account keys.
-	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
-	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
-	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
-	 * @command-parameter-for $accountName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --AccountName Required. The storage account name to operate on.
-	 * @command-parameter-for $key Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Key|-k Optional. Specifies the key to regenerate (primary|secondary). If omitted, primary key is used as the default.
+	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The hosted service account name.
+	 * @command-parameter-for $label Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Label Required. A label for the hosted service.
+	 * @command-parameter-for $description Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Description Optional. A description for the hosted service.
+	 * @command-parameter-for $location Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Location Required if AffinityGroup is not specified. The location where the hosted service will be created.
+	 * @command-parameter-for $affinityGroup Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --AffinityGroup Required if Location is not specified. The name of an existing affinity group associated with this subscription.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
-	 * @command-example Regenerate secondary key for account "phptest":
-	 * @command-example RegenerateKeys -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest" -Key:secondary
+	 * @command-example Create hosted service account in West Europe
+	 * @command-example Create -p:"phpazure" --Name:"phptestsdk2" --Label:"phptestsdk2" --Location:"West Europe"
 	 */
-	public function regenerateKeysCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName, $key = 'primary', $waitForOperation = false)
+	public function createCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $label, $description, $location, $affinityGroup, $waitForOperation = false)
 	{
 		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
-		$client->regenerateStorageAccountKey($accountName, $key);
+		$client->createHostedService($serviceName, $label, $description, $location, $affinityGroup);
+		if ($waitForOperation) {
+			$client->waitForOperation();
+		}
+		echo $client->getLastRequestId();
+	}
+	
+	/**
+	 * Update hosted service account.
+	 * 
+	 * @command-name Update
+	 * @command-description Update hosted service account.
+	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
+	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
+	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
+	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The hosted service account name.
+	 * @command-parameter-for $label Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Label Required. A label for the hosted service.
+	 * @command-parameter-for $description Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Description Optional. A description for the hosted service.
+	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
+	 * @command-example Update hosted service
+	 * @command-example Update -p:"phpazure" --Name:"phptestsdk2" --Label:"New label" --Description:"Some description"
+	 */
+	public function updateCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $label, $description, $waitForOperation = false)
+	{
+		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
+		$client->updateHostedService($serviceName, $label, $description);
+		if ($waitForOperation) {
+			$client->waitForOperation();
+		}
+		echo $client->getLastRequestId();
+	}
+	
+	/**
+	 * Delete hosted service account.
+	 * 
+	 * @command-name Delete
+	 * @command-description Delete hosted service account.
+	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
+	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
+	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
+	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The hosted service account name.
+	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
+	 * @command-example Delete hosted service
+	 * @command-example Delete -p:"phpazure" --Name:"phptestsdk2"
+	 */
+	public function deleteCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $waitForOperation = false)
+	{
+		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
+		$client->deleteHostedService($serviceName);
 		if ($waitForOperation) {
 			$client->waitForOperation();
 		}
