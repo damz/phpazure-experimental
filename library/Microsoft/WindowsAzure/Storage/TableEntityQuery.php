@@ -328,31 +328,6 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	}
 	
 	/**
-	 * urlencode a query
-	 * 
-	 * @param string $query Query to encode
-	 * @return string Encoded query
-	 */
-	public static function encodeQuery($query)
-	{
-		$query = str_replace('/', '%2F', $query);
-		$query = str_replace('?', '%3F', $query);
-		$query = str_replace(':', '%3A', $query);
-		$query = str_replace('@', '%40', $query);
-		$query = str_replace('&', '%26', $query);
-		$query = str_replace('=', '%3D', $query);
-		$query = str_replace('+', '%2B', $query);
-		$query = str_replace(',', '%2C', $query);
-		$query = str_replace('$', '%24', $query);
-		$query = str_replace('{', '%7B', $query);
-		$query = str_replace('}', '%7D', $query);
-
-		$query = str_replace(' ', '%20', $query);
-		
-		return $query;
-	}
-	
-	/**
 	 * __toString overload
 	 * 
 	 * @return string

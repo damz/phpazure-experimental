@@ -215,7 +215,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$headers = array_merge($headers, $this->_generateMetadataHeaders($metadata));
 
 		// Perform request
-		$response = $this->_performRequest($containerName, '?restype=container', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($containerName, array('restype' => 'container'), Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if ($response->isSuccessful()) {
 			return new Microsoft_WindowsAzure_Storage_BlobContainer(
 			$containerName,
@@ -260,7 +260,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 
 		// Perform request
-		$response = $this->_performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
+		$response = $this->_performRequest($containerName, array('restype' => 'container', 'comp' => 'acl'), Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 			if ($signedIdentifiers == false)  {
 				// Only private/blob/container
@@ -352,7 +352,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 
 		// Perform request
-		$response = $this->_performRequest($containerName, '?restype=container&comp=acl', Microsoft_Http_Client::PUT, $headers, false, $policies, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($containerName, array('restype' => 'container', 'comp' => 'acl'), Microsoft_Http_Client::PUT, $headers, false, $policies, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -375,7 +375,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 
 		// Perform request
-		$response = $this->_performRequest($containerName, '?restype=container', Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
+		$response = $this->_performRequest($containerName, array('restype' => 'container'), Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 			// Parse metadata
 			$metadata = $this->_parseMetadataHeaders($response->getHeaders());
@@ -446,7 +446,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 
 		// Perform request
-		$response = $this->_performRequest($containerName, '?restype=container&comp=metadata', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($containerName, array('restype' => 'container', 'comp' => 'metadata'), Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -475,7 +475,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 
 		// Perform request
-		$response = $this->_performRequest($containerName, '?restype=container', Microsoft_Http_Client::DELETE, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($containerName, array('restype' => 'container'), Microsoft_Http_Client::DELETE, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -494,24 +494,22 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 	 */
 	public function listContainers($prefix = null, $maxResults = null, $marker = null, $include = null, $currentResultCount = 0)
 	{
-		// Build query string
-		$queryString = array('comp=list');
+		$query = array('comp' => 'list');
 		if (!is_null($prefix)) {
-			$queryString[] = 'prefix=' . $prefix;
+			$query['prefix'] = $prefix;
 		}
 		if (!is_null($maxResults)) {
-			$queryString[] = 'maxresults=' . $maxResults;
+			$query['maxresults'] = $maxResults;
 		}
 		if (!is_null($marker)) {
-			$queryString[] = 'marker=' . $marker;
+			$query['marker'] = $marker;
 		}
 		if (!is_null($include)) {
-			$queryString[] = 'include=' . $include;
+			$query['include'] = $include;
 		}
-		$queryString = self::createQueryStringFromArray($queryString);
 		 
 		// Perform request
-		$response = $this->_performRequest('', $queryString, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_LIST);
+		$response = $this->_performRequest('', $query, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_CONTAINER, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_LIST);
 		if ($response->isSuccessful()) {
 			$xmlContainers = $this->_parseResponse($response)->Containers->Container;
 			$xmlMarker = (string)$this->_parseResponse($response)->NextMarker;
@@ -769,7 +767,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 
 		// Upload
-		$response = $this->_performRequest($resourceName, '?comp=block&blockid=' . base64_encode($identifier), Microsoft_Http_Client::PUT, $headers, false, $contents, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($resourceName, array('comp' => 'block', 'blockid' => base64_encode($identifier)), Microsoft_Http_Client::PUT, $headers, false, $contents, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -834,7 +832,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			$resourceName = self::createResourceName($containerName , $blobName);
 
 			// Perform request
-			$response = $this->_performRequest($resourceName, '?comp=blocklist', Microsoft_Http_Client::PUT, $headers, false, $fileContents, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+			$response = $this->_performRequest($resourceName, array('comp' => 'blocklist'), Microsoft_Http_Client::PUT, $headers, false, $fileContents, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 			if (!$response->isSuccessful()) {
 				throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 			}
@@ -882,17 +880,16 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 
 		// Build query string
-		$queryString = array('comp=blocklist', 'blocklisttype=' . $blockListType);
+		$query = array('comp' => 'blocklist', 'blocklisttype' => $blockListType);
 		if (!is_null($snapshotId)) {
-			$queryString[] = 'snapshot=' . $snapshotId;
+			$query['snapshot'] = $snapshotId;
 		}
-		$queryString = self::createQueryStringFromArray($queryString);
 
 		// Resource name
 		$resourceName = self::createResourceName($containerName , $blobName);
 			
 		// Perform request
-		$response = $this->_performRequest($resourceName, $queryString, Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
+		$response = $this->_performRequest($resourceName, $query, Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 			// Parse response
 			$blockList = $this->_parseResponse($response);
@@ -973,7 +970,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 
 		// Perform request
-		$response = $this->_performRequest($resourceName, '', Microsoft_Http_Client::PUT, $headers, false, '', Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($resourceName, array(), Microsoft_Http_Client::PUT, $headers, false, '', Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if ($response->isSuccessful()) {
 			return new Microsoft_WindowsAzure_Storage_BlobInstance(
 			$containerName,
@@ -1055,7 +1052,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 
 		// Perform request
-		$response = $this->_performRequest($resourceName, '?comp=page', Microsoft_Http_Client::PUT, $headers, false, $contents, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($resourceName, array('comp' => 'page'), Microsoft_Http_Client::PUT, $headers, false, $contents, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -1108,7 +1105,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 
 		// Perform request
-		$response = $this->_performRequest($resourceName, '?comp=pagelist', Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($resourceName, array('comp' => 'pagelist'), Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if ($response->isSuccessful()) {
 			$result = $this->_parseResponse($response);
 			$xmlRanges = null;
@@ -1196,7 +1193,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$headers["x-ms-copy-source"] = '/' . $this->_accountName . '/' . $sourceResourceName;
 
 		// Perform request
-		$response = $this->_performRequest($destinationResourceName, '', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($destinationResourceName, array(), Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if ($response->isSuccessful()) {
 			return new Microsoft_WindowsAzure_Storage_BlobInstance(
 			$destinationContainerName,
@@ -1270,12 +1267,11 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			throw new Microsoft_WindowsAzure_Exception('Blob name is not specified.');
 		}
 
-		// Build query string
-		$queryString = array();
+		// Build query
+		$query = array();
 		if (!is_null($snapshotId)) {
-			$queryString[] = 'snapshot=' . $snapshotId;
+			$query['snapshot'] = $snapshotId;
 		}
-		$queryString = self::createQueryStringFromArray($queryString);
 
 		// Additional headers?
 		$headers = array();
@@ -1290,7 +1286,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 
 		// Perform request
-		$response = $this->_performRequest($resourceName, $queryString, Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
+		$response = $this->_performRequest($resourceName, $query, Microsoft_Http_Client::GET, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 			return $response->getBody();
 		} else {
@@ -1324,12 +1320,11 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 		}
 
-		// Build query string
-		$queryString = array();
+		// Build query
+		$query = array();
 		if (!is_null($snapshotId)) {
-			$queryString[] = 'snapshot=' . $snapshotId;
+			$query['snapshot'] = $snapshotId;
 		}
-		$queryString = self::createQueryStringFromArray($queryString);
 		 
 		// Additional headers?
 		$headers = array();
@@ -1344,7 +1339,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 
 		// Perform request
-		$response = $this->_performRequest($resourceName, $queryString, Microsoft_Http_Client::HEAD, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
+		$response = $this->_performRequest($resourceName, $query, Microsoft_Http_Client::HEAD, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_READ);
 		if ($response->isSuccessful()) {
 			// Parse metadata
 			$metadata = $this->_parseMetadataHeaders($response->getHeaders());
@@ -1443,7 +1438,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 
 		// Perform request
-		$response = $this->_performRequest($containerName . '/' . $blobName, '?comp=metadata', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($containerName . '/' . $blobName, array('comp' => 'metadata'), Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -1492,7 +1487,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		}
 
 		// Perform request
-		$response = $this->_performRequest($containerName . '/' . $blobName, '?comp=properties', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($containerName . '/' . $blobName, array('comp' => 'properties'), Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -1551,12 +1546,11 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			throw new Microsoft_WindowsAzure_Exception('Blobs stored in the root container can not have a name containing a forward slash (/).');
 		}
 
-		// Build query string
-		$queryString = array();
+		// Build query
+		$query = array();
 		if (!is_null($snapshotId)) {
-			$queryString[] = 'snapshot=' . $snapshotId;
+			$query['snapshot'] = $snapshotId;
 		}
-		$queryString = self::createQueryStringFromArray($queryString);
 			
 		// Additional headers?
 		$headers = array();
@@ -1571,7 +1565,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 
 		// Perform request
-		$response = $this->_performRequest($resourceName, $queryString, Microsoft_Http_Client::DELETE, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($resourceName, $query, Microsoft_Http_Client::DELETE, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
@@ -1612,7 +1606,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 
 		// Perform request
-		$response = $this->_performRequest($resourceName, '?comp=snapshot', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($resourceName, array('comp' => 'snapshot'), Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if ($response->isSuccessful()) {
 			return $response->getHeader('x-ms-snapshot');
 		} else {
@@ -1656,7 +1650,7 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 		$resourceName = self::createResourceName($containerName , $blobName);
 
 		// Perform request
-		$response = $this->_performRequest($resourceName, '?comp=lease', Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
+		$response = $this->_performRequest($resourceName, array('comp' => 'lease'), Microsoft_Http_Client::PUT, $headers, false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_WRITE);
 		if ($response->isSuccessful()) {
 			return new Microsoft_WindowsAzure_Storage_LeaseInstance(
 			$containerName,
@@ -1690,27 +1684,26 @@ class Microsoft_WindowsAzure_Storage_Blob extends Microsoft_WindowsAzure_Storage
 			throw new Microsoft_WindowsAzure_Exception('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
 		}
 			
-		// Build query string
-		$queryString = array('restype=container', 'comp=list');
+		// Build query
+		$query = array('restype' => 'container', 'comp' => 'list');
 		if (!is_null($prefix)) {
-			$queryString[] = 'prefix=' . $prefix;
+			$query['prefix'] = $prefix;
 		}
 		if ($delimiter !== '') {
-			$queryString[] = 'delimiter=' . $delimiter;
+			$query['delimiter'] = $delimiter;
 		}
 		if (!is_null($maxResults)) {
-			$queryString[] = 'maxresults=' . $maxResults;
+			$query['maxresults'] = $maxResults;
 		}
 		if (!is_null($marker)) {
-			$queryString[] = 'marker=' . $marker;
+			$query['marker'] = $marker;
 		}
 		if (!is_null($include)) {
-			$queryString[] = 'include=' . $include;
+			$query['include'] = $include;
 		}
-		$queryString = self::createQueryStringFromArray($queryString);
 
 		// Perform request
-		$response = $this->_performRequest($containerName, $queryString, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_LIST);
+		$response = $this->_performRequest($containerName, $query, Microsoft_Http_Client::GET, array(), false, null, Microsoft_WindowsAzure_Storage::RESOURCE_BLOB, Microsoft_WindowsAzure_Credentials_CredentialsAbstract::PERMISSION_LIST);
 		if ($response->isSuccessful()) {
 			// Return value
 			$blobs = array();

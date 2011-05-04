@@ -129,14 +129,14 @@ class Microsoft_WindowsAzure_Storage_Batch
 	 * Enlist operation in current batch
 	 *
 	 * @param string $path Path
-	 * @param string $queryString Query string
+	 * @param array $query Query arguments
 	 * @param string $httpVerb HTTP verb the request will use
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @param mixed $rawData Optional RAW HTTP data to be sent over the wire
 	 * @throws Microsoft_WindowsAzure_Exception
 	 */
-	public function enlistOperation($path = '/', $queryString = '', $httpVerb = Microsoft_Http_Client::GET, $headers = array(), $forTableStorage = false, $rawData = null)
+	public function enlistOperation($path = '/', $query = array(), $httpVerb = Microsoft_Http_Client::GET, $headers = array(), $forTableStorage = false, $rawData = null)
 	{
 	    // Set _forTableStorage
 	    if ($forTableStorage) {
@@ -160,13 +160,16 @@ class Microsoft_WindowsAzure_Storage_Batch
 		if (is_null($headers)) {
 		    $headers = array();
 		}
-		    
-		// URL encoding
-		$path           = Microsoft_WindowsAzure_Storage::urlencode($path);
-		$queryString    = Microsoft_WindowsAzure_Storage::urlencode($queryString);
 
 		// Generate URL
-		$requestUrl     = $this->getBaseUrl() . $path . $queryString;
+		$requestUrl = $this->getBaseUrl() . $path;
+		if ($query) {
+			$queryString = '';
+			foreach ($query as $key => $value) {
+				$queryString .= ($queryString ? '&' : '?') . rawurlencode($key) . '=' . rawurlencode($value);
+			}
+			$requestUrl .= $queryString;
+		}
 		
 		// Generate $rawData
 		if (is_null($rawData)) {

@@ -67,7 +67,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKey
 	 *
 	 * @param string $httpVerb HTTP verb the request will use
 	 * @param string $path Path for the request
-	 * @param string $queryString Query string for the request
+	 * @param string $query Query arguments for the request
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @param string $resourceType Resource type
@@ -78,7 +78,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKey
 	public function signRequestHeaders(
 		$httpVerb = Microsoft_Http_Client::GET,
 		$path = '/',
-		$queryString = '',
+		$query = array(),
 		$headers = null,
 		$forTableStorage = false,
 		$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
@@ -96,9 +96,6 @@ class Microsoft_WindowsAzure_Credentials_SharedKey
 		if ($this->_usePathStyleUri) {
 			$path = substr($path, strpos($path, '/'));
 		}
-
-		// Determine query
-		$queryString = $this->_prepareQueryStringForSigning($queryString);
 	
 		// Canonicalized headers
 		$canonicalizedHeaders = array();
@@ -133,10 +130,10 @@ class Microsoft_WindowsAzure_Credentials_SharedKey
 			$canonicalizedResource .= '/' . $this->_accountName;
 		}
 		$canonicalizedResource .= $path;
-		if ($queryString !== '') {
-		    $queryStringItems = $this->_makeArrayOfQueryString($queryString);
-		    foreach ($queryStringItems as $key => $value) {
-		    	$canonicalizedResource .= "\n" . strtolower($key) . ':' . urldecode($value);
+		if ($query) {
+			ksort($query);
+		    foreach ($query as $key => $value) {
+		    	$canonicalizedResource .= "\n" . strtolower($key) . ':' . $value;
 		    }
 		}
 		

@@ -72,7 +72,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyTest extends PHPUnit_Framework
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
-                              '',
+                              array(),
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
                               false
                           );
@@ -91,7 +91,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyTest extends PHPUnit_Framework
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/test',
-                              '',
+                              array(),
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
                               false
                           );
@@ -110,7 +110,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyTest extends PHPUnit_Framework
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
-                              '?test=true',
+                              array('test' => 'true'),
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
                               false
                           );
@@ -129,7 +129,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyTest extends PHPUnit_Framework
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
-                              '',
+                              array(),
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
                               false
                           );
@@ -148,7 +148,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyTest extends PHPUnit_Framework
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/test',
-                              '',
+                              array(),
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
                               false
                           );
@@ -167,7 +167,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyTest extends PHPUnit_Framework
         $signedHeaders = $credentials->signRequestHeaders(
                               'GET',
                               '/',
-                              '?test=true',
+                              array('test' => 'true'),
                               array("x-ms-date" => "Wed, 29 Apr 2009 13:12:47 GMT"),
                               false
                           );

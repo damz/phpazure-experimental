@@ -67,7 +67,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLite
 	 *
 	 * @param string $httpVerb HTTP verb the request will use
 	 * @param string $path Path for the request
-	 * @param string $queryString Query string for the request
+	 * @param array $query Query arguments for the request
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
 	 * @param string $resourceType Resource type
@@ -78,7 +78,7 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLite
 	public function signRequestHeaders(
 		$httpVerb = Microsoft_Http_Client::GET,
 		$path = '/',
-		$queryString = '',
+		$query = array(),
 		$headers = null,
 		$forTableStorage = false,
 		$resourceType = Microsoft_WindowsAzure_Storage::RESOURCE_UNKNOWN,
@@ -95,17 +95,14 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLite
 			$path = substr($path, strpos($path, '/'));
 		}
 
-		// Determine query
-		$queryString = $this->_prepareQueryStringForSigning($queryString);
-
 		// Build canonicalized resource string
 		$canonicalizedResource  = '/' . $this->_accountName;
 		if ($this->_usePathStyleUri) {
 			$canonicalizedResource .= '/' . $this->_accountName;
 		}
 		$canonicalizedResource .= $path;
-		if ($queryString !== '') {
-		    $canonicalizedResource .= $queryString;
+		if (isset($query['comp'])) {
+		    $canonicalizedResource .= '?comp=' . rawurlencode($query['comp']);
 		}
 
 		// Request date
@@ -129,36 +126,5 @@ class Microsoft_WindowsAzure_Credentials_SharedKeyLite
     	
     	// Return headers
     	return $headers;
-	}
-	
-	/**
-	 * Prepare query string for signing
-	 * 
-	 * @param  string $value Original query string
-	 * @return string        Query string for signing
-	 */
-	protected function _prepareQueryStringForSigning($value)
-	{
-	    // Check for 'comp='
-	    if (strpos($value, 'comp=') === false) {
-	        // If not found, no query string needed
-	        return '';
-	    } else {
-	        // If found, make sure it is the only parameter being used      
-    		if (strlen($value) > 0 && strpos($value, '?') === 0) {
-    			$value = substr($value, 1);
-    		}
-    		
-    		// Split parts
-    		$queryParts = explode('&', $value);
-    		foreach ($queryParts as $queryPart) {
-    		    if (strpos($queryPart, 'comp=') !== false) {
-    		        return '?' . $queryPart;
-    		    }
-    		}
-
-    		// Should never happen...
-			return '';
-	    }
 	}
 }

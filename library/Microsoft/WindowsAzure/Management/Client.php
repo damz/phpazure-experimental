@@ -207,7 +207,7 @@ class Microsoft_WindowsAzure_Management_Client
 	 * Perform request using Microsoft_Http_Client channel
 	 *
 	 * @param string $path Path
-	 * @param string $queryString Query string
+	 * @param array $query Query arguments
 	 * @param string $httpVerb HTTP verb the request will use
 	 * @param array $headers x-ms headers to add
 	 * @param mixed $rawData Optional RAW HTTP data to be sent over the wire
@@ -215,7 +215,7 @@ class Microsoft_WindowsAzure_Management_Client
 	 */
 	protected function _performRequest(
 		$path = '/',
-		$queryString = '',
+		$query = array(),
 		$httpVerb = Microsoft_Http_Client::GET,
 		$headers = array(),
 		$rawData = null
@@ -241,12 +241,15 @@ class Microsoft_WindowsAzure_Management_Client
 		// Add version header
 		$headers['x-ms-version'] = $this->_apiVersion;
 		    
-		// URL encoding
-		$path           = self::urlencode($path);
-		$queryString    = self::urlencode($queryString);
-
 		// Generate URL and sign request
-		$requestUrl     = $this->getBaseUrl() . $path . $queryString;
+		$requestUrl = $this->getBaseUrl() . rawurlencode($path);
+		if ($query) {
+			$queryString = '';
+			foreach ($query as $key => $value) {
+				$queryString .= ($queryString ? '&' : '?') . rawurlencode($key) . '=' . rawurlencode($value);
+			}
+			$requestUrl .= $queryString;
+		}
 		$requestHeaders = $headers;
 
 		// Prepare request 
@@ -296,29 +299,7 @@ class Microsoft_WindowsAzure_Management_Client
         
         return $xml;
 	}
-	
-	/**
-	 * URL encode function
-	 * 
-	 * @param  string $value Value to encode
-	 * @return string        Encoded value
-	 */
-	public static function urlencode($value)
-	{
-	    return str_replace(' ', '%20', $value);
-	}
-	
-    /**
-     * Builds a query string from an array of elements
-     * 
-     * @param array     Array of elements
-     * @return string   Assembled query string
-     */
-    public static function createQueryStringFromArray($queryString)
-    {
-    	return count($queryString) > 0 ? '?' . implode('&', $queryString) : '';
-    }
-    
+
 	/**
 	 * Get error message from Microsoft_Http_Response
 	 *
@@ -401,19 +382,19 @@ class Microsoft_WindowsAzure_Management_Client
     	}
     	
     	$parameters = array();
-    	$parameters[] = 'StartTime=' . $startTime;
-    	$parameters[] = 'EndTime=' . $endTime;
+    	$parameters['StartTime'] = $startTime;
+    	$parameters['EndTime'] = $endTime;
     	if ($objectIdFilter != '' && !is_null($objectIdFilter)) {
-    		$parameters[] = 'ObjectIdFilter=' . $objectIdFilter;
+    		$parameters['ObjectIdFilter'] = $objectIdFilter;
     	}
     	if ($operationResultFilter != '' && !is_null($operationResultFilter)) {
-    		$parameters[] = 'OperationResultFilter=' . ucfirst($operationResultFilter);
+    		$parameters['OperationResultFilter'] = ucfirst($operationResultFilter);
     	}
     	if ($continuationToken != '' && !is_null($continuationToken)) {
-    		$parameters[] = 'ContinuationToken=' . $continuationToken;
+    		$parameters['ContinuationToken'] = $continuationToken;
     	}
     	
-    	$response = $this->_performRequest(self::OP_OPERATIONS, '?' . implode('&', $parameters));
+    	$response = $this->_performRequest(self::OP_OPERATIONS, $parameters);
 
     	if ($response->isSuccessful()) {
 			$result = $this->_parseResponse($response);
@@ -684,7 +665,7 @@ class Microsoft_WindowsAzure_Management_Client
     	}
     	
     	$response = $this->_performRequest(
-    		self::OP_STORAGE_ACCOUNTS . '/' . $serviceName . '/keys', '?action=regenerate',
+    		self::OP_STORAGE_ACCOUNTS . '/' . $serviceName . '/keys', array('action' => 'regenerate'),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml'),
     		'<?xml version="1.0" encoding="utf-8"?>
@@ -886,7 +867,7 @@ class Microsoft_WindowsAzure_Management_Client
     		? '<AffinityGroup>' . $affinityGroup . '</AffinityGroup>'
     		: '<Location>' . $location . '</Location>';
     	
-        $response = $this->_performRequest(self::OP_HOSTED_SERVICES, '',
+        $response = $this->_performRequest(self::OP_HOSTED_SERVICES, array(),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<CreateHostedService xmlns="http://schemas.microsoft.com/windowsazure"><ServiceName>' . $serviceName . '</ServiceName><Label>' . base64_encode($label) . '</Label><Description>' . $description . '</Description>' . $locationOrAffinityGroup . '</CreateHostedService>');
@@ -915,7 +896,7 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
     	}
     	
-        $response = $this->_performRequest(self::OP_HOSTED_SERVICES . '/' . $serviceName, '',
+        $response = $this->_performRequest(self::OP_HOSTED_SERVICES . '/' . $serviceName, array(),
     		Microsoft_Http_Client::PUT,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<UpdateHostedService xmlns="http://schemas.microsoft.com/windowsazure"><Label>' . base64_encode($label) . '</Label><Description>' . $description . '</Description></UpdateHostedService>');
@@ -936,7 +917,7 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
     	
-        $response = $this->_performRequest(self::OP_HOSTED_SERVICES . '/' . $serviceName, '', Microsoft_Http_Client::DELETE);
+        $response = $this->_performRequest(self::OP_HOSTED_SERVICES . '/' . $serviceName, array(), Microsoft_Http_Client::DELETE);
  	
     	if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
@@ -960,7 +941,7 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
     	}
     	
-    	$response = $this->_performRequest(self::OP_HOSTED_SERVICES . '/' . $serviceName, '?embed-detail=true');
+    	$response = $this->_performRequest(self::OP_HOSTED_SERVICES . '/' . $serviceName, array('embed-detail' => 'true'));
 
     	if ($response->isSuccessful()) {
 			$xmlService = $this->_parseResponse($response);
@@ -1043,7 +1024,7 @@ class Microsoft_WindowsAzure_Management_Client
     	$conformingConfiguration = $this->_cleanConfiguration($configuration);
     	
     	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/deploymentslots/' . $deploymentSlot;
-        $response = $this->_performRequest($operationUrl, '',
+        $response = $this->_performRequest($operationUrl, array(),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<CreateDeployment xmlns="http://schemas.microsoft.com/windowsazure"><Name>' . $name . '</Name><PackageUrl>' . $packageUrl . '</PackageUrl><Label>' . base64_encode($label) . '</Label><Configuration>' . base64_encode($conformingConfiguration) . '</Configuration><StartDeployment>' . ($startDeployment ? 'true' : 'false') . '</StartDeployment><TreatWarningsAsError>' . ($treatWarningsAsErrors ? 'true' : 'false') . '</TreatWarningsAsError></CreateDeployment>');
@@ -1144,7 +1125,7 @@ class Microsoft_WindowsAzure_Management_Client
     	}
     	
     	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName;
-        $response = $this->_performRequest($operationUrl, '',
+        $response = $this->_performRequest($operationUrl, array(),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<Swap xmlns="http://schemas.microsoft.com/windowsazure"><Production>' . $productionDeploymentName . '</Production><SourceDeployment>' . $sourceDeploymentName . '</SourceDeployment></Swap>');
@@ -1203,7 +1184,7 @@ class Microsoft_WindowsAzure_Management_Client
      */
     protected function _deleteDeployment($operationUrl)
     {
-        $response = $this->_performRequest($operationUrl, '', Microsoft_Http_Client::DELETE);
+        $response = $this->_performRequest($operationUrl, array(), Microsoft_Http_Client::DELETE);
 			 
     	if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
@@ -1270,7 +1251,7 @@ class Microsoft_WindowsAzure_Management_Client
      */
     protected function _updateDeploymentStatus($operationUrl, $status = 'running')
     {
-        $response = $this->_performRequest($operationUrl . '/', '?comp=status',
+        $response = $this->_performRequest($operationUrl . '/', array('comp' => 'status'),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<UpdateDeploymentStatus xmlns="http://schemas.microsoft.com/windowsazure"><Status>' . ucfirst($status) . '</Status></UpdateDeploymentStatus>');
@@ -1551,7 +1532,7 @@ class Microsoft_WindowsAzure_Management_Client
     	// Clean up the configuration
     	$conformingConfiguration = $this->_cleanConfiguration($configuration);
 
-        $response = $this->_performRequest($operationUrl . '/', '?comp=config',
+        $response = $this->_performRequest($operationUrl . '/', array('comp' => 'config'),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<ChangeConfiguration xmlns="http://schemas.microsoft.com/windowsazure" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><Configuration>' . base64_encode($conformingConfiguration) . '</Configuration></ChangeConfiguration>');
@@ -1669,7 +1650,7 @@ class Microsoft_WindowsAzure_Management_Client
     	// Clean up the configuration
     	$conformingConfiguration = $this->_cleanConfiguration($configuration);
     	
-        $response = $this->_performRequest($operationUrl . '/', '?comp=upgrade',
+        $response = $this->_performRequest($operationUrl . '/', array('comp' => 'upgrade'),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<UpgradeDeployment xmlns="http://schemas.microsoft.com/windowsazure"><Mode>' . ucfirst($mode) . '</Mode><PackageUrl>' . $packageUrl . '</PackageUrl><Configuration>' . base64_encode($conformingConfiguration) . '</Configuration><Label>' . base64_encode($label) . '</Label>' . (!is_null($roleToUpgrade) ? '<RoleToUpgrade>' . $roleToUpgrade . '</RoleToUpgrade>' : '') . '</UpgradeDeployment>');		
@@ -1732,7 +1713,7 @@ class Microsoft_WindowsAzure_Management_Client
      */
     protected function _walkUpgradeDomain($operationUrl, $upgradeDomain = 0)
     {
-        $response = $this->_performRequest($operationUrl . '/', '?comp=walkupgradedomain',
+        $response = $this->_performRequest($operationUrl . '/', array('comp' => 'walkupgradedomain'),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<WalkUpgradeDomain xmlns="http://schemas.microsoft.com/windowsazure"><UpgradeDomain>' . $upgradeDomain . '</UpgradeDomain></WalkUpgradeDomain>');		
@@ -1853,7 +1834,7 @@ class Microsoft_WindowsAzure_Management_Client
      */
     protected function _rebootOrReimageRoleInstance($operationUrl, $operation = 'reboot')
     {
-        $response = $this->_performRequest($operationUrl, '?comp=' . $operation, Microsoft_Http_Client::POST);
+        $response = $this->_performRequest($operationUrl, array('comp' => $operation), Microsoft_Http_Client::POST);
     		
     	if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
@@ -1974,7 +1955,7 @@ class Microsoft_WindowsAzure_Management_Client
     	}
     	
     	$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/certificates';
-        $response = $this->_performRequest($operationUrl, '',
+        $response = $this->_performRequest($operationUrl, array(),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<CertificateFile xmlns="http://schemas.microsoft.com/windowsazure"><Data>' . base64_encode($certificateData) . '</Data><CertificateFormat>' . $certificateFormat . '</CertificateFormat><Password>' . $certificatePassword . '</Password></CertificateFile>');
@@ -2006,7 +1987,7 @@ class Microsoft_WindowsAzure_Management_Client
     		$operationUrl = self::OP_HOSTED_SERVICES . '/' . $serviceName . '/certificates/' . $algorithm . '-' . strtoupper($thumbprint);
     	}
     	
-        $response = $this->_performRequest($operationUrl, '', Microsoft_Http_Client::DELETE);
+        $response = $this->_performRequest($operationUrl, array(), Microsoft_Http_Client::DELETE);
 
     	if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
@@ -2079,7 +2060,7 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Location should be specified.');
     	}
     	
-        $response = $this->_performRequest(self::OP_AFFINITYGROUPS, '',
+        $response = $this->_performRequest(self::OP_AFFINITYGROUPS, array(),
     		Microsoft_Http_Client::POST,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<CreateAffinityGroup xmlns="http://schemas.microsoft.com/windowsazure"><Name>' . $name . '</Name><Label>' . base64_encode($label) . '</Label><Description>' . $description . '</Description><Location>' . $location . '</Location></CreateAffinityGroup>');	
@@ -2111,7 +2092,7 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Description is too long. The maximum length is 1024 characters.');
     	}
     	
-        $response = $this->_performRequest(self::OP_AFFINITYGROUPS . '/' . $name, '',
+        $response = $this->_performRequest(self::OP_AFFINITYGROUPS . '/' . $name, array(),
     		Microsoft_Http_Client::PUT,
     		array('Content-Type' => 'application/xml; charset=utf-8'),
     		'<UpdateAffinityGroup xmlns="http://schemas.microsoft.com/windowsazure"><Label>' . base64_encode($label) . '</Label><Description>' . $description . '</Description></UpdateAffinityGroup>');	
@@ -2132,7 +2113,7 @@ class Microsoft_WindowsAzure_Management_Client
     		throw new Microsoft_WindowsAzure_Management_Exception('Affinity group name should be specified.');
     	}
     	
-        $response = $this->_performRequest(self::OP_AFFINITYGROUPS . '/' . $name, '',
+        $response = $this->_performRequest(self::OP_AFFINITYGROUPS . '/' . $name, array(),
     		Microsoft_Http_Client::DELETE);
     		
     	if (!$response->isSuccessful()) {

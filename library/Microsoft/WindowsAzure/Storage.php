@@ -335,7 +335,7 @@ class Microsoft_WindowsAzure_Storage
 	 * Perform request using Microsoft_Http_Client channel
 	 *
 	 * @param string $path Path
-	 * @param string $queryString Query string
+	 * @param array $query Query arguments
 	 * @param string $httpVerb HTTP verb the request will use
 	 * @param array $headers x-ms headers to add
 	 * @param boolean $forTableStorage Is the request for table storage?
@@ -346,7 +346,7 @@ class Microsoft_WindowsAzure_Storage
 	 */
 	protected function _performRequest(
 		$path = '/',
-		$queryString = '',
+		$query = array(),
 		$httpVerb = Microsoft_Http_Client::GET,
 		$headers = array(),
 		$forTableStorage = false,
@@ -375,15 +375,21 @@ class Microsoft_WindowsAzure_Storage
 		// Add version header
 		$headers['x-ms-version'] = $this->_apiVersion;
 		    
-		// URL encoding
-		$path           = self::urlencode($path);
-		$queryString    = self::urlencode($queryString);
+		// Generate URL
+		$requestUrl = $this->getBaseUrl() . $path;
+		if ($query) {
+			$queryString = '';
+			foreach ($query as $key => $value) {
+				$queryString .= ($queryString ? '&' : '?') . rawurlencode($key) . '=' . rawurlencode($value);
+			}
+			$requestUrl .= $queryString;
+		}
 
-		// Generate URL and sign request
+		// Sign request
 		$requestUrl     = $this->_credentials
-						  ->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
+						  ->signRequestUrl($requestUrl, $resourceType, $requiredPermission);
 		$requestHeaders = $this->_credentials
-						  ->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission, $rawData);
+						  ->signRequestHeaders($httpVerb, $path, $query, $headers, $forTableStorage, $resourceType, $requiredPermission, $rawData);
 
 		// Prepare request 
 		$this->_httpClientChannel->resetParameters(true);
@@ -517,18 +523,7 @@ class Microsoft_WindowsAzure_Storage
 	    @date_default_timezone_set($tz);
 	    return $returnValue;
 	}
-	
-	/**
-	 * URL encode function
-	 * 
-	 * @param  string $value Value to encode
-	 * @return string        Encoded value
-	 */
-	public static function urlencode($value)
-	{
-	    return str_replace(' ', '%20', $value);
-	}
-	
+
 	/**
 	 * Is valid metadata name?
 	 *
@@ -547,19 +542,4 @@ class Microsoft_WindowsAzure_Storage
 
         return true;
     }
-    
-    /**
-     * Builds a query string from an array of elements
-     * 
-     * @param array     Array of elements
-     * @return string   Assembled query string
-     */
-    public static function createQueryStringFromArray($queryString)
-    {
-		if (!is_array($queryString)) {
-			throw new Microsoft_WindowsAzure_Exception(__METHOD__ . ' should be given an array as param.');
-		}
-
-    	return count($queryString) > 0 ? '?' . implode('&', $queryString) : '';
-    }	
 }
