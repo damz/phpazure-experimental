@@ -186,9 +186,9 @@ class Microsoft_WindowsAzure_DynamicTableEntityTest extends PHPUnit_Framework_Te
             $entity->Age = 25;
             $entity->Inserted = new DateTime();
             $entity->TestValue = 200000;
+            $entity->NullStringValue = null;
             
             $result = $storageClient->insertEntity($tableName, $entity);
-
             $this->assertNotEquals('0001-01-01T00:00:00', $result->getTimestamp());
             $this->assertNotEquals('', $result->getEtag());
             $this->assertEquals($entity->getAzureValues(), $result->getAzureValues());

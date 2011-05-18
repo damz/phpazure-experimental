@@ -248,7 +248,7 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	        $identifier .= '(';
 	        
 	        if (!is_null($this->_partitionKey)) {
-	            $identifier .= 'PartitionKey=\'' . $this->_partitionKey . '\'';
+	            $identifier .= 'PartitionKey=\'' . self::encodeQuery($this->_partitionKey) . '\'';
 	        }
 	            
 	        if (!is_null($this->_partitionKey) && !is_null($this->_rowKey)) {
@@ -256,7 +256,7 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 	        }
 	            
 	        if (!is_null($this->_rowKey)) {
-	            $identifier .= 'RowKey=\'' . $this->_rowKey . '\'';
+	            $identifier .= 'RowKey=\'' . self::encodeQuery($this->_rowKey) . '\'';
 	        }
 	            
 	        $identifier .= ')';
@@ -344,8 +344,9 @@ class Microsoft_WindowsAzure_Storage_TableEntityQuery
 		$query = str_replace('+', '%2B', $query);
 		$query = str_replace(',', '%2C', $query);
 		$query = str_replace('$', '%24', $query);
-		
-		
+		$query = str_replace('{', '%7B', $query);
+		$query = str_replace('}', '%7D', $query);
+
 		$query = str_replace(' ', '%20', $query);
 		
 		return $query;

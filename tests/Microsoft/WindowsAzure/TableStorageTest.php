@@ -859,6 +859,27 @@ class Microsoft_WindowsAzure_TableStorageTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test retrieve entity by id - curly brackets
+     */
+    public function testRetrieveEntityByIdCurlyBrackets()
+    {
+        if (TESTS_TABLE_RUNTESTS)  {
+            $tableName = $this->generateName();
+            $storageClient = $this->createStorageInstance();
+            $storageClient->createTable($tableName);
+            
+            $entities = $this->_generateEntities(1);
+            $entity = $entities[0];
+            $entity->setRowKey('-1305521559_{47418E06-58CC-40CA-AE7E-F2B0BD5FD885}');
+            
+            $storageClient->insertEntity($tableName, $entity);
+            
+            $result = $storageClient->retrieveEntityById($tableName, $entity->getPartitionKey(), $entity->getRowKey(), 'TSTest_TestEntity');
+            $this->assertEquals($entity, $result);
+        }
+    }
+    
+    /**
      * Generate entities
      * 
      * @param int 		$amount Number of entities to generate

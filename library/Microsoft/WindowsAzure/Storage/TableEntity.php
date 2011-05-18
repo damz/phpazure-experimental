@@ -347,18 +347,26 @@ class Microsoft_WindowsAzure_Storage_TableEntity
      */
     protected function _convertToDateTime($value = '') 
     {
+    	if ($value === '') {
+    		return false;
+    	}
+    	
     	if ($value instanceof DateTime) {
     		return $value;
     	}
     	
-    	try {
-    		if (substr($value, -1) == 'Z') {
-    			$value = substr($value, 0, strlen($value) - 1);
-    		}
-    		return new DateTime($value, new DateTimeZone('UTC'));
-    	}
-    	catch (Exception $ex) {
-    		return false;
-    	}
+    	if (@strtotime($value) !== false) {
+	    	try {
+	    		if (substr($value, -1) == 'Z') {
+	    			$value = substr($value, 0, strlen($value) - 1);
+	    		}
+	    		return new DateTime($value, new DateTimeZone('UTC'));
+	    	}
+	    	catch (Exception $ex) {
+	    		return false;
+	    	}
+	    }
+    	
+    	return false;
     }
 }
