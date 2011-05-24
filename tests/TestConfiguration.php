@@ -106,6 +106,13 @@ define('TESTS_MANAGEMENT_SUBSCRIPTIONID',       '');
 define('TESTS_MANAGEMENT_CERTIFICATEPASSWORD',  'phpazure');
 
 /**
+ * SQL Management tests
+ */
+define('TESTS_SQLMANAGEMENT_RUNTESTS',             true);
+define('TESTS_SQLMANAGEMENT_SUBSCRIPTIONID',       '');
+define('TESTS_SQLMANAGEMENT_CERTIFICATEPASSWORD',  'phpazure');
+
+/**
  * PHPUnit Code Coverage / Test Report
  */
 define('TESTS_GENERATE_REPORT',                 true);

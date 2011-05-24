@@ -26,34 +26,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @category   Microsoft
- * @package    Microsoft
+ * @package    Microsoft_WindowsAzure
  * @subpackage UnitTests
- * @version    $Id$
+ * @version    $Id: AllTests.php 55733 2011-01-03 09:17:16Z unknown $
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
 
 /**
- * Test helper
+ * Test helpers
  */
-require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'TestHelper.php';
+require_once dirname(__FILE__) . '/../../../TestHelper.php';
 
 if (!defined('PHPUnit_MAIN_METHOD')) {
-    define('PHPUnit_MAIN_METHOD', 'Microsoft_AllTests::main');
+    define('PHPUnit_MAIN_METHOD', 'Microsoft_SqlAzure_Management_AllTests::main');
 }
 
-require_once 'Microsoft/WindowsAzure/AllTests.php';
-require_once 'Microsoft/SqlAzure/AllTests.php';
+require_once 'Microsoft/SqlAzure/Management/ManagementClientTest.php';
 
 /**
  * @category   Microsoft
- * @package    Microsoft
+ * @package    Microsoft_SqlAzure
  * @subpackage UnitTests
- * @version    $Id$
+ * @version    $Id: AllTests.php 55733 2011-01-03 09:17:16Z unknown $
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_AllTests
+class Microsoft_SqlAzure_Management_AllTests
 {
     public static function main()
     {
@@ -63,14 +62,12 @@ class Microsoft_AllTests
     public static function suite()
     {
         $suite = new PHPUnit_Framework_TestSuite(__CLASS__);
-
-        $suite->addTest(Microsoft_WindowsAzure_AllTests::suite());
-        $suite->addTest(Microsoft_SqlAzure_AllTests::suite());
-
+        $suite->addTestSuite('Microsoft_SqlAzure_Management_ManagementClientTest');
+        
         return $suite;
     }
 }
 
-if (PHPUnit_MAIN_METHOD == 'Microsoft_AllTests::main') {
-    Microsoft_AllTests::main();
+if (PHPUnit_MAIN_METHOD == 'Microsoft_SqlAzure_Management_AllTests::main') {
+    Microsoft_SqlAzure_Management_AllTests::main();
 }
