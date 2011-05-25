@@ -176,8 +176,12 @@ class Microsoft_Console_Command
 			
 			// Set value
 			$parameterValues[] = $value;
-		}		
-	
+			$argvValues[$parameter->aliases[0]] = $value;
+		}
+		
+		// Supply argv in a nice way
+		$parameterValues['argv'] = $parameterInputs;
+		
 		// Run the command
 		$className = $handler->class;
 		$classInstance = new $className();
@@ -245,9 +249,16 @@ class Microsoft_Console_Command
 						$parameters = $method->getParameters();
 						$parametersFor = self::_findValueForDocComment('@command-parameter-for', $method->getDocComment());
 						for ($pi = 0; $pi < count($parameters); $pi++) {
-							// Find the $parametersFor with the smae name defined
+							// Initialize
 							$parameter = $parameters[$pi];
 							$parameterFor = null;
+							
+							// Is it a "catch-all" parameter?
+							if ($parameter->getName() == 'argv') {
+								continue;
+							}
+							
+							// Find the $parametersFor with the same name defined
 							foreach ($parametersFor as $possibleParameterFor) {
 								$possibleParameterFor = explode(' ', $possibleParameterFor, 4);
 								if ($possibleParameterFor[0] == '$' . $parameter->getName()) {
