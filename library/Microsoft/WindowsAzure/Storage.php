@@ -556,6 +556,10 @@ class Microsoft_WindowsAzure_Storage
      */
     public static function createQueryStringFromArray($queryString)
     {
+		if (!is_array($queryString)) {
+			throw new Microsoft_WindowsAzure_Exception(__METHOD__ . ' should be given an array as param.');
+		}
+
     	return count($queryString) > 0 ? '?' . implode('&', $queryString) : '';
     }	
 }

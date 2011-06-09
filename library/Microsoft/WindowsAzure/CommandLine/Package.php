@@ -125,8 +125,8 @@ class Microsoft_WindowsAzure_CommandLine_Package
 		// Find Windows Azure SDK bin folder
 		$windowsAzureSdkFolderCandidates = array_merge(
 			isset($_SERVER['ProgramFiles']) ? glob($_SERVER['ProgramFiles'] . '\Windows Azure SDK\*\bin', GLOB_NOSORT) : array(),
-			isset($_SERVER['ProgramFiles']) ? glob($_SERVER['ProgramFiles(x86)'] . '\Windows Azure SDK\*\bin', GLOB_NOSORT) : array(),
-			isset($_SERVER['ProgramFiles']) ? glob($_SERVER['ProgramW6432'] . '\Windows Azure SDK\*\bin', GLOB_NOSORT) : array()
+			isset($_SERVER['ProgramFiles(x86)']) ? glob($_SERVER['ProgramFiles(x86)'] . '\Windows Azure SDK\*\bin', GLOB_NOSORT) : array(),
+			isset($_SERVER['ProgramFilesW6432']) ? glob($_SERVER['ProgramW6432'] . '\Windows Azure SDK\*\bin', GLOB_NOSORT) : array()
 		);
 		if (count($windowsAzureSdkFolderCandidates) == 0) {
 			throw new Microsoft_Console_Exception('Could not locate Windows Azure SDK for PHP.');
