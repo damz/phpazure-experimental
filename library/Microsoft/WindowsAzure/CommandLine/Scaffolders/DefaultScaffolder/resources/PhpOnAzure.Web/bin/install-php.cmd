@@ -1,15 +1,10 @@
 @echo off
-ECHO "Starting PHP installation..." >> ..\startup-tasks-log.txt
 
-md "%~dp0appdata"
-cd "%~dp0appdata"
-cd ..
+REM This script will only execute on production Windows Azure. The PS script prohibits running on devfabric.
 
-reg add "hku\.default\software\microsoft\windows\currentversion\explorer\user shell folders" /v "Local AppData" /t REG_EXPAND_SZ /d "%~dp0appdata" /f
-"..\resources\WebPICmdLine\webpicmdline" /Products:PHP53 /AcceptEula  >> ..\startup-tasks-log.txt 2>>..\startup-tasks-error-log.txt
-"..\resources\WebPICmdLine\webpicmdline" /Products:SQLNativeClient /AcceptEula  >> ..\startup-tasks-log.txt 2>>..\startup-tasks-error-log.txt
-"..\resources\WebPICmdLine\webpicmdline" /Products:SQLDriverPHP53IIS /AcceptEula  >> ..\startup-tasks-log.txt 2>>..\startup-tasks-error-log.txt
-"..\resources\WebPICmdLine\webpicmdline" /Products:WinCache53 /AcceptEula  >> ..\startup-tasks-log.txt 2>>..\startup-tasks-error-log.txt
-reg add "hku\.default\software\microsoft\windows\currentversion\explorer\user shell folders" /v "Local AppData" /t REG_EXPAND_SZ /d %%USERPROFILE%%\AppData\Local /f
+ECHO Installing PHP runtime... >> ..\startup-tasks-log.txt
 
-ECHO "Completed PHP installation." >> ..\startup-tasks-log.txt
+powershell.exe Set-ExecutionPolicy Unrestricted
+powershell.exe .\install-php.ps1
+
+ECHO Installed PHP runtime. >> ..\startup-tasks-log.txt

@@ -126,10 +126,10 @@ class Microsoft_WindowsAzure_CommandLine_Package
 		$windowsAzureSdkFolderCandidates = array_merge(
 			isset($_SERVER['ProgramFiles']) ? glob($_SERVER['ProgramFiles'] . '\Windows Azure SDK\*\bin', GLOB_NOSORT) : array(),
 			isset($_SERVER['ProgramFiles(x86)']) ? glob($_SERVER['ProgramFiles(x86)'] . '\Windows Azure SDK\*\bin', GLOB_NOSORT) : array(),
-			isset($_SERVER['ProgramFilesW6432']) ? glob($_SERVER['ProgramW6432'] . '\Windows Azure SDK\*\bin', GLOB_NOSORT) : array()
+			isset($_SERVER['ProgramW6432']) ? glob($_SERVER['ProgramW6432'] . '\Windows Azure SDK\*\bin', GLOB_NOSORT) : array()
 		);
 		if (count($windowsAzureSdkFolderCandidates) == 0) {
-			throw new Microsoft_Console_Exception('Could not locate Windows Azure SDK for PHP.');
+			throw new Microsoft_Console_Exception('Could not locate the Windows Azure SDK. Download the tools from www.azure.com or using the Web Platform Installer.');
 		}
 		$cspack = '"' . $windowsAzureSdkFolderCandidates[0] . '\cspack.exe' . '"';
 		$csrun = '"' . $windowsAzureSdkFolderCandidates[0] . '\csrun.exe' . '"';
@@ -185,7 +185,8 @@ class Microsoft_WindowsAzure_CommandLine_Package
 		
 		// Do we have to start the development fabric?
 		if ($runDevFabric) {
-			passthru($csrun . ' /devstore:start /devfabric:start');
+			passthru($csrun . ' /devstore:start');
+			passthru($csrun . ' /devfabric:start');
 			passthru($csrun . ' /removeAll');
 			passthru($csrun . ' /run:"' . $packageOut . ';' . $serviceConfigurationFileOut . '" /launchBrowser');
 		}
@@ -205,8 +206,19 @@ class Microsoft_WindowsAzure_CommandLine_Package
 		$archive = new Phar($scaffolderFile);
 		$archive->buildFromIterator(
 			new RecursiveIteratorIterator(
-				new RecursiveDirectoryIterator(realpath($rootPath))),
+				new SourceControlFilteredRecursiveFilterIterator(
+					new RecursiveDirectoryIterator(realpath($rootPath)))),
 		realpath($rootPath));
 	}
 }
 Microsoft_Console_Command::bootstrap($_SERVER['argv']);
+
+class SourceControlFilteredRecursiveFilterIterator
+	extends RecursiveFilterIterator {
+	public static $filters = array('.svn', '.git');
+ 
+    public function accept() {
+    	return !in_array(
+    	$this->current()->getFilename(), self::$filters, true);
+    }
+}

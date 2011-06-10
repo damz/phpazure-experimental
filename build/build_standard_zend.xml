@@ -44,7 +44,7 @@
                         }
                     }                        
                 }
-                
+
                 $this->log("Processing replaceHeader on " . count($files) . " files.");
 
                 foreach($files as $file) {
@@ -67,6 +67,8 @@
     <mkdir dir="./build" />
     <mkdir dir="./build/library/Zend/Service/WindowsAzure" />
     <mkdir dir="./build/tests/Zend/Service/WindowsAzure" />
+    <mkdir dir="./build/library/Zend/Service/SqlAzure" />
+    <mkdir dir="./build/tests/Zend/Service/SqlAzure" />
     <mkdir dir="./build/documentation/manual/en/module_specs" />
 
     <echo msg="Creating output directory: ${outputPath}" />
@@ -77,6 +79,12 @@
     <echo msg="Creating library source files in build directory..." />
     <copy todir="./build/library/Zend/Service/WindowsAzure" overwrite="true">
       <fileset dir="../library/Microsoft/WindowsAzure">
+        <include name="**/*.*" />
+        <exclude name="**/.svn" />
+      </fileset>
+    </copy>
+    <copy todir="./build/library/Zend/Service/SqlAzure" overwrite="true">
+      <fileset dir="../library/Microsoft/SqlAzure">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
@@ -101,6 +109,12 @@
     <echo msg="Creating tests source files in build directory..." />
     <copy todir="./build/tests/Zend/Service/WindowsAzure" overwrite="true">
       <fileset dir="../tests/Microsoft/WindowsAzure">
+        <include name="**/*.*" />
+        <exclude name="**/.svn" />
+      </fileset>
+    </copy>
+    <copy todir="./build/tests/Zend/Service/SqlAzure" overwrite="true">
+      <fileset dir="../tests/Microsoft/SqlAzure">
         <include name="**/*.*" />
         <exclude name="**/.svn" />
       </fileset>
@@ -132,6 +146,8 @@
           <regexp pattern="Microsoft\/Uri" replace="Zend/Uri" ignoreCase="true" />
           <regexp pattern="Microsoft_WindowsAzure" replace="Zend_Service_WindowsAzure" ignoreCase="true" />
           <regexp pattern="Microsoft\/WindowsAzure" replace="Zend/Service/WindowsAzure" ignoreCase="true" />
+          <regexp pattern="Microsoft_SqlAzure" replace="Zend_Service_SqlAzure" ignoreCase="true" />
+          <regexp pattern="Microsoft\/SqlAzure" replace="Zend/Service/SqlAzure" ignoreCase="true" />
           <regexp pattern="Microsoft Azure" replace="Zend Framework - Zend_Service_WindowsAzure" ignoreCase="true" />
           <regexp pattern="Microsoft_" replace="Zend_Service_" ignoreCase="true" />
           <regexp pattern="Microsoft\/" replace="Zend/Service/" ignoreCase="true" />
@@ -139,12 +155,12 @@
           <regexp pattern="microsoft.windowsazure" replace="zend.service.windowsazure" ignoreCase="true" />
 
           <regexp pattern="\@category   Microsoft" replace="@category   Zend" ignoreCase="true" />
-          <regexp pattern="\@copyright  Copyright \(c\) 2009 - 2011, RealDolmen \(http\:\/\/www.realdolmen.com\)" replace="@copyright  Copyright (c) 2005-2010 Zend Technologies USA Inc. (http://www.zend.com)" ignoreCase="true" />
+          <regexp pattern="\@copyright  Copyright \(c\) 2009 - 2011, RealDolmen \(http\:\/\/www.realdolmen.com\)" replace="@copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)" ignoreCase="true" />
           <regexp pattern="\@license    http\:\/\/phpazure\.codeplex\.com\/license" replace="@license    http://framework.zend.com/license/new-bsd     New BSD License" ignoreCase="true" />
           <regexp pattern="\@version.*" replace="@version    $Id$" ignoreCase="true" />
 
           <regexp pattern="\@category   Microsoft" replace="@category   Zend" ignoreCase="true" />
-          <regexp pattern="\@copyright  Copyright \(c\) 2009 - 2011, RealDolmen \(http\:\/\/www.realdolmen.com\)" replace="@copyright  Copyright (c) 2005-2010 Zend Technologies USA Inc. (http://www.zend.com)" ignoreCase="true" />
+          <regexp pattern="\@copyright  Copyright \(c\) 2009 - 2011, RealDolmen \(http\:\/\/www.realdolmen.com\)" replace="@copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)" ignoreCase="true" />
           <regexp pattern="\@license    http\:\/\/phpazure\.codeplex\.com\/license" replace="@license    http://framework.zend.com/license/new-bsd     New BSD License" ignoreCase="true" />
           <regexp pattern="\@version.*" replace="@version    $Id$" ignoreCase="true" />
         </replaceregexp>

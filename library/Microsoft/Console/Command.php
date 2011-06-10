@@ -27,7 +27,6 @@
  *
  * @category   Microsoft
  * @package    Microsoft_Console
- * @subpackage Exception
  * @version    $Id: Exception.php 55733 2011-01-03 09:17:16Z unknown $
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
@@ -130,26 +129,26 @@ class Microsoft_Console_Command
 		$requiredHandlerName = str_replace('.bat', '', str_replace('.sh', '', str_replace('.php', '', strtolower(basename($argv[0])))));
 		$handler = null;
 		foreach ($model as $possibleHandler) {
-			if ($possibleHandler->handler == $requiredHandlerName) {
+			if ($possibleHandler->handler == strtolower($requiredHandlerName)) {
 				$handler = $possibleHandler;
 				break;
 			}
 		}
 		if (is_null($handler)) {
-			self::stderr("No class found that implements handler " . $requiredHandlerName);
+			self::stderr("No class found that implements handler " . $requiredHandlerName . ".");
 			die();
 		}
 		
 		// Find a method that matches the command name
 		$command = null;
 		foreach ($handler->commands as $possibleCommand) {
-			if (in_array((isset($argv[1]) ? $argv[1] : '<default>'), $possibleCommand->aliases)) {
+			if (in_array(strtolower(isset($argv[1]) ? $argv[1] : '<default>'), $possibleCommand->aliases)) {
 				$command = $possibleCommand;
 				break;
 			}
 		}
 		if (is_null($command)) {
-			self::stderr("No method found that implements command " . (isset($argv[1]) ? $argv[1] : '<default>'));
+			self::stderr("No method found that implements command " . (isset($argv[1]) ? $argv[1] : '<default>') . ".");
 			die();
 		}
 		
@@ -218,7 +217,7 @@ class Microsoft_Console_Command
 				$handlerDescription = str_replace('\n', "\n", $handlerDescription);
 				
 				$handlerModel = (object)array(
-					'handler'     => $handler,
+					'handler'     => strtolower($handler),
 					'description' => $handlerDescription,
 					'headers'     => $handlerHeaders,
 					'footers'     => $handlerFooters,
@@ -229,6 +228,9 @@ class Microsoft_Console_Command
 				$methods = $type->getMethods();
 			    foreach ($methods as $method) {
 			       	$commands = self::_findValueForDocComment('@command-name', $method->getDocComment());
+			       	for ($x = 0; $x < count($commands); $x++) {
+			       		$commands[$x] = strtolower($commands[$x]); 
+			       	}
 			       	$commandDescriptions = self::_findValueForDocComment('@command-description', $method->getDocComment());
 			       	$commandExamples = self::_findValueForDocComment('@command-example', $method->getDocComment());
 			       	
