@@ -201,6 +201,81 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 		}
 		echo $client->getLastRequestId();
 	}
+	
+	/**
+	 * Create storage account.
+	 * 
+	 * @command-name Create
+	 * @command-description Create storage account.
+	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
+	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
+	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
+	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The storage service account name.
+	 * @command-parameter-for $label Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Label Required. A label for the storage service.
+	 * @command-parameter-for $description Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Description Optional. A description for the storage service.
+	 * @command-parameter-for $location Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Location Required if AffinityGroup is not specified. The location where the storage service will be created.
+	 * @command-parameter-for $affinityGroup Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --AffinityGroup Required if Location is not specified. The name of an existing affinity group associated with this subscription.
+	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
+	 * @command-example Create storage service account in West Europe
+	 * @command-example Create -p:"phpazure" --Name:"phptestsdk2" --Label:"phptestsdk2" --Location:"West Europe"
+	 */
+	public function createCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $label, $description, $location, $affinityGroup, $waitForOperation = false)
+	{
+		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
+		$client->createStorageAccount($serviceName, $label, $description, $location, $affinityGroup);
+		if ($waitForOperation) {
+			$client->waitForOperation();
+		}
+		echo $client->getLastRequestId();
+	}
+	
+	/**
+	 * Update storage account.
+	 * 
+	 * @command-name Update
+	 * @command-description Update storage account.
+	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
+	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
+	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
+	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The storage account name.
+	 * @command-parameter-for $label Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Label Required. A label for the storage service.
+	 * @command-parameter-for $description Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Description Optional. A description for the storage service.
+	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
+	 * @command-example Update storage service
+	 * @command-example Update -p:"phpazure" --Name:"phptestsdk2" --Label:"New label" --Description:"Some description"
+	 */
+	public function updateCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $label, $description, $waitForOperation = false)
+	{
+		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
+		$client->updateStorageAccount($serviceName, $label, $description);
+		if ($waitForOperation) {
+			$client->waitForOperation();
+		}
+		echo $client->getLastRequestId();
+	}
+	
+	/**
+	 * Delete storage account.
+	 * 
+	 * @command-name Delete
+	 * @command-description Delete storage account.
+	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
+	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
+	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
+	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The storage account name.
+	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
+	 * @command-example Delete storage service
+	 * @command-example Delete -p:"phpazure" --Name:"phptestsdk2"
+	 */
+	public function deleteCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $waitForOperation = false)
+	{
+		$client = new Microsoft_WindowsAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
+		$client->deleteStorageAccount($serviceName);
+		if ($waitForOperation) {
+			$client->waitForOperation();
+		}
+		echo $client->getLastRequestId();
+	}
 }
 
 Microsoft_Console_Command::bootstrap($_SERVER['argv']);

@@ -57,8 +57,10 @@ require_once dirname(__FILE__) . '/../../AutoLoader.php';
  * @property string $CurrentUpgradeDomainState  The state of the current upgrade domain. Possible values are Before and During.
  * @property string $CurrentUpgradeDomain       An integer value that identifies the current upgrade domain. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
  * @property string $UpgradeDomainCount         An integer value that indicates the number of upgrade domains in the deployment.
+ * @property string $sdkVersion				    Version of SDK used to create the deployment
  * @property array  $RoleInstanceList           The list of role instances.
  * @property array  $RoleList                   The list of roles.
+ * @property array  $InputEndpoints             The list of input endpoints.
  */
 class Microsoft_WindowsAzure_Management_DeploymentInstance
 	extends Microsoft_WindowsAzure_Management_ServiceEntityAbstract
@@ -78,10 +80,12 @@ class Microsoft_WindowsAzure_Management_DeploymentInstance
      * @param string $currentUpgradeDomainState  The state of the current upgrade domain. Possible values are Before and During.
      * @param string $currentUpgradeDomain       An integer value that identifies the current upgrade domain. Upgrade domains are identified with a zero-based index: the first upgrade domain has an ID of 0, the second has an ID of 1, and so on.
      * @param string $upgradeDomainCount         An integer value that indicates the number of upgrade domains in the deployment.
+     * @param string $sdkVersion				 Version of SDK used to create the deployment
      * @param array  $roleInstanceList           The list of role instances.
      * @param array  $roleList                   The list of roles.
+     * @param array  $inputEndpoints             The list of input endpoints.
 	 */
-    public function __construct($name, $deploymentSlot, $privateID, $label, $url, $configuration, $status, $upgradeStatus, $upgradeType, $currentUpgradeDomainState, $currentUpgradeDomain, $upgradeDomainCount, $roleInstanceList = array(), $roleList = array()) 
+    public function __construct($name, $deploymentSlot, $privateID, $label, $url, $configuration, $status, $upgradeStatus, $upgradeType, $currentUpgradeDomainState, $currentUpgradeDomain, $upgradeDomainCount, $sdkVersion, $roleInstanceList = array(), $roleList = array(), $inputEndpoints = array()) 
     {	        
         $this->_data = array(
             'name'                        => $name,
@@ -95,9 +99,11 @@ class Microsoft_WindowsAzure_Management_DeploymentInstance
             'upgradetype'                 => $upgradeType,
             'currentupgradedomainstate'   => $currentUpgradeDomainState,
             'currentupgradedomain'        => $currentUpgradeDomain,
-            'upgradedomaincount'          => $upgradeDomainCount,
+            'upgradedomaincount'          => $upgradeDomainCount, 
+            'sdkversion'                  => $sdkVersion,
             'roleinstancelist'            => $roleInstanceList,
-            'rolelist'                    => $roleList    
+            'rolelist'                    => $roleList,
+            'inputendpoints'              => $inputEndpoints  
         );
     }
 }

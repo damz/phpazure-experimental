@@ -68,7 +68,7 @@ class Microsoft_WindowsAzure_Management_Client
 	 * 
 	 * @var string
 	 */
-	protected $_apiVersion = '2011-02-25';
+	protected $_apiVersion = '2011-06-01';
 	
 	/**
 	 * Subscription ID
@@ -432,7 +432,9 @@ class Microsoft_WindowsAzure_Management_Client
 		    		$xmlOperation->OperationName,
 		    		array(),
 		    		(array)$xmlOperation->OperationCaller,
-		    		(array)$xmlOperation->OperationStatus
+		    		(array)$xmlOperation->OperationStatus,
+		    		(string)$xmlOperation->OperationStartedTime,
+		    		(string)$xmlOperation->OperationCompletedTime
 		    	);
 		    	
 		    	// Parse parameters
@@ -701,6 +703,116 @@ class Microsoft_WindowsAzure_Management_Client
 			}
 			return array();
 		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Create Storage Account operation creates a new storage account in Windows Azure.
+     * 
+	 * @param string $serviceName Required. A name for the storage account that is unique to the subscription.
+	 * @param string $label Required. A label for the storage account that is Base64-encoded. The label may be up to 100 characters in length.
+	 * @param string $description Optional. A description for the storage account. The description may be up to 1024 characters in length.
+	 * @param string $location Required if AffinityGroup is not specified. The location where the storage account is created. 
+	 * @param string $affinityGroup Required if Location is not specified. The name of an existing affinity group in the specified subscription.
+	 * @return Microsoft_WindowsAzure_Management_StorageServiceInstance
+	 * @throws Microsoft_WindowsAzure_Management_Exception
+	 */
+    public function createStorageAccount($serviceName, $label, $description, $location = null, $affinityGroup = null)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($label == '' || is_null($label)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
+    	}
+        if (strlen($label) > 100) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
+    	}
+    	if ($description == '' || is_null($description)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Descritpion should be specified.');
+    	}
+    	if (strlen($description) > 1024) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Description is too long. The maximum length is 1024 characters.');
+    	}
+    	if ( (is_null($location) && is_null($affinityGroup)) || (!is_null($location) && !is_null($affinityGroup)) ) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Please specify a location -or- an affinity group for the service.');
+    	}
+    	
+    	$locationOrAffinityGroup = is_null($location)
+    		? '<AffinityGroup>' . $affinityGroup . '</AffinityGroup>'
+    		: '<Location>' . $location . '</Location>';
+    	
+        $response = $this->_performRequest(self::OP_STORAGE_ACCOUNTS, '',
+    		Microsoft_Http_Client::POST,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<CreateStorageServiceInput xmlns="http://schemas.microsoft.com/windowsazure"><ServiceName>' . $serviceName . '</ServiceName><Description>' . $serviceName . '</Description><Label>' . base64_encode($label) . '</Label>' . $locationOrAffinityGroup . '</CreateStorageServiceInput>');
+ 	
+    	if ($response->isSuccessful()) {
+			return new Microsoft_WindowsAzure_Management_StorageServiceInstance(
+				'https://management.core.windows.net/' . $this->getSubscriptionId() . '/services/storageservices/' . $serviceName,
+				$serviceName,
+				$description,
+				$affinityGroup,
+				$location,
+				base64_encode($label)
+			);
+		} else {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Update Storage Account operation updates the label and/or the description for a storage account in Windows Azure.
+     * 
+	 * @param string $serviceName Required. The name of the storage account to update.
+	 * @param string $label Required. A label for the storage account that is Base64-encoded. The label may be up to 100 characters in length.
+	 * @param string $description Optional. A description for the storage account. The description may be up to 1024 characters in length.
+	 * @throws Microsoft_WindowsAzure_Management_Exception
+	 */
+    public function updateStorageAccount($serviceName, $label, $description)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	if ($label == '' || is_null($label)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label should be specified.');
+    	}
+        if (strlen($label) > 100) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Label is too long. The maximum length is 100 characters.');
+    	}
+    	if ($description == '' || is_null($description)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Descritpion should be specified.');
+    	}
+    	if (strlen($description) > 1024) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Description is too long. The maximum length is 1024 characters.');
+    	}
+    	
+        $response = $this->_performRequest(self::OP_STORAGE_ACCOUNTS . '/' . $serviceName, '',
+    		Microsoft_Http_Client::PUT,
+    		array('Content-Type' => 'application/xml; charset=utf-8'),
+    		'<UpdateStorageServiceInput xmlns="http://schemas.microsoft.com/windowsazure"><Description>' . $description . '</Description><Label>' . base64_encode($label) . '</Label></UpdateStorageServiceInput>');
+
+    	if (!$response->isSuccessful()) {
+			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+    }
+    
+    /**
+     * The Delete Storage Account operation deletes the specified storage account from Windows Azure.
+     * 
+	 * @param string $serviceName Required. The name of the storage account to delete.
+	 * @throws Microsoft_WindowsAzure_Management_Exception
+	 */
+    public function deleteStorageAccount($serviceName)
+    {
+        if ($serviceName == '' || is_null($serviceName)) {
+    		throw new Microsoft_WindowsAzure_Management_Exception('Service name should be specified.');
+    	}
+    	
+        $response = $this->_performRequest(self::OP_STORAGE_ACCOUNTS . '/' . $serviceName, '', Microsoft_Http_Client::DELETE);
+        
+    	if (!$response->isSuccessful()) {
 			throw new Microsoft_WindowsAzure_Management_Exception($this->_getErrorMessage($response, 'Resource could not be accessed.'));
 		}
     }
@@ -1190,7 +1302,8 @@ class Microsoft_WindowsAzure_Management_Client
 				(string)$xmlService->UpgradeType,
 				(string)$xmlService->CurrentUpgradeDomainState,
 				(string)$xmlService->CurrentUpgradeDomain,
-				(string)$xmlService->UpgradeDomainCount
+				(string)$xmlService->UpgradeDomainCount,
+				(string)$xmlService->SdkVersion
 			);
 				
 			// Append role instances
@@ -1206,7 +1319,10 @@ class Microsoft_WindowsAzure_Management_Client
 						$roleInstances[] = array(
 						    'rolename' => (string)$xmlRoleInstances[$i]->RoleName,
 						    'instancename' => (string)$xmlRoleInstances[$i]->InstanceName,
-						    'instancestatus' => (string)$xmlRoleInstances[$i]->InstanceStatus
+						    'instancestatus' => (string)$xmlRoleInstances[$i]->InstanceStatus,
+						    'instanceupgradedomain' => (string)$xmlRoleInstances[$i]->InstanceUpgradeDomain,
+							'instancefaultdomain' => (string)$xmlRoleInstances[$i]->InstanceFaultDomain,
+							'instancesize' => (string)$xmlRoleInstances[$i]->InstanceSize
 						);
 					}
 				}
@@ -1231,6 +1347,27 @@ class Microsoft_WindowsAzure_Management_Client
 					}
 				}
 				$returnValue->RoleList = $roles;
+			}
+
+			// Append InputEndpointList
+			if ($xmlService->InputEndpointList && $xmlService->InputEndpointList->InputEndpoint) {
+				$xmlInputEndpoints = $xmlService->InputEndpointList->InputEndpoint;
+				if (count($xmlService->InputEndpointList->InputEndpoint) == 1) {
+		    	    $xmlInputEndpoints = array($xmlService->InputEndpointList->InputEndpoint);
+		    	}
+		    	
+				$inputEndpoints = array();
+				if (!is_null($xmlInputEndpoints)) {				
+					for ($i = 0; $i < count($xmlInputEndpoints); $i++) {
+						$inputEndpoints[] = array(
+						    'rolename' => (string)$xmlInputEndpoints[$i]->RoleName,
+						    'vip' => (string)$xmlInputEndpoints[$i]->Vip,
+							'port' => (string)$xmlInputEndpoints[$i]->Port
+						);
+					}
+				}
+				
+				$returnValue->InputEndpoints = $inputEndpoints;
 			}
 				
 			return $returnValue;
