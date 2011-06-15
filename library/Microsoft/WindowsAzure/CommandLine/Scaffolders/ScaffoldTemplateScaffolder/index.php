@@ -39,7 +39,7 @@
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */ 
-class Scaffolder
+class ScaffoldTemplateScaffolder
 	extends Microsoft_WindowsAzure_CommandLine_PackageScaffolder_PackageScaffolderAbstract
 {
 	/**
@@ -55,9 +55,6 @@ class Scaffolder
 		if (empty($options['Name'])) {
 			throw new Microsoft_Console_Exception('Missing argument for scaffolder: Name');
 		}
-		
-		// Add an option
-		$options['ScaffolderCommand'] = '';
 		
 		// Extract to disk
 		$this->log('Extracting resources...');

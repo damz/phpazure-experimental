@@ -70,7 +70,6 @@ class Microsoft_WindowsAzure_CommandLine_Scaffolder
 	 */
 	public function runCommand($path, $scaffolder, $argv)
 	{
-		var_dump($_SERVER);
 		// Default parameter value
 		if (is_null($scaffolder) || $scaffolder == '') {
 			$scaffolder = 'DefaultScaffolder';
@@ -88,10 +87,11 @@ class Microsoft_WindowsAzure_CommandLine_Scaffolder
 		}
 		
 		// Include scaffolder
+		$scaffolderClass = str_replace('.phar', '', basename($scaffolderFile));
 		$archive = new Phar($scaffolderFile);
 		require_once $scaffolderFile;
-		if (!class_exists('Scaffolder')) {
-			throw new Microsoft_Console_Exception('Could not locate a class named Scaffolder in the given scaffolder: ' . $scaffolder . '. Make sure the scaffolder package contains a file named index.php and contains a class named Scaffolder.');
+		if (!class_exists($scaffolderClass)) {
+			throw new Microsoft_Console_Exception('Could not locate a class named ' . $scaffolderClass . ' in the given scaffolder: ' . $scaffolder . '. Make sure the scaffolder package contains a file named index.php and contains a class named Scaffolder.');
 		}
 		
 		// Cleanup $argv
@@ -105,7 +105,7 @@ class Microsoft_WindowsAzure_CommandLine_Scaffolder
 		}
 		
 		// Run scaffolder
-		$scaffolderInstance = new Scaffolder();
+		$scaffolderInstance = new $scaffolderClass();
 		$scaffolderInstance->invoke($archive, $path, $options);
 	}
 		
