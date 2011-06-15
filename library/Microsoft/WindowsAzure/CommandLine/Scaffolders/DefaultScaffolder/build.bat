@@ -1,1 +1,1 @@
-php ..\..\Package.php CreateScaffolder -p:"./" -out:"..\DefaultScaffolder.phar"
+php ..\..\Scaffolder.php Build -p:"./" -out:"..\DefaultScaffolder.phar"

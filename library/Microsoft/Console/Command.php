@@ -118,6 +118,11 @@ class Microsoft_Console_Command
 	 */
 	public static function bootstrap($argv)
 	{
+		// Abort bootstrapping depending on the MICROSOFT_CONSOLE_COMMAND_HOST constant.
+		if (defined('MICROSOFT_CONSOLE_COMMAND_HOST') && strtolower(MICROSOFT_CONSOLE_COMMAND_HOST) != 'console') {
+			return;
+		}
+		
 		// Replace error handler
 		set_error_handler(array('Microsoft_Console_Command', 'phpstderr'));
 		set_exception_handler(array('Microsoft_Console_Command', 'phpstdex'));

@@ -80,8 +80,10 @@ abstract class Microsoft_WindowsAzure_CommandLine_PackageScaffolder_PackageScaff
 		$phar->extractTo($path);
 		@unlink($path . '/index.php');
 		@unlink($path . '/build.bat');
-		$this->copyDirectory($path . '/resources', $path, false);
+		$this->copyDirectory($path . '/resources', $path . '/tmp', false);
 		$this->deleteDirectory($path . '/resources');
+		$this->copyDirectory($path . '/tmp', $path, false);
+		$this->deleteDirectory($path . '/tmp');
 	}
 	
 	/**

@@ -60,51 +60,6 @@ class Microsoft_WindowsAzure_CommandLine_Package
 	extends Microsoft_Console_Command
 {	
 	/**
-	 * Scaffolds a Windows Azure project structure which can be customized before packaging.
-	 * 
-	 * @command-name Scaffold
-	 * @command-description Scaffolds a Windows Azure project structure which can be customized before packaging.
-	 * 
-	 * @command-parameter-for $path Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Path|-p Required. The path to create the Windows Azure project structure.
-	 * @command-parameter-for $scaffolder Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Scaffolder|-s Optional. The path to the scaffolder to use. Defaults to Scaffolders/DefaultScaffolder.phar 
-	 */
-	public function scaffoldCommand($path, $scaffolder, $argv)
-	{
-		// Default parameter value
-		if ($scaffolder == '') {
-			$scaffolder = dirname(__FILE__) . '/Scaffolders/DefaultScaffolder.phar';
-		}
-		$scaffolder = realpath($scaffolder);
-		
-		// Verify scaffolder
-		if (!is_file($scaffolder)) {
-			throw new Microsoft_Console_Exception('Could not locate the given scaffolder: ' . $scaffolder);
-		}
-		
-		// Include scaffolder
-		$archive = new Phar($scaffolder);
-		include $scaffolder;
-		if (!class_exists('Scaffolder')) {
-			throw new Microsoft_Console_Exception('Could not locate a class named Scaffolder in the given scaffolder: ' . $scaffolder . '. Make sure the scaffolder package contains a file named index.php and contains a class named Scaffolder.');
-		}
-		
-		// Cleanup $argv
-		$options = array();
-		foreach ($argv as $arg) {
-			list($key, $value) = explode(':', $arg, 2);
-			while (substr($key, 0, 1) == '-') {
-				$key = substr($key, 1);
-			}
-			$options[$key] = $value;
-		}
-		
-		// Run scaffolder
-		$scaffolderInstance = new Scaffolder();
-		$scaffolderInstance->invoke($archive, $path, $options);
-	}
-	
-
-	/**
 	 * Packages a Windows Azure project structure.
 	 * 
 	 * @command-name Create
@@ -191,34 +146,5 @@ class Microsoft_WindowsAzure_CommandLine_Package
 			passthru($csrun . ' /run:"' . $packageOut . ';' . $serviceConfigurationFileOut . '" /launchBrowser');
 		}
 	}
-	
-	/**
-	 * Creates a scaffolder from a given path.
-	 * 
-	 * @command-name CreateScaffolder
-	 * @command-description Creates a scaffolder from a given path.
-	 * 
-	 * @command-parameter-for $rootPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Path|-p Required. The path to package into a scaffolder.
-	 * @command-parameter-for $scaffolderFile Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --OutFile|-out Required. The filename of the scaffolder.
-	 */
-	public function createScaffolderCommand($rootPath, $scaffolderFile)
-	{
-		$archive = new Phar($scaffolderFile);
-		$archive->buildFromIterator(
-			new RecursiveIteratorIterator(
-				new SourceControlFilteredRecursiveFilterIterator(
-					new RecursiveDirectoryIterator(realpath($rootPath)))),
-		realpath($rootPath));
-	}
 }
 Microsoft_Console_Command::bootstrap($_SERVER['argv']);
-
-class SourceControlFilteredRecursiveFilterIterator
-	extends RecursiveFilterIterator {
-	public static $filters = array('.svn', '.git');
- 
-    public function accept() {
-    	return !in_array(
-    	$this->current()->getFilename(), self::$filters, true);
-    }
-}

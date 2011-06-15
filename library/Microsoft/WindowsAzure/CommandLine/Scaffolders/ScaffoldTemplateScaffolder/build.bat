@@ -1,0 +1,1 @@
+php ..\..\Scaffolder.php Build -p:"./" -out:"..\ScaffoldTemplateScaffolder.phar"
