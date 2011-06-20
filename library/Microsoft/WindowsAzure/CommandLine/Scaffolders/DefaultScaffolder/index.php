@@ -51,10 +51,14 @@ class DefaultScaffolder
 	 */
 	public function invoke(Phar $phar, $rootPath, $options = array())
 	{
-		// Check required parameters
-		if (empty($options['DiagnosticsConnectionString'])) {
-			throw new Microsoft_Console_Exception('Missing argument for scaffolder: DiagnosticsConnectionString');
-		}
+		// Check scaffolder options
+        $this->_setRequiredOptions(array(
+            'DiagnosticsConnectionString' => 'DiagnosticsConnectionString must be set to a valid Windows Azure Storage connection string.'
+        ));
+        $this->_setDefaultOptions(array(
+            'DiagnosticsConnectionString' => 'UseDevelopmentStorage=true'
+        ));
+        $this->_checkOptions($options);
 		
 		// Extract to disk
 		$this->log('Extracting resources...');

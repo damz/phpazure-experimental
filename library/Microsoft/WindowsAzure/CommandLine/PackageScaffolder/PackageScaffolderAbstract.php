@@ -45,6 +45,31 @@ require_once dirname(__FILE__) . '/../../../AutoLoader.php';
  */ 
 abstract class Microsoft_WindowsAzure_CommandLine_PackageScaffolder_PackageScaffolderAbstract
 {
+    /**
+     * Contains the parameter options
+     * 
+     * @var array
+     */
+    protected $_options = array();
+    
+    /**
+     * Contains the default option values
+     * 
+     * array('param-name' => 'default value')
+     * 
+     * @var array
+     */
+    protected $_defaultOptions = array();
+    
+    /**
+     * List of parameters that are required to be issued from the commandline
+     * 
+     * array('param-name' => 'error message')
+     * 
+     * @var array
+     */
+    protected $_requiredOptions = array();
+    
 	/**
 	 * Invokes the scaffolder.
 	 *
@@ -53,6 +78,84 @@ abstract class Microsoft_WindowsAzure_CommandLine_PackageScaffolder_PackageScaff
 	 * @param array $options Options array (key/value).
 	 */
 	abstract public function invoke(Phar $phar, $rootPath, $options = array());
+    
+    /**
+     * Gets the options passed as parameters on the commandline
+     * 
+     * @return array
+     */
+    protected function _getOptions()
+    {
+        return $this->_options;
+    }
+    
+    /**
+     * Retrieves an option passed as parameter on the commandline
+     * 
+     * @param string $optionName Name of the option to retrieve.
+     * @return mixed
+     * @throws Microsoft_Console_Exception
+     */
+    protected function _getOption($optionName)
+    {
+    	if (isset($this->_options[$optionName])) {
+        	return $this->_options[$optionName];
+    	}
+    	throw new Microsoft_Console_Exception('The option ' . $optionName . ' was not specified.');
+    }
+    
+    /**
+     * Sets the required options to be passed as parameters on the commandline
+     * 
+     * @param array $options 
+     */
+    protected function _setRequiredOptions($options = array())
+    {
+        $this->_requiredOptions = $options;
+    }
+    
+    /**
+     * Sets the default values for parameters that are optional on the commandline
+     * 
+     * @param array $options 
+     */
+    protected function _setDefaultOptions($options = array())
+    {
+        $this->_defaultOptions = $options;
+    }
+    
+    /**
+     * Ensures that all required options were provided on the commandline
+     * 
+     * If there are any default options that were not passed on the commandline
+     * they will be set here
+     * 
+     * @param array $options Options passed to the scaffolder.
+     * @throws Microsoft_Console_Exception
+     */
+    protected function _checkOptions($options = array())
+    {    
+        // If one of the defaulted parameters was not specified set it to the default
+        foreach ($this->_defaultOptions as $key => $option) {
+            if (!isset($options[$key])) {
+            	$options[$key] = $this->_defaultOptions[$key];
+            }
+        } 
+        
+        // Ensure all required parameters exist first
+        $errorMessage = '';
+        foreach (array_keys($this->_requiredOptions) as $option) {
+            if (!isset($options[$option])) {
+            	$errorMessage .= "\r\n" . $this->_requiredOptions[$option];
+            }
+        }
+        if ($errorMessage != '') {
+            throw new Microsoft_Console_Exception($errorMessage);
+        }
+        
+    	// Store options
+    	$this->_options = $options;
+    }
 	
 	/**
 	 * Writes output to STDERR, followed by a newline (optional)

@@ -51,10 +51,11 @@ class ScaffoldTemplateScaffolder
 	 */
 	public function invoke(Phar $phar, $rootPath, $options = array())
 	{
-		// Check required parameters
-		if (empty($options['Name'])) {
-			throw new Microsoft_Console_Exception('Missing argument for scaffolder: Name');
-		}
+		// Check scaffolder options
+        $this->_setRequiredOptions(array(
+            'Name' => 'The --Name parameter must be provided.'
+        ));
+        $this->_checkOptions($options);
 		
 		// Extract to disk
 		$this->log('Extracting resources...');
