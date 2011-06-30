@@ -44,118 +44,70 @@ require_once dirname(__FILE__) . '/../../../AutoLoader.php';
  * @license    http://phpazure.codeplex.com/license
  */ 
 abstract class Microsoft_WindowsAzure_CommandLine_PackageScaffolder_PackageScaffolderAbstract
+	extends Microsoft_Console_Command
 {
-    /**
-     * Contains the parameter options
-     * 
-     * @var array
-     */
-    protected $_options = array();
-    
-    /**
-     * Contains the default option values
-     * 
-     * array('param-name' => 'default value')
-     * 
-     * @var array
-     */
-    protected $_defaultOptions = array();
-    
-    /**
-     * List of parameters that are required to be issued from the commandline
-     * 
-     * array('param-name' => 'error message')
-     * 
-     * @var array
-     */
-    protected $_requiredOptions = array();
-    
 	/**
-	 * Invokes the scaffolder.
-	 *
-	 * @param Phar $phar Phar archive containing the current scaffolder.
-	 * @param string $root Path Root path.
-	 * @param array $options Options array (key/value).
+	 * Displays the help information.
+	 * 
+	 * @command-name <default>
+	 * @command-name -h
+	 * @command-name -help
+	 * @command-description Displays the current help information.
 	 */
-	abstract public function invoke(Phar $phar, $rootPath, $options = array());
-    
-    /**
-     * Gets the options passed as parameters on the commandline
-     * 
-     * @return array
-     */
-    protected function _getOptions()
-    {
-        return $this->_options;
-    }
-    
-    /**
-     * Retrieves an option passed as parameter on the commandline
-     * 
-     * @param string $optionName Name of the option to retrieve.
-     * @return mixed
-     * @throws Microsoft_Console_Exception
-     */
-    protected function _getOption($optionName)
-    {
-    	if (isset($this->_options[$optionName])) {
-        	return $this->_options[$optionName];
-    	}
-    	throw new Microsoft_Console_Exception('The option ' . $optionName . ' was not specified.');
-    }
-    
-    /**
-     * Sets the required options to be passed as parameters on the commandline
-     * 
-     * @param array $options 
-     */
-    protected function _setRequiredOptions($options = array())
-    {
-        $this->_requiredOptions = $options;
-    }
-    
-    /**
-     * Sets the default values for parameters that are optional on the commandline
-     * 
-     * @param array $options 
-     */
-    protected function _setDefaultOptions($options = array())
-    {
-        $this->_defaultOptions = $options;
-    }
-    
-    /**
-     * Ensures that all required options were provided on the commandline
-     * 
-     * If there are any default options that were not passed on the commandline
-     * they will be set here
-     * 
-     * @param array $options Options passed to the scaffolder.
-     * @throws Microsoft_Console_Exception
-     */
-    protected function _checkOptions($options = array())
-    {    
-        // If one of the defaulted parameters was not specified set it to the default
-        foreach ($this->_defaultOptions as $key => $option) {
-            if (!isset($options[$key])) {
-            	$options[$key] = $this->_defaultOptions[$key];
-            }
-        } 
-        
-        // Ensure all required parameters exist first
-        $errorMessage = '';
-        foreach (array_keys($this->_requiredOptions) as $option) {
-            if (!isset($options[$option])) {
-            	$errorMessage .= "\r\n" . $this->_requiredOptions[$option];
-            }
-        }
-        if ($errorMessage != '') {
-            throw new Microsoft_Console_Exception($errorMessage);
-        }
-        
-    	// Store options
-    	$this->_options = $options;
-    }
+	public function helpCommand() {
+		$handler = $this->getHandler();
+		$newline = "\r\n";
+		
+		if (count($handler->headers) > 0) {
+			foreach ($handler->headers as $header) {
+				printf('%s%s', $header, $newline);		
+			}
+			printf($newline);
+		}
+		printf('%s%s', $handler->description, $newline);
+		printf($newline);
+		printf('Available commands:%s', $newline);
+		foreach ($handler->commands as $command) {
+			if ($command->aliases[0] != '<default>') {
+				$description = str_split($command->description, 50);
+				printf('  %-25s %s%s', implode(', ', $command->aliases), $description[0], $newline);
+				for ($di = 1; $di < count($description); $di++) {
+					printf('  %-25s %s%s', '', $description[$di], $newline);
+				}
+				printf($newline);			
+				
+				if (count($command->parameters) > 0) {
+					foreach ($command->parameters as $parameter) {
+						if ($parameter->aliases[0] != '--Phar' && $parameter->aliases[0] != '--Path') {
+							$description = str_split($parameter->description, 50);
+							printf('    %-23s %s', implode(', ', $parameter->aliases), $newline);
+							for ($di = 0; $di < count($description); $di++) {
+								printf('    %-23s %s%s', '', $description[$di], $newline);
+							}
+							printf($newline);
+						}
+					}
+				}
+				printf($newline);
+				
+				if (count($command->examples) > 0) {
+					printf('    Example usage:%s', $newline);
+					foreach ($command->examples as $example) {
+						printf('      %s%s', $example, $newline);
+					}
+					printf($newline);
+				}
+			}
+		}
+		
+		if (count($handler->footers) > 0) {
+			printf($newline);
+			foreach ($handler->footers as $footer) {
+				printf('%s%s', $footer, $newline);		
+			}
+			printf($newline);
+		}
+	}
 	
 	/**
 	 * Writes output to STDERR, followed by a newline (optional)

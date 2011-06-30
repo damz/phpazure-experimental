@@ -38,24 +38,33 @@
  * @package    Microsoft_WindowsAzure_CommandLine
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
+ * 
+ * @command-handler ScaffoldTemplateScaffolder
+ * 
+ * @command-handler-description Windows Azure SDK for PHP ScaffoldTemplateScaffolder
+ * @command-handler-header Windows Azure SDK for PHP
+ * @command-handler-header Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
+ * @command-handler-footer 
+ * @command-handler-footer The ScaffoldTemplateScaffolder scaffolds a new
+ * @command-handler-footer scaffolder structure to the specified path.
  */ 
 class ScaffoldTemplateScaffolder
 	extends Microsoft_WindowsAzure_CommandLine_PackageScaffolder_PackageScaffolderAbstract
 {
 	/**
-	 * Invokes the scaffolder.
-	 *
-	 * @param Phar $phar Phar archive containing the current scaffolder.
-	 * @param string $root Path Root path.
-	 * @param array $options Options array (key/value).
+	 * Runs a scaffolder and creates a scaffolder project structure which can be customized before packaging.
+	 * 
+	 * @command-name Run
+	 * @command-description Runs the scaffolder.
+	 * 
+	 * @command-parameter-for $scaffolderFile Microsoft_Console_Command_ParameterSource_Argv --Phar Required. The scaffolder Phar file path. This is injected automatically.
+	 * @command-parameter-for $rootPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Path|-p Required. The path to create the Windows Azure project structure. This is injected automatically. 
+	 * @command-parameter-for $scaffolderName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Name|-n Required. The name of the scaffolder to generate.
 	 */
-	public function invoke(Phar $phar, $rootPath, $options = array())
+	public function runCommand($scaffolderFile, $rootPath, $scaffolderName)
 	{
-		// Check scaffolder options
-        $this->_setRequiredOptions(array(
-            'Name' => 'The --Name parameter must be provided.'
-        ));
-        $this->_checkOptions($options);
+		// Load Phar
+		$phar = new Phar($scaffolderFile);
 		
 		// Extract to disk
 		$this->log('Extracting resources...');
@@ -65,7 +74,9 @@ class ScaffoldTemplateScaffolder
 		
 		// Apply transforms
 		$this->log('Applying transforms...');
-		$this->applyTransforms($rootPath, $options);
+		$this->applyTransforms($rootPath, array(
+			'Name' => $scaffolderName
+		));
 		$this->log('Applied transforms.');
 		
 		// Show "to do" message

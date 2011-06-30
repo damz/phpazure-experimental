@@ -88,25 +88,60 @@ class Microsoft_WindowsAzure_CommandLine_Scaffolder
 		
 		// Include scaffolder
 		$scaffolderClass = str_replace('.phar', '', basename($scaffolderFile));
-		$archive = new Phar($scaffolderFile);
 		require_once $scaffolderFile;
 		if (!class_exists($scaffolderClass)) {
 			throw new Microsoft_Console_Exception('Could not locate a class named ' . $scaffolderClass . ' in the given scaffolder: ' . $scaffolder . '. Make sure the scaffolder package contains a file named index.php and contains a class named Scaffolder.');
 		}
 		
-		// Cleanup $argv
-		$options = array();
-		foreach ($argv as $arg) {
-			list($key, $value) = explode(':', $arg, 2);
-			while (substr($key, 0, 1) == '-') {
-				$key = substr($key, 1);
-			}
-			$options[$key] = $value;
+		// Add command parameters
+		array_unshift($argv, '--Path:' . $path);
+		array_unshift($argv, '--Phar:' . $scaffolderFile);
+		array_unshift($argv, 'Run');
+		array_unshift($argv, $scaffolderClass);
+				
+		// Run scaffolder
+		Microsoft_Console_Command::bootstrap($argv);
+	}
+	
+	/**
+	 * Shows help information for a specific scaffolder.
+	 * 
+	 * @command-name Help
+	 * @command-description Shows help information for a specific scaffolder.
+	 * 
+	 * @command-parameter-for $scaffolder Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Scaffolder|-s Optional. The path to the scaffolder to use. Defaults to Scaffolders/DefaultScaffolder.phar 
+	 */
+	public function scaffolderhelpCommand($scaffolder, $argv)
+	{
+		// Default parameter value
+		if (is_null($scaffolder) || $scaffolder == '') {
+			$scaffolder = 'DefaultScaffolder';
 		}
 		
+		// Locate scaffolder
+		$scaffolderFile = realpath($scaffolder);
+		if (!is_file($scaffolderFile)) {
+			$scaffolderFile = realpath(dirname(__FILE__) . '/Scaffolders/' . str_replace('.phar', '', $scaffolder) . '.phar');
+		}
+		
+		// Verify scaffolder
+		if (!is_file($scaffolderFile)) {
+			throw new Microsoft_Console_Exception('Could not locate the given scaffolder: ' . $scaffolder);
+		}
+		
+		// Include scaffolder
+		$scaffolderClass = str_replace('.phar', '', basename($scaffolderFile));
+		require_once $scaffolderFile;
+		if (!class_exists($scaffolderClass)) {
+			throw new Microsoft_Console_Exception('Could not locate a class named ' . $scaffolderClass . ' in the given scaffolder: ' . $scaffolder . '. Make sure the scaffolder package contains a file named index.php and contains a class named Scaffolder.');
+		}
+		
+		// Add command parameters
+		array_unshift($argv, '-h');
+		array_unshift($argv, $scaffolderClass);
+				
 		// Run scaffolder
-		$scaffolderInstance = new $scaffolderClass();
-		$scaffolderInstance->invoke($archive, $path, $options);
+		Microsoft_Console_Command::bootstrap($argv);
 	}
 		
 	/**

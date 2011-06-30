@@ -359,10 +359,10 @@ class Microsoft_Console_Command
 		printf($newline);
 		printf('Available commands:%s', $newline);
 		foreach ($handler->commands as $command) {
-			$description = str_split($command->description, 52);
+			$description = str_split($command->description, 50);
 			printf('  %-25s %s%s', implode(', ', $command->aliases), $description[0], $newline);
 			for ($di = 1; $di < count($description); $di++) {
-				printf('    %-25s %s%s', '', $description[$di], $newline);
+				printf('  %-25s %s%s', '', $description[$di], $newline);
 			}
 			printf($newline);			
 			

@@ -38,27 +38,40 @@
  * @package    Microsoft_WindowsAzure_CommandLine
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
+ * 
+ * @command-handler DefaultScaffolder
+ * 
+ * @command-handler-description Windows Azure SDK for PHP default scaffolder.
+ * @command-handler-header Windows Azure SDK for PHP
+ * @command-handler-header Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
+ * @command-handler-footer 
+ * @command-handler-footer The DefaultScaffolder automatically installs PHP
+ * @command-handler-footer to the Windows Azure virtual machine. If a customized
+ * @command-handler-footer php.ini is required, add it in the /php folder after
+ * @command-handler-footer running the scaffolder.
  */ 
 class DefaultScaffolder
 	extends Microsoft_WindowsAzure_CommandLine_PackageScaffolder_PackageScaffolderAbstract
 {
 	/**
-	 * Invokes the scaffolder.
-	 *
-	 * @param Phar $phar Phar archive containing the current scaffolder.
-	 * @param string $root Path Root path.
-	 * @param array $options Options array (key/value).
+	 * Runs a scaffolder and creates a Windows Azure project structure which can be customized before packaging.
+	 * 
+	 * @command-name Run
+	 * @command-description Runs the scaffolder.
+	 * 
+	 * @command-parameter-for $scaffolderFile Microsoft_Console_Command_ParameterSource_Argv --Phar Required. The scaffolder Phar file path. This is injected automatically.
+	 * @command-parameter-for $rootPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Path|-p Required. The path to create the Windows Azure project structure. This is injected automatically. 
+	 * @command-parameter-for $diagnosticsConnectionString Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --DiagnosticsConnectionString|-d Optional. The diagnostics connection string. This defaults to development storage.
 	 */
-	public function invoke(Phar $phar, $rootPath, $options = array())
+	public function runCommand($scaffolderFile, $rootPath, $diagnosticsConnectionString = '')
 	{
-		// Check scaffolder options
-        $this->_setRequiredOptions(array(
-            'DiagnosticsConnectionString' => 'DiagnosticsConnectionString must be set to a valid Windows Azure Storage connection string.'
-        ));
-        $this->_setDefaultOptions(array(
-            'DiagnosticsConnectionString' => 'UseDevelopmentStorage=true'
-        ));
-        $this->_checkOptions($options);
+		// Defaults
+		if ($diagnosticsConnectionString == '') {
+			$diagnosticsConnectionString = 'UseDevelopmentStorage=true';
+		}
+		
+		// Load Phar
+		$phar = new Phar($scaffolderFile);
 		
 		// Extract to disk
 		$this->log('Extracting resources...');
@@ -68,7 +81,9 @@ class DefaultScaffolder
 		
 		// Apply transforms
 		$this->log('Applying transforms...');
-		$this->applyTransforms($rootPath, $options);
+		$this->applyTransforms($rootPath, array(
+			'DiagnosticsConnectionString' => $diagnosticsConnectionString
+		));
 		$this->log('Applied transforms.');
 		
 		// Show "to do" message

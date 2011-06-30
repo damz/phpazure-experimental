@@ -72,7 +72,7 @@ class Microsoft_WindowsAzure_CommandLine_Package
 	public function createPackageCommand($path, $runDevFabric, $outputPath)
 	{
 		// Create output paths
-		if ($outputPath == '') {
+		if (is_null($outputPath) || $outputPath == '') {
 			$outputPath = realpath($path . '/../');
 		}
 		$packageOut = $outputPath . '/' . basename($path) . '.cspkg';
