@@ -72,7 +72,7 @@ class Microsoft_SqlAzure_CommandLine_SqlAzure
 	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-example List servers for a specified subscription:
-	 * @command-example List -sid:"<your_subscription_id>" -cert:"mycert.pem"
+	 * @command-example List -sid="<your_subscription_id>" -cert="mycert.pem"
 	 */
 	public function listCommand($subscriptionId, $certificate, $certificatePassphrase)
 	{
@@ -97,8 +97,8 @@ class Microsoft_SqlAzure_CommandLine_SqlAzure
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-parameter-for $serverName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Name Required. The server name to operate on.
 	 * @command-example Get server properties for server "ie2l1ph28":
-	 * @command-example GetProperties -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"ie2l1ph28"
+	 * @command-example GetProperties -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="ie2l1ph28"
 	 */
 	public function getPropertiesCommand($subscriptionId, $certificate, $certificatePassphrase, $serverName)
 	{
@@ -127,8 +127,8 @@ class Microsoft_SqlAzure_CommandLine_SqlAzure
 	 * @command-parameter-for $serverName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Name Required. The server name to operate on.
 	 * @command-parameter-for $property Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Property|-prop Required. The property to retrieve for the server.
 	 * @command-example Get server property "Name" for service "ie2l1ph28":
-	 * @command-example GetProperty -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"ie2l1ph28" --Property:Name
+	 * @command-example GetProperty -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="ie2l1ph28" --Property=Name
 	 */
 	public function getPropertyCommand($subscriptionId, $certificate, $certificatePassphrase, $serverName, $property)
 	{
@@ -159,7 +159,7 @@ class Microsoft_SqlAzure_CommandLine_SqlAzure
 	 * @command-parameter-for $location Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Location Required. The location where the server will be created.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Create server in West Europe
-	 * @command-example Create -p:"phpazure" --Login:"sqladm" --Password:"PHP@zure11" --Location:"West Europe"
+	 * @command-example Create -p="phpazure" --Login="sqladm" --Password="PHP@zure11" --Location="West Europe"
 	 */
 	public function createCommand($subscriptionId, $certificate, $certificatePassphrase, $administratorLogin, $administratorPassword, $location, $waitForOperation = false)
 	{
@@ -179,7 +179,7 @@ class Microsoft_SqlAzure_CommandLine_SqlAzure
 	 * @command-parameter-for $serverName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The server name to operate on.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Drop server "ie2l1ph28":
-	 * @command-example Drop -p:"phpazure" --Name:"ie2l1ph28"
+	 * @command-example Drop -p="phpazure" --Name="ie2l1ph28"
 	 */
 	public function dropCommand($subscriptionId, $certificate, $certificatePassphrase, $serverName, $waitForOperation = false)
 	{
@@ -199,7 +199,7 @@ class Microsoft_SqlAzure_CommandLine_SqlAzure
 	 * @command-parameter-for $administratorPassword Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Password|-pass Required. The administrator password for the server.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Update administrator password for server "ie2l1ph28":
-	 * @command-example UpdatePassword -p:"phpazure" --Name:"ie2l1ph28" --Password:"PHP@zure11"
+	 * @command-example UpdatePassword -p="phpazure" --Name="ie2l1ph28" --Password="PHP@zure11"
 	 */
 	public function updatePasswordCommand($subscriptionId, $certificate, $certificatePassphrase, $serverName, $administratorPassword, $waitForOperation = false)
 	{
@@ -221,12 +221,32 @@ class Microsoft_SqlAzure_CommandLine_SqlAzure
 	 * @command-parameter-for $endIpAddress Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --EndIp|-end Required. End IP address.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Create firewall rule for server "ie2l1ph28":
-	 * @command-example CreateFirewallRule -p:"phpazure" --Name:"ie2l1ph28" -r:"Rule1" -start:"1.2.3.4" -end:"1.2.3.4"
+	 * @command-example CreateFirewallRule -p="phpazure" --Name="ie2l1ph28" -r="Rule1" -start="1.2.3.4" -end="1.2.3.4"
 	 */
 	public function createFirewallRuleCommand($subscriptionId, $certificate, $certificatePassphrase, $serverName, $ruleName, $startIpAddress, $endIpAddress, $waitForOperation = false)
 	{
 		$client = new Microsoft_SqlAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
 		$rule = $client->createFirewallRule($serverName, $ruleName, $startIpAddress, $endIpAddress);
+	}
+	
+	/**
+	 * Allow access from Windows Azure to SQL Azure.
+	 * 
+	 * @command-name AllowWindowsAzure
+	 * @command-description Allow access from Windows Azure to SQL Azure.
+	 * @command-parameter-for $subscriptionId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --SubscriptionId|-sid Required. This is the Windows Azure Subscription Id to operate on.
+	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
+	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
+	 * @command-parameter-for $serverName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The server name to operate on.
+	 * @command-parameter-for $allow Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Allow|-a Required. Allow access from Windows Azure true/false.
+	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
+	 * @command-example Allow access from Windows Azure to SQL Azure for server "ie2l1ph28":
+	 * @command-example AllowWindowsAzure -p="phpazure" --Name="ie2l1ph28" -Allow:true
+	 */
+	public function allowWindowsAzureCommand($subscriptionId, $certificate, $certificatePassphrase, $serverName, $allow = false, $waitForOperation = false)
+	{
+		$client = new Microsoft_SqlAzure_Management_Client($subscriptionId, $certificate, $certificatePassphrase);
+		$rule = $client->createFirewallRuleForMicrosoftServices($serverName, $allow);
 	}
 	
 	/**
@@ -241,7 +261,7 @@ class Microsoft_SqlAzure_CommandLine_SqlAzure
 	 * @command-parameter-for $ruleName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --RuleName|-r Required. Firewall rule name.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Delete firewall rule for server "ie2l1ph28":
-	 * @command-example DeleteFirewallRule -p:"phpazure" --Name:"ie2l1ph28" -r:"Rule1"
+	 * @command-example DeleteFirewallRule -p="phpazure" --Name="ie2l1ph28" -r="Rule1"
 	 */
 	public function deleteFirewallRuleCommand($subscriptionId, $certificate, $certificatePassphrase, $serverName, $ruleName, $waitForOperation = false)
 	{
@@ -259,7 +279,7 @@ class Microsoft_SqlAzure_CommandLine_SqlAzure
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-parameter-for $serverName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The server name to operate on.
 	 * @command-example List firewall rules for server "ie2l1ph28":
-	 * @command-example ListFirewallRules -sid:"<your_subscription_id>" --Name:"ie2l1ph28"
+	 * @command-example ListFirewallRules -sid="<your_subscription_id>" --Name="ie2l1ph28"
 	 */
 	public function listFirewallRuleCommand($subscriptionId, $certificate, $certificatePassphrase, $serverName)
 	{

@@ -82,10 +82,10 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $warningsAsErrors Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WarningsAsErrors Optional. Treat warnings as errors.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Create a deployment from a remote .cspkg:
-	 * @command-example CreateFromStorage -sid:"<your_subscription_id>" -cert:"mycert.pem" --Name:"hostedservicename" --DeploymentName:"deploymentname"
-	 * @command-example --Label:"deploymentlabel" --Production
-	 * @command-example --PackageUrl:"http://acct.blob.core.windows.net/pkgs/service.cspkg"
-	 * @command-example --ServiceConfigLocation:".\ServiceConfiguration.cscfg" --StartImmediately --WaitFor
+	 * @command-example CreateFromStorage -sid="<your_subscription_id>" -cert="mycert.pem" --Name="hostedservicename" --DeploymentName="deploymentname"
+	 * @command-example --Label="deploymentlabel" --Production
+	 * @command-example --PackageUrl="http://acct.blob.core.windows.net/pkgs/service.cspkg"
+	 * @command-example --ServiceConfigLocation=".\ServiceConfiguration.cscfg" --StartImmediately --WaitFor
 	 */
 	public function createFromStorageCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentName, $label, $staging = false, $production = false, $packageUrl, $serviceConfigurationLocation, $startImmediately = true, $warningsAsErrors = false, $waitForOperation = false)
 	{
@@ -125,9 +125,9 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $warningsAsErrors Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WarningsAsErrors Optional. Treat warnings as errors.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Create a deployment from a local .cspkg:
-	 * @command-example CreateFromLocal -sid:"<your_subscription_id>" -cert:"mycert.pem" --Name:"hostedservicename" --DeploymentName:"deploymentname"
-	 * @command-example --Label:"deploymentlabel" --Production --PackageLocation:".\service.cspkg"
-	 * @command-example --ServiceConfigLocation:".\ServiceConfiguration.cscfg" --StorageAccount:"mystorage"
+	 * @command-example CreateFromLocal -sid="<your_subscription_id>" -cert="mycert.pem" --Name="hostedservicename" --DeploymentName="deploymentname"
+	 * @command-example --Label="deploymentlabel" --Production --PackageLocation=".\service.cspkg"
+	 * @command-example --ServiceConfigLocation=".\ServiceConfiguration.cscfg" --StorageAccount="mystorage"
 	 * @command-example --StartImmediately --WaitFor
 	 */
 	public function createFromLocalCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentName, $label, $staging = false, $production = false, $packageLocation, $serviceConfigurationLocation, $storageAccount, $startImmediately = true, $warningsAsErrors = false, $waitForOperation = false)
@@ -169,7 +169,7 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $deploymentSlot Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --BySlot Required if deployment name is omitted. The slot to retrieve property information for.
 	 * @command-parameter-for $deploymentName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --ByName Required if deployment slot is omitted. The deployment name to retrieve property information for.
 	 * @command-example Get deployment properties for service "phptest" (production slot):
-	 * @command-example GetProperties -sid:"<your_subscription_id>" -cert:"mycert.pem" --Name:"servicename" --BySlot:"production"
+	 * @command-example GetProperties -sid="<your_subscription_id>" -cert="mycert.pem" --Name="servicename" --BySlot="production"
 	 */
 	public function getPropertiesCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentSlot, $deploymentName)
 	{
@@ -201,8 +201,8 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $deploymentName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --ByName Required if deployment slot is omitted. The deployment name to retrieve property information for.
 	 * @command-parameter-for $property Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Property|-prop Required. The property to retrieve for the hosted service account.
 	 * @command-example Get deployment property "Name" for service "phptest" (production slot):
-	 * @command-example GetProperties -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"servicename" --BySlot:"production" --Property:"Name"
+	 * @command-example GetProperties -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="servicename" --BySlot="production" --Property="Name"
 	 */
 	public function getPropertyCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentSlot, $deploymentName, $property)
 	{
@@ -232,7 +232,7 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Name Required. The hosted service account name to operate on.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Swap deployment slots:
-	 * @command-example Swap -sid:"<your_subscription_id>" -cert:"mycert.pem" --Name:"servicename"
+	 * @command-example Swap -sid="<your_subscription_id>" -cert="mycert.pem" --Name="servicename"
 	 */
 	public function swapCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $waitForOperation = false)
 	{
@@ -272,7 +272,7 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $deploymentName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --ByName Required if deployment slot is omitted. The deployment name to retrieve property information for.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Delete a deployment:
-	 * @command-example Delete -sid:"<your_subscription_id>" -cert:"mycert.pem" --Name:"hostedservicename" --DeploymentName:"deploymentname"
+	 * @command-example Delete -sid="<your_subscription_id>" -cert="mycert.pem" --Name="hostedservicename" --DeploymentName="deploymentname"
 	 */
 	public function deleteCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentSlot, $deploymentName, $waitForOperation = false)
 	{
@@ -306,9 +306,9 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $serviceConfigurationLocation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --ServiceConfigLocation Required. The location of the .cspkg file.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Update configuration:
-	 * @command-example UpdateConfig -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"hostedservicename" --ByName:"deploymentname"
-	 * @command-example --ServiceConfigLocation:".\ServiceConfiguration.cscfg"
+	 * @command-example UpdateConfig -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="hostedservicename" --ByName="deploymentname"
+	 * @command-example --ServiceConfigLocation=".\ServiceConfiguration.cscfg"
 	 */
 	public function updateConfigurationCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentSlot, $deploymentName, $serviceConfigurationLocation, $waitForOperation = false)
 	{
@@ -342,9 +342,9 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $newStatus Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Status Required. New status (Suspended|Running)
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Suspend a deployment:
-	 * @command-example UpdateStatus -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"hostedservicename" --ByName:"deploymentname"
-	 * @command-example --Status:"Suspended"
+	 * @command-example UpdateStatus -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="hostedservicename" --ByName="deploymentname"
+	 * @command-example --Status="Suspended"
 	 */
 	public function updateStatusCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentSlot, $deploymentName, $newStatus, $waitForOperation = false)
 	{
@@ -379,9 +379,9 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $newInstanceNumber Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --NewInstanceNumber|-i Required. New number of instances.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Suspend a deployment:
-	 * @command-example EditInstanceNumber -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"hostedservicename" --ByName:"deploymentname"
-	 * @command-example --NewInstanceNumber:"4"
+	 * @command-example EditInstanceNumber -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="hostedservicename" --ByName="deploymentname"
+	 * @command-example --NewInstanceNumber="4"
 	 */
 	public function editInstanceNumberCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentSlot, $deploymentName, $roleName, $newInstanceNumber = 1, $waitForOperation = false)
 	{
@@ -415,9 +415,9 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $instanceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --RoleInstanceName Required. The name of the role instance to work with.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Reboot a role instance:
-	 * @command-example RebootInstance -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"hostedservicename" --ByName:"deploymentname"
-	 * @command-example --RoleInstanceName:"PhpOnAzure.Web_IN_0"
+	 * @command-example RebootInstance -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="hostedservicename" --ByName="deploymentname"
+	 * @command-example --RoleInstanceName="PhpOnAzure.Web_IN_0"
 	 */
 	public function rebootInstanceCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentSlot, $deploymentName, $instanceName, $waitForOperation = false)
 	{
@@ -451,9 +451,9 @@ class Microsoft_WindowsAzure_CommandLine_Deployment
 	 * @command-parameter-for $instanceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --RoleInstanceName Required. The name of the role instance to work with.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Reimage a role instance:
-	 * @command-example ReimageInstance -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"hostedservicename" --ByName:"deploymentname"
-	 * @command-example --RoleInstanceName:"PhpOnAzure.Web_IN_0"
+	 * @command-example ReimageInstance -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="hostedservicename" --ByName="deploymentname"
+	 * @command-example --RoleInstanceName="PhpOnAzure.Web_IN_0"
 	 */
 	public function reimageInstanceCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $deploymentSlot, $deploymentName, $instanceName, $waitForOperation = false)
 	{

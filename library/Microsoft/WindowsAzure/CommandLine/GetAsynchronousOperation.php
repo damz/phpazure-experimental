@@ -73,7 +73,7 @@ class Microsoft_WindowsAzure_CommandLine_GetAsynchronousOperation
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-parameter-for $requestId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --RequestId|-r Required. The value returned by a call that starts an asynchronous operation to monitor.
 	 * @command-example Get information for a specific asynchronous operation:
-	 * @command-example GetInfo -sid:"<your_subscription_id>" -cert:"mycert.pem" -r:"dab87a4b70e94a36805f5af2d20fc593"
+	 * @command-example GetInfo -sid="<your_subscription_id>" -cert="mycert.pem" -r="dab87a4b70e94a36805f5af2d20fc593"
 	 */
 	public function getInfoCommand($subscriptionId, $certificate, $certificatePassphrase, $requestId)
 	{
@@ -94,7 +94,7 @@ class Microsoft_WindowsAzure_CommandLine_GetAsynchronousOperation
 	 * @command-parameter-for $requestId Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --RequestId|-r Required. The value returned by a call that starts an asynchronous operation to monitor.
 	 * @command-parameter-for $interval Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Interval|-i Optional. The interval between two status checks (in milliseconds).
 	 * @command-example Wait for a specific asynchronous operation:
-	 * @command-example WaitFor -sid:"<your_subscription_id>" -cert:"mycert.pem" -r:"dab87a4b70e94a36805f5af2d20fc593"
+	 * @command-example WaitFor -sid="<your_subscription_id>" -cert="mycert.pem" -r="dab87a4b70e94a36805f5af2d20fc593"
 	 */
 	public function waitForCommand($subscriptionId, $certificate, $certificatePassphrase, $requestId, $interval = 250)
 	{

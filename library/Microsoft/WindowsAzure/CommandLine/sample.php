@@ -23,7 +23,7 @@ class Sample
 	 * @command-parameter-for $name Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_Env --name|-n Required. Name to say hello to.
 	 * @command-parameter-for $bePolite Microsoft_Console_Command_ParameterSource_Argv -p Optional. Switch to enable polite mode or not.
 	 * @command-example Print "Hello, Maarten! How are you?" (using polite mode):
-	 * @command-example   hello -n:"Maarten" -p
+	 * @command-example   hello -n="Maarten" -p
 	 * 
 	 * @param string $name
 	 */

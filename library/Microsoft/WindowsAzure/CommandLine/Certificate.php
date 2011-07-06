@@ -73,7 +73,7 @@ class Microsoft_WindowsAzure_CommandLine_Certificate
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --ServiceName|-sn Required. The name of the hosted service.
 	 * @command-example List certificates for service name "phptest":
-	 * @command-example List -sid:"<your_subscription_id>" -cert:"mycert.pem" -sn:"phptest"
+	 * @command-example List -sid="<your_subscription_id>" -cert="mycert.pem" -sn="phptest"
 	 */
 	public function listCertificatesCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName)
 	{
@@ -101,7 +101,7 @@ class Microsoft_WindowsAzure_CommandLine_Certificate
 	 * @command-parameter-for $certificatePassword Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --CertificatePassword Required. The password for the certificate that will be added.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Add certificates for service name "phptest":
-	 * @command-example Add -sid:"<your_subscription_id>" -cert:"mycert.pem" -sn:"phptest" --CertificateLocation:"cert.pfx" --CertificatePassword:"certpassword"
+	 * @command-example Add -sid="<your_subscription_id>" -cert="mycert.pem" -sn="phptest" --CertificateLocation="cert.pfx" --CertificatePassword="certpassword"
 	 */
 	public function addCertificateCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $certificateLocation, $certificatePassword, $waitForOperation = false)
 	{
@@ -125,7 +125,7 @@ class Microsoft_WindowsAzure_CommandLine_Certificate
 	 * @command-parameter-for $thumbprint Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --CertificateThumbprint Required. The certificate thumbprint for which to retrieve the certificate.
 	 * @command-parameter-for $algorithm Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --CertificateAlgorithm Required. The certificate's algorithm.
 	 * @command-example Get certificate for service name "phptest":
-	 * @command-example Get -sid:"<your_subscription_id>" -cert:"mycert.pem" -sn:"phptest" --CertificateThumbprint:"<thumbprint>" --CertificateAlgorithm:"sha1"
+	 * @command-example Get -sid="<your_subscription_id>" -cert="mycert.pem" -sn="phptest" --CertificateThumbprint="<thumbprint>" --CertificateAlgorithm="sha1"
 	 */
 	public function getCertificateCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $thumbprint, $algorithm = "sha1")
 	{
@@ -148,7 +148,7 @@ class Microsoft_WindowsAzure_CommandLine_Certificate
 	 * @command-parameter-for $algorithm Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --CertificateAlgorithm Required. The certificate's algorithm.
 	 * @command-parameter-for $property Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Property|-prop Required. The property to retrieve for the certificate.
 	 * @command-example Get certificate for service name "phptest":
-	 * @command-example Get -sid:"<your_subscription_id>" -cert:"mycert.pem" -sn:"phptest" --CertificateThumbprint:"<thumbprint>" --CertificateAlgorithm:"sha1"
+	 * @command-example Get -sid="<your_subscription_id>" -cert="mycert.pem" -sn="phptest" --CertificateThumbprint="<thumbprint>" --CertificateAlgorithm="sha1"
 	 */
 	public function getCertificatePropertyCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $thumbprint, $algorithm = "sha1", $property)
 	{
@@ -171,7 +171,7 @@ class Microsoft_WindowsAzure_CommandLine_Certificate
 	 * @command-parameter-for $algorithm Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --CertificateAlgorithm Required. The certificate's algorithm.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Get certificate for service name "phptest":
-	 * @command-example Get -sid:"<your_subscription_id>" -cert:"mycert.pem" -sn:"phptest" --CertificateThumbprint:"<thumbprint>" --CertificateAlgorithm:"sha1"
+	 * @command-example Get -sid="<your_subscription_id>" -cert="mycert.pem" -sn="phptest" --CertificateThumbprint="<thumbprint>" --CertificateAlgorithm="sha1"
 	 */
 	public function deleteCertificateCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $thumbprint, $algorithm = "sha1", $waitForOperation = false)
 	{

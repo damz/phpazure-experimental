@@ -72,7 +72,7 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-example List storage accounts for subscription:
-	 * @command-example ListAccounts -sid:"<your_subscription_id>" -cert:"mycert.pem"
+	 * @command-example ListAccounts -sid="<your_subscription_id>" -cert="mycert.pem"
 	 */
 	public function listAccountsCommand($subscriptionId, $certificate, $certificatePassphrase)
 	{
@@ -97,8 +97,8 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-parameter-for $accountName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --AccountName Required. The storage account name to operate on.
 	 * @command-example Get storage account properties for account "phptest":
-	 * @command-example GetProperties -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest"
+	 * @command-example GetProperties -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --AccountName="phptest"
 	 */
 	public function getPropertiesCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName)
 	{
@@ -119,8 +119,8 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	 * @command-parameter-for $accountName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --AccountName Required. The storage account name to operate on.
 	 * @command-parameter-for $property Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Property|-prop Required. The property to retrieve for the storage account.
 	 * @command-example Get storage account property "Url" for account "phptest":
-	 * @command-example GetProperty -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest" --Property:Url
+	 * @command-example GetProperty -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --AccountName="phptest" --Property:Url
 	 */
 	public function getPropertyCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName, $property)
 	{
@@ -140,8 +140,8 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-parameter-for $accountName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --AccountName Required. The storage account name to operate on.
 	 * @command-example Get storage account keys for account "phptest":
-	 * @command-example GetKeys -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest"
+	 * @command-example GetKeys -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --AccountName="phptest"
 	 */
 	public function getKeysCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName)
 	{
@@ -163,8 +163,8 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	 * @command-parameter-for $accountName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --AccountName Required. The storage account name to operate on.
 	 * @command-parameter-for $key Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Key|-k Optional. Specifies the key to regenerate (primary|secondary). If omitted, primary key is used as the default.
 	 * @command-example Get primary storage account key for account "phptest":
-	 * @command-example GetKey -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest" -Key:primary
+	 * @command-example GetKey -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --AccountName="phptest" -Key=primary
 	 */
 	public function getKeyCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName, $key = 'primary')
 	{
@@ -189,8 +189,8 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	 * @command-parameter-for $key Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Key|-k Optional. Specifies the key to regenerate (primary|secondary). If omitted, primary key is used as the default.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Regenerate secondary key for account "phptest":
-	 * @command-example RegenerateKeys -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --AccountName:"phptest" -Key:secondary
+	 * @command-example RegenerateKeys -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --AccountName="phptest" -Key=secondary
 	 */
 	public function regenerateKeysCommand($subscriptionId, $certificate, $certificatePassphrase, $accountName, $key = 'primary', $waitForOperation = false)
 	{
@@ -217,7 +217,7 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	 * @command-parameter-for $affinityGroup Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --AffinityGroup Required if Location is not specified. The name of an existing affinity group associated with this subscription.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Create storage service account in West Europe
-	 * @command-example Create -p:"phpazure" --Name:"phptestsdk2" --Label:"phptestsdk2" --Location:"West Europe"
+	 * @command-example Create -p="phpazure" --Name="phptestsdk2" --Label="phptestsdk2" --Location="West Europe"
 	 */
 	public function createCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $label, $description, $location, $affinityGroup, $waitForOperation = false)
 	{
@@ -242,7 +242,7 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	 * @command-parameter-for $description Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Description Optional. A description for the storage service.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Update storage service
-	 * @command-example Update -p:"phpazure" --Name:"phptestsdk2" --Label:"New label" --Description:"Some description"
+	 * @command-example Update -p="phpazure" --Name="phptestsdk2" --Label="New label" --Description="Some description"
 	 */
 	public function updateCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $label, $description, $waitForOperation = false)
 	{
@@ -265,7 +265,7 @@ class Microsoft_WindowsAzure_CommandLine_Storage
 	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The storage account name.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Delete storage service
-	 * @command-example Delete -p:"phpazure" --Name:"phptestsdk2"
+	 * @command-example Delete -p="phpazure" --Name="phptestsdk2"
 	 */
 	public function deleteCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $waitForOperation = false)
 	{

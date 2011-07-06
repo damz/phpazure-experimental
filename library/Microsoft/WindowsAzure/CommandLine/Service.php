@@ -72,7 +72,7 @@ class Microsoft_WindowsAzure_CommandLine_Service
 	 * @command-parameter-for $certificate Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Certificate|-cert Required. This is the .pem certificate that user has uploaded to Windows Azure subscription as Management Certificate.
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-example List hosted service accounts for subscription:
-	 * @command-example List -sid:"<your_subscription_id>" -cert:"mycert.pem"
+	 * @command-example List -sid="<your_subscription_id>" -cert="mycert.pem"
 	 */
 	public function listCommand($subscriptionId, $certificate, $certificatePassphrase)
 	{
@@ -97,8 +97,8 @@ class Microsoft_WindowsAzure_CommandLine_Service
 	 * @command-parameter-for $certificatePassphrase Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Prompt --Passphrase|-p Required. The certificate passphrase. If not specified, a prompt will be displayed.
 	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Name Required. The hosted service account name to operate on.
 	 * @command-example Get hosted service account properties for service "phptest":
-	 * @command-example GetProperties -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"phptest"
+	 * @command-example GetProperties -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="phptest"
 	 */
 	public function getPropertiesCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName)
 	{
@@ -119,8 +119,8 @@ class Microsoft_WindowsAzure_CommandLine_Service
 	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Name Required. The hosted service account name to operate on.
 	 * @command-parameter-for $property Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Property|-prop Required. The property to retrieve for the hosted service account.
 	 * @command-example Get hosted service account property "Url" for service "phptest":
-	 * @command-example GetProperty -sid:"<your_subscription_id>" -cert:"mycert.pem"
-	 * @command-example --Name:"phptest" --Property:Url
+	 * @command-example GetProperty -sid="<your_subscription_id>" -cert="mycert.pem"
+	 * @command-example --Name="phptest" --Property=Url
 	 */
 	public function getPropertyCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $property)
 	{
@@ -145,7 +145,7 @@ class Microsoft_WindowsAzure_CommandLine_Service
 	 * @command-parameter-for $affinityGroup Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --AffinityGroup Required if Location is not specified. The name of an existing affinity group associated with this subscription.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Create hosted service account in West Europe
-	 * @command-example Create -p:"phpazure" --Name:"phptestsdk2" --Label:"phptestsdk2" --Location:"West Europe"
+	 * @command-example Create -p="phpazure" --Name="phptestsdk2" --Label="phptestsdk2" --Location="West Europe"
 	 */
 	public function createCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $label, $description, $location, $affinityGroup, $waitForOperation = false)
 	{
@@ -170,7 +170,7 @@ class Microsoft_WindowsAzure_CommandLine_Service
 	 * @command-parameter-for $description Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Description Optional. A description for the hosted service.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Update hosted service
-	 * @command-example Update -p:"phpazure" --Name:"phptestsdk2" --Label:"New label" --Description:"Some description"
+	 * @command-example Update -p="phpazure" --Name="phptestsdk2" --Label="New label" --Description="Some description"
 	 */
 	public function updateCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $label, $description, $waitForOperation = false)
 	{
@@ -193,7 +193,7 @@ class Microsoft_WindowsAzure_CommandLine_Service
 	 * @command-parameter-for $serviceName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Name Required. The hosted service account name.
 	 * @command-parameter-for $waitForOperation Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --WaitFor|-w Optional. Wait for the operation to complete?
 	 * @command-example Delete hosted service
-	 * @command-example Delete -p:"phpazure" --Name:"phptestsdk2"
+	 * @command-example Delete -p="phpazure" --Name="phptestsdk2"
 	 */
 	public function deleteCommand($subscriptionId, $certificate, $certificatePassphrase, $serviceName, $waitForOperation = false)
 	{
