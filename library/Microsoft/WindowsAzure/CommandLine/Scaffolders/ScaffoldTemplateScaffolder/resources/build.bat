@@ -1,1 +1,1 @@
-php /path/to/Scaffolder.php Build -p:"./" -out:"..\$Name$.phar"
+php /path/to/Scaffolder.php Build -in="./" -out="..\$Name$.phar"

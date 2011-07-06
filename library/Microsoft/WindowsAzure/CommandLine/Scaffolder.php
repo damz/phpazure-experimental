@@ -65,7 +65,7 @@ class Microsoft_WindowsAzure_CommandLine_Scaffolder
 	 * @command-name Run
 	 * @command-description Runs a scaffolder and creates a Windows Azure project structure which can be customized before packaging.
 	 * 
-	 * @command-parameter-for $path Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Path|-p Required. The path to create the Windows Azure project structure.
+	 * @command-parameter-for $path Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --OutputPath|-out Required. The path to create the Windows Azure project structure.
 	 * @command-parameter-for $scaffolder Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Scaffolder|-s Optional. The path to the scaffolder to use. Defaults to Scaffolders/DefaultScaffolder.phar 
 	 */
 	public function runCommand($path, $scaffolder, $argv)
@@ -94,13 +94,16 @@ class Microsoft_WindowsAzure_CommandLine_Scaffolder
 		}
 		
 		// Add command parameters
-		array_unshift($argv, '--Path:' . $path);
-		array_unshift($argv, '--Phar:' . $scaffolderFile);
+		array_unshift($argv, '--OutputPath=' . $path);
+		array_unshift($argv, '--Phar=' . $scaffolderFile);
 		array_unshift($argv, 'Run');
 		array_unshift($argv, $scaffolderClass);
 				
 		// Run scaffolder
 		Microsoft_Console_Command::bootstrap($argv);
+		
+		// Echo output path
+		echo "$scaffolderClass finished at location: $path\r\n";
 	}
 	
 	/**
@@ -150,8 +153,8 @@ class Microsoft_WindowsAzure_CommandLine_Scaffolder
 	 * @command-name Build
 	 * @command-description Builds a scaffolder from a given path.
 	 * 
-	 * @command-parameter-for $rootPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Path|-p Required. The path to package into a scaffolder.
-	 * @command-parameter-for $scaffolderFile Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --OutFile|-out Required. The filename of the scaffolder.
+	 * @command-parameter-for $rootPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --InputPath|-in Required. The path to package into a scaffolder.
+	 * @command-parameter-for $scaffolderFile Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --OutputFile|-out Required. The filename of the scaffolder.
 	 */
 	public function buildCommand($rootPath, $scaffolderFile)
 	{
@@ -161,6 +164,8 @@ class Microsoft_WindowsAzure_CommandLine_Scaffolder
 				new SourceControlFilteredRecursiveFilterIterator(
 					new RecursiveDirectoryIterator(realpath($rootPath)))),
 		realpath($rootPath));
+		
+		echo $scaffolderFile;
 	}
 }
 Microsoft_Console_Command::bootstrap($_SERVER['argv']);

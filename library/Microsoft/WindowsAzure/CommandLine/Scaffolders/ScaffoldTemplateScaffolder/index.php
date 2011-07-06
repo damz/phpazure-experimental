@@ -58,7 +58,7 @@ class ScaffoldTemplateScaffolder
 	 * @command-description Runs the scaffolder.
 	 * 
 	 * @command-parameter-for $scaffolderFile Microsoft_Console_Command_ParameterSource_Argv --Phar Required. The scaffolder Phar file path. This is injected automatically.
-	 * @command-parameter-for $rootPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Path|-p Required. The path to create the Windows Azure project structure. This is injected automatically. 
+	 * @command-parameter-for $rootPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --OutputPath|-out Required. The path to create the Windows Azure project structure. This is injected automatically. 
 	 * @command-parameter-for $scaffolderName Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --Name|-n Required. The name of the scaffolder to generate.
 	 */
 	public function runCommand($scaffolderFile, $rootPath, $scaffolderName)

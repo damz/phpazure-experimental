@@ -65,12 +65,18 @@ class Microsoft_WindowsAzure_CommandLine_Package
 	 * @command-name Create
 	 * @command-description Packages a Windows Azure project structure.
 	 * 
-	 * @command-parameter-for $path Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Path|-p Required. The path to package.
+	 * @command-parameter-for $path Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_StdIn --InputPath|-in Required. The path to package.
 	 * @command-parameter-for $runDevFabric Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --RunDevFabric|-dev Required. Switch. Run and deploy to the Windows Azure development fabric.
 	 * @command-parameter-for $outputPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --OutputPath|-out Optional. The output path for the resulting package. 
 	 */
 	public function createPackageCommand($path, $runDevFabric, $outputPath)
 	{
+		// See if the $path variable requires some cleaning due to piping commands
+		if (strpos($path, 'finished at location: ') !== false) {
+			$path = explode('finished at location: ', $path);
+			$path = rtrim($path[1]);
+		}
+		
 		// Create output paths
 		if (is_null($outputPath) || $outputPath == '') {
 			$outputPath = realpath($path . '/../');
@@ -145,6 +151,9 @@ class Microsoft_WindowsAzure_CommandLine_Package
 			passthru($csrun . ' /removeAll');
 			passthru($csrun . ' /run:"' . $packageOut . ';' . $serviceConfigurationFileOut . '" /launchBrowser');
 		}
+		
+		// Echo package
+		echo $packageOut;
 	}
 }
 Microsoft_Console_Command::bootstrap($_SERVER['argv']);

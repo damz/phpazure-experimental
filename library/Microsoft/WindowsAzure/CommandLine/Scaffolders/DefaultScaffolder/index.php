@@ -60,7 +60,7 @@ class DefaultScaffolder
 	 * @command-description Runs the scaffolder.
 	 * 
 	 * @command-parameter-for $scaffolderFile Microsoft_Console_Command_ParameterSource_Argv --Phar Required. The scaffolder Phar file path. This is injected automatically.
-	 * @command-parameter-for $rootPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --Path|-p Required. The path to create the Windows Azure project structure. This is injected automatically. 
+	 * @command-parameter-for $rootPath Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile --OutputPath|-out Required. The path to create the Windows Azure project structure. This is injected automatically. 
 	 * @command-parameter-for $diagnosticsConnectionString Microsoft_Console_Command_ParameterSource_Argv|Microsoft_Console_Command_ParameterSource_ConfigFile|Microsoft_Console_Command_ParameterSource_Env --DiagnosticsConnectionString|-d Optional. The diagnostics connection string. This defaults to development storage.
 	 */
 	public function runCommand($scaffolderFile, $rootPath, $diagnosticsConnectionString = '')
@@ -88,7 +88,7 @@ class DefaultScaffolder
 		
 		// Show "to do" message
 		$contentRoot = realpath($rootPath . '/PhpOnAzure.Web');
-		echo "\r\n";
-		echo "Note: before packaging your application, please copy your application code to $contentRoot";
+		$this->log('');
+		$this->log('Note: before packaging your application, please copy your application code to ' . $contentRoot);
 	}
 }

@@ -44,7 +44,7 @@ require_once dirname(__FILE__) . '/../../../AutoLoader.php';
  * @copyright  Copyright (c) 2009 - 2011, RealDolmen (http://www.realdolmen.com)
  * @license    http://phpazure.codeplex.com/license
  */
-class Microsoft_Console_Command_ParameterSource_ConfigFile
+class Microsoft_Console_Command_ParameterSource_StdIn
 	implements Microsoft_Console_Command_ParameterSource_ParameterSourceInterface
 {
 	/**
@@ -56,49 +56,19 @@ class Microsoft_Console_Command_ParameterSource_ConfigFile
 	 */
 	public function getValueForParameter($parameter, $argv = array())
 	{
-		// Configuration file path
-		$configurationFilePath = null;
-		
-		// Check if a path to a configuration file is specified
-		foreach ($argv as $parameterInput) {
-			$parameterInput = explode('=', $parameterInput, 2);
-			
-			if (strtolower($parameterInput[0]) == '--configfile' || strtolower($parameterInput[0]) == '-f') {
-				if (!isset($parameterInput[1])) {
-					throw new Microsoft_Console_Exception("No path to a configuration file is given. Specify the path using the --ConfigFile or -F switch.");
-				}
-				$configurationFilePath = $parameterInput[1];
-				break;
-			}
-		}
-		
-		// Value given?
-		if (is_null($configurationFilePath)) {
-			return null;
-		}
-		if (!file_exists($configurationFilePath)) {
-			throw new Microsoft_Console_Exception("Invalid configuration file given. Specify the correct path using the --ConfigFile or -F switch.");
-		}
-		
-		// Parse values
-		$iniValues = parse_ini_file($configurationFilePath);
-		
 		// Default value: false
 		$parameterValue = null;
+			
+		// Read from STDIN 
+		$fs = fopen("php://stdin", "r");
+		while (!feof($fs)) { 
+			$parameterValue .= fread($fs, 1024); 
+		} 
+		fclose($fs);
 		
-		// Loop aliases
-		foreach ($parameter->aliases as $alias) {
-			if (array_key_exists($alias, $iniValues)) {
-				$parameterValue = $iniValues[$alias]; break;
-			} else if (array_key_exists(strtolower($alias), $iniValues)) {
-				$parameterValue = $iniValues[strtolower($alias)]; break;
-			} else if (array_key_exists(str_replace('-', '', $alias), $iniValues)) {
-				$parameterValue = $iniValues[str_replace('-', '', $alias)]; break;
-			} else if (array_key_exists(strtolower(str_replace('-', '', $alias)), $iniValues)) {
-				$parameterValue = $iniValues[strtolower(str_replace('-', '', $alias))]; break;
-			}
-		}
-
+		// Remove ending \r\n
+		$parameterValue = rtrim($parameterValue);
+		
 		if (strtolower($parameterValue) == 'true') {
 			$parameterValue = true;
 		} else if (strtolower($parameterValue) == 'false') {
